@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Navbar } from '~/components/navbar'
-import { SidebarNav } from '~/components/sidebar'
+import { SidebarNav } from '~/components/sidebarComponent'
 import { ChatSection } from '~/components/chat-section'
 import { MainContent } from '~/components/main-content'
 import { SidebarTrigger } from '~/components/ui/sidebar'
@@ -12,7 +12,7 @@ import { cn } from '~/lib/utils'
 export default function Page() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
   const [mainPanelSize, setMainPanelSize] = useState(75)
-  const [chatPanelSize, setChatPanelSize] = useState(25)
+  const [chatPanelSize, setChatPanelSize] = useState(35)
 
   useEffect(() => {
     if (isSidebarOpen) {
@@ -25,12 +25,12 @@ export default function Page() {
   }, [isSidebarOpen])
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen w-full flex flex-col bg-background">
       <Navbar />
       <div className="flex flex-1 overflow-hidden h-[calc(100vh-3.5rem)]">
         <aside
           className={cn(
-            "w-1/4 border-r bg-background transition-all duration-300 ease-in-out",
+            "w-1/6 border-r bg-background transition-all duration-300 ease-in-out",
             isSidebarOpen ? "translate-x-0" : "-translate-x-full"
           )}
         >
@@ -49,7 +49,7 @@ export default function Page() {
         >
           <ResizablePanel defaultSize={mainPanelSize} minSize={30}>
             <div className="flex h-full flex-col">
-              <div className="flex items-center border-b p-4">
+              <div className="flex items-center border-b-[2px] p-3">
                 <SidebarTrigger
                   onClick={() => setIsSidebarOpen(!isSidebarOpen)}
                   className="mr-4"

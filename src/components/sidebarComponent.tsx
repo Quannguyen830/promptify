@@ -23,19 +23,19 @@ const navigation = [
 
 export function SidebarNav() {
   return (
-    <Sidebar className="h-[calc(100vh-3.5rem)] overflow-hidden">
-      <SidebarContent className="pt-6">
+    <Sidebar className="h-full overflow-hidden w-full ">
+      <SidebarContent className="">
         <SidebarGroup>
-          <SidebarGroupLabel className="px-3 text-xs font-medium text-muted-foreground">
+          <SidebarGroupLabel className="text-xl font-medium text-muted-foreground border-b-[2px] py-7 mb-2">
             Navigation
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {navigation.map((item) => (
                 <SidebarMenuItem key={item.name}>
-                  <SidebarMenuButton asChild className="gap-3 px-3">
-                    <a href={item.href}>
-                      <item.icon className="h-4 w-4" />
+                  <SidebarMenuButton asChild className="text-lg py-5 gap-3 hover:bg-gray-700 rounded-md transition duration-200">
+                    <a href={item.href} className="flex items-center p-2">
+                      <item.icon className="h-6 w-6" />
                       <span>{item.name}</span>
                     </a>
                   </SidebarMenuButton>

@@ -5,10 +5,10 @@ import { Send } from 'lucide-react'
 export function ChatSection() {
   return (
     <div className="flex flex-col h-full border-l">
-      <div className="border-b p-4">
-        <h2 className="font-semibold">Chat</h2>
+      <div className="border-b-[2px] p-3.5">
+        <h2 className="font-semibold text-xl">Chat</h2>
       </div>
-      <div className="flex-1 overflow-auto h-[calc(100vh-11rem)] p-4 space-y-4">
+      <div className="flex-1 overflow-auto h-full p-4 space-y-4">
         <div className="bg-muted/50 rounded-lg p-3 max-w-[80%]">
           <p className="text-sm">Hello! How can I help you today?</p>
         </div>
