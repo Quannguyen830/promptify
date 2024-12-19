@@ -25,9 +25,9 @@ export function MainContent() {
         {items.map((item, index) => (
           <Card key={index}>
             <CardContent className="p-6">
-              <h3 className="text-lg font-semibold mb-2">{item.title}</h3>
-              <p className="text-sm text-muted-foreground">{item.description}</p>
-              <p className="text-xs text-muted-foreground mt-2">{item.date}</p>
+              <h3 className="text-2xl font-semibold mb-2">{item.title}</h3>
+              <p className="text-md text-muted-foreground">{item.description}</p>
+              <p className="text-sm text-muted-foreground mt-2">{item.date}</p>
             </CardContent>
           </Card>
         ))}
