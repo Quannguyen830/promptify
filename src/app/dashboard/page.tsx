@@ -25,9 +25,9 @@ export default function Page() {
   }, [isSidebarOpen])
 
   return (
-    <div className="min-h-screen w-full flex flex-col bg-background">
+    <div className="h-screen w-full flex flex-col bg-background">
       <Navbar />
-      <div className="flex flex-1 overflow-hidden h-[calc(100vh-3.5rem)]">
+      <div className="flex flex-1 overflow-hidden h-full">
         <aside
           className={cn(
             "w-1/6 border-r bg-background transition-all duration-300 ease-in-out",

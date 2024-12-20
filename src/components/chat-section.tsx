@@ -6,7 +6,7 @@ import { SecondaryChat } from "./chat-section/secondary-chat"
 
 export function ChatSection() {
   return (
-    <div className="flex flex-col h-[calc(100vh-64px)] border-l">
+    <div className="flex flex-col h-full border-l">
       <div className="border-b-[2px] p-3">
         <h2 className="font-semibold text-2xl">Chat</h2>
       </div>
