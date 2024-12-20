@@ -1,8 +1,8 @@
 import { Button } from "~/components/ui/button"
 import { Input } from "~/components/ui/input"
 import { Send } from 'lucide-react'
-import { PrimaryChat } from "./chat-section/primary-chat"
-import { SecondaryChat } from "./chat-section/secondary-chat"
+import { PrimaryChat } from "../chat-section/primary-chat"
+import { SecondaryChat } from "../chat-section/secondary-chat"
 
 export function ChatSection() {
   return (

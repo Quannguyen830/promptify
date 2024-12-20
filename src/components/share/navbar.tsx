@@ -1,5 +1,5 @@
 import { Button } from "~/components/ui/button"
-import { ModeToggle } from "~/components/mode-toggle"
+import { ModeToggle } from "~/components/share/mode-toggle"
 import { GithubIcon } from 'lucide-react'
 import Link from "next/link"
 
