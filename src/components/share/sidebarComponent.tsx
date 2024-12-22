@@ -1,6 +1,6 @@
 'use client'
 
-import { Home, Mail, Archive, Trash2, Settings, Users } from 'lucide-react'
+import { Home, Mail, Archive, Trash2, Settings, Users, MessageCircle } from 'lucide-react'
 import {
   Sidebar,
   SidebarContent,
@@ -13,12 +13,12 @@ import {
 } from '~/components/ui/sidebar'
 
 const navigation = [
-  { name: 'Home', icon: Home, href: '#' },
-  { name: 'Messages', icon: Mail, href: '#' },
-  { name: 'Archive', icon: Archive, href: '#' },
-  { name: 'Trash', icon: Trash2, href: '#' },
-  { name: 'Team', icon: Users, href: '#' },
-  { name: 'Settings', icon: Settings, href: '#' },
+  { name: 'Home', icon: Home, href: 'dashboard' },
+  { name: 'Upload', icon: MessageCircle, href: 'upload' },
+  // { name: 'Archive', icon: Archive, href: '#' },
+  // { name: 'Trash', icon: Trash2, href: '#' },
+  // { name: 'Team', icon: Users, href: '#' },
+  // { name: 'Settings', icon: Settings, href: '#' },
 ]
 
 export function SidebarNav() {
