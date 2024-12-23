@@ -25,11 +25,9 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <TRPCReactProvider>
-            <ThemeProvider>
-              <SidebarProvider>
-                {children}
-              </SidebarProvider>
-            </ThemeProvider>
+            <SidebarProvider>
+              {children}
+            </SidebarProvider>
           </TRPCReactProvider>
         </ThemeProvider>
       </body>
