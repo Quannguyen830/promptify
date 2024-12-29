@@ -1,6 +1,6 @@
 'use client'
 
-import { Home, Mail, Archive, Trash2, Settings, Users, MessageCircle } from 'lucide-react'
+import { Home, Archive, MessageCircle } from 'lucide-react'
 import {
   Sidebar,
   SidebarContent,
@@ -15,7 +15,7 @@ import {
 const navigation = [
   { name: 'Home', icon: Home, href: 'dashboard' },
   { name: 'Upload', icon: MessageCircle, href: 'upload' },
-  // { name: 'Archive', icon: Archive, href: '#' },
+  { name: 'Sign In', icon: Archive, href: 'sign-in' },
   // { name: 'Trash', icon: Trash2, href: '#' },
   // { name: 'Team', icon: Users, href: '#' },
   // { name: 'Settings', icon: Settings, href: '#' },
