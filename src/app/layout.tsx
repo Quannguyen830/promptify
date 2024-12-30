@@ -2,7 +2,7 @@ import "~/styles/globals.css";
 
 import { GeistSans } from "geist/font/sans";
 import { type Metadata } from "next";
-import { ThemeProvider } from "~/components/share/theme-provider";
+import { ThemeProvider } from "~/components/share/themeProvider";
 import { TRPCReactProvider } from "~/trpc/react";
 import { SidebarProvider } from "~/components/ui/sidebar";
 
@@ -18,6 +18,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={GeistSans.variable} suppressHydrationWarning>
       <body>
+        {/* TODO: do we really need the theme switching? */}
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

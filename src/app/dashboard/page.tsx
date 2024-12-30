@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from 'react'
 import { Navbar } from '~/components/share/navbar'
-import { SidebarNav } from '~/components/share/sidebarComponent'
-import { ChatSection } from '~/components/share/chat-section'
-import { MainContent } from '~/components/share/main-content'
+import { Sidebar } from '~/components/share/sidebar'
+import { ChatSection } from '~/components/share/chatPanel'
+import { MainContent } from '~/components/share/mainContent'
 import { SidebarTrigger } from '~/components/ui/sidebar'
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '~/components/ui/resizable'
 import { cn } from '~/lib/utils'
@@ -34,7 +34,7 @@ export default function Page() {
             isSidebarOpen ? "translate-x-0" : "-translate-x-full"
           )}
         >
-          <SidebarNav />
+          <Sidebar />
         </aside>
         <ResizablePanelGroup
           direction="horizontal"
