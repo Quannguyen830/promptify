@@ -26,21 +26,23 @@ export default function Page() {
 
   return (
     <div className="h-screen w-full flex flex-col bg-background">
-      <Navbar />
+      {/* <Navbar /> */}
+
       <div className="flex flex-1 overflow-hidden h-full">
-        <aside
+        {/* <aside
           className={cn(
             "w-1/6 border-r bg-background transition-all duration-300 ease-in-out",
             isSidebarOpen ? "translate-x-0" : "-translate-x-full"
           )}
         >
           <Sidebar />
-        </aside>
+        </aside> */}
+        <Sidebar/>
+
         <ResizablePanelGroup
           direction="horizontal"
           className={cn(
-            "flex-1 transition-all duration-300 ease-in-out",
-            isSidebarOpen ? "ml-0" : "ml-[-16rem]"
+            "flex-1 transition-all duration-300 ease-in-out"
           )}
           onLayout={(sizes) => {
             setMainPanelSize(sizes[0] ?? 0)

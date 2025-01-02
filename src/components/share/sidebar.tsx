@@ -1,6 +1,7 @@
 'use client'
 
-import { Home, Mail, Archive, Trash2, Settings, Users, MessageCircle } from 'lucide-react'
+import { Home, Mail, Archive, Trash2, Settings, Users, MessageCircle, GithubIcon } from 'lucide-react'
+import Link from 'next/link'
 import {
   Sidebar as SidebarCn,
   SidebarContent,
@@ -10,6 +11,7 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
+  SidebarHeader,
 } from '~/components/ui/sidebar'
 
 const navigation = [
@@ -23,11 +25,16 @@ const navigation = [
 
 export function Sidebar() {
   return (
-    <SidebarCn collapsible='icon' className="h-full overflow-hidden w-full ">
-      <SidebarContent className="">
+    <SidebarCn collapsible='icon'>
+      <SidebarHeader className='flex flex-row items-center justify-center'>
+        <GithubIcon/>
+        <span>our</span>
+      </SidebarHeader>
+      
+      <SidebarContent>
         <SidebarGroup>
           <SidebarGroupContent>
-            <SidebarMenu className=''>
+            <SidebarMenu>
               {navigation.map((item) => (
                 <SidebarMenuItem key={item.name} className='p-1'>
                   <SidebarMenuButton asChild>

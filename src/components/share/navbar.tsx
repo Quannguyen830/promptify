@@ -12,17 +12,17 @@ export function Navbar() {
             <span className="font-bold text-3xl">Promptify</span>
           </Link>
           <nav className="flex items-center space-x-6 text-md font-medium">
-            <Link className="transition-colors hover:text-foreground/80" href="/docs">Docs</Link>
+            {/* <Link className="transition-colors hover:text-foreground/80" href="/docs">Docs</Link>
             <Link className="transition-colors hover:text-foreground/80" href="/components">Components</Link>
-            <Link className="transition-colors hover:text-foreground/80" href="/themes">Themes</Link>
+            <Link className="transition-colors hover:text-foreground/80" href="/themes">Themes</Link> */}
           </nav>
         </div>
         <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
           <div className="w-full flex-1 md:w-auto md:flex-none">
-            <Button variant="outline" className="inline-flex items-center text-md">
+            {/* <Button variant="outline" className="inline-flex items-center text-md">
               <GithubIcon className="mr-2 h-4 w-4" />
               GitHub
-            </Button>
+            </Button> */}
           </div>
           <ThemeToggleMenu />
         </div>
