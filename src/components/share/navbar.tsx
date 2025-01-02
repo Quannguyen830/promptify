@@ -1,5 +1,5 @@
 import { Button } from "~/components/ui/button"
-import { ModeToggle } from "~/components/share/modeToggle"
+import { ThemeToggleMenu } from "~/components/share/theme-toggle-menu"
 import { GithubIcon } from 'lucide-react'
 import Link from "next/link"
 
@@ -24,7 +24,7 @@ export function Navbar() {
               GitHub
             </Button>
           </div>
-          <ModeToggle />
+          <ThemeToggleMenu />
         </div>
       </div>
     </header>

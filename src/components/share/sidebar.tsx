@@ -31,7 +31,7 @@ export function Sidebar() {
               {navigation.map((item) => (
                 <SidebarMenuItem key={item.name} className='p-1'>
                   <SidebarMenuButton asChild>
-                    <a href={item.href} className="px-4 hover:bg-gray-300 transition duration-200">
+                    <a href={item.href} className="px-4 hover:bg-primary/10 transition duration-200">
                       <item.icon className="h-6 w-6" />
                       <span>{item.name}</span>
                     </a>
