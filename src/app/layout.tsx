@@ -4,7 +4,11 @@ import { GeistSans } from "geist/font/sans";
 import { type Metadata } from "next";
 import { ThemeProvider } from "~/components/share/theme-provider";
 import { TRPCReactProvider } from "~/trpc/react";
-import { SidebarProvider } from "~/components/ui/sidebar";
+import { SidebarProvider, SidebarTrigger } from "~/components/ui/sidebar";
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "~/components/ui/resizable";
+import { cn } from "~/lib/utils";
+import { ChatSection } from "~/components/share/chat-section";
+import { Sidebar } from "~/components/share/sidebar";
 
 export const metadata: Metadata = {
   title: "Promptify",
@@ -18,7 +22,6 @@ export default function RootLayout({
   return (
     <html lang="en" className={GeistSans.variable} suppressHydrationWarning>
       <body>
-        {/* TODO: do we really need the theme switching? */}
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -27,7 +30,30 @@ export default function RootLayout({
         >
           <TRPCReactProvider>
             <SidebarProvider>
-              {children}
+              <div className="h-screen w-full flex flex-col bg-background">
+                <div className="flex flex-1 overflow-hidden h-full">
+                  <Sidebar />
+
+                  <ResizablePanelGroup
+                    direction="horizontal"
+                    className={cn(
+                      "flex-1 transition-all duration-300 ease-in-out"
+                    )}
+                  >
+                    <ResizablePanel className='p-5' defaultSize={75} minSize={30}>
+                      <SidebarTrigger />
+                      {children}
+                    </ResizablePanel>
+
+                    <ResizableHandle withHandle />
+
+                    <ResizablePanel minSize={30}>
+                      <ChatSection />
+                    </ResizablePanel>
+                  </ResizablePanelGroup>
+                </div>
+              </div>
+              
             </SidebarProvider>
           </TRPCReactProvider>
         </ThemeProvider>

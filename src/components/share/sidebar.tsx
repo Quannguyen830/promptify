@@ -25,16 +25,16 @@ const navigation = [
 
 export function Sidebar() {
   return (
-    <SidebarCn collapsible='icon'>
-      <SidebarHeader className='flex flex-row items-center justify-center'>
+  <SidebarCn collapsible='icon'>
+      <SidebarHeader>
+        {/* TODO: logo */}
         <GithubIcon/>
-        <span>our</span>
       </SidebarHeader>
-      
+
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className='gap-0'>
               {navigation.map((item) => (
                 <SidebarMenuItem key={item.name} className='p-1'>
                   <SidebarMenuButton asChild>
