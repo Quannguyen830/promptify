@@ -20,14 +20,14 @@ const items = [
 
 export function MainContent() {
   return (
-    <div className="flex-1 overflow-auto h-[calc(100vh-7.5rem)] p-6">
-      <div className="grid gap-6">
+    <div className="flex-1 overflow-auto h-[calc(100vh-5rem)] p-4">
+      <div className="grid gap-4">
         {items.map((item, index) => (
           <Card key={index}>
-            <CardContent className="p-6">
-              <h3 className="text-2xl font-semibold mb-2">{item.title}</h3>
-              <p className="text-md text-muted-foreground">{item.description}</p>
-              <p className="text-sm text-muted-foreground mt-2">{item.date}</p>
+            <CardContent className="p-4">
+              <h3 className="text-lg font-semibold mb-1">{item.title}</h3>
+              <p className="text-sm text-muted-foreground">{item.description}</p>
+              <p className="text-xs text-muted-foreground mt-2">{item.date}</p>
             </CardContent>
           </Card>
         ))}

@@ -1,10 +1,8 @@
 import "~/styles/globals.css";
-
 import { GeistSans } from "geist/font/sans";
 import { type Metadata } from "next";
 import { ThemeProvider } from "~/components/share/theme-provider";
 import { TRPCReactProvider } from "~/trpc/react";
-import { SidebarProvider } from "~/components/ui/sidebar";
 
 export const metadata: Metadata = {
   title: "Promptify",
@@ -25,9 +23,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <TRPCReactProvider>
-            <SidebarProvider>
-              {children}
-            </SidebarProvider>
+            {children}
           </TRPCReactProvider>
         </ThemeProvider>
       </body>

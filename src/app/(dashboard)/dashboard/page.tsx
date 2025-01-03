@@ -49,12 +49,14 @@ export default function Page() {
         >
           <ResizablePanel defaultSize={mainPanelSize} minSize={30}>
             <div className="flex h-full flex-col">
-              <div className="flex items-center border-b-[2px] p-3">
-                <SidebarTrigger
-                  onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                  className="mr-4"
-                />
-                <h1 className="text-2xl font-semibold">Dashboard</h1>
+              <div className="flex items-center border-b h-10">
+                <div className="flex items-center px-2">
+                  <SidebarTrigger
+                    onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                    className="mr-3"
+                  />
+                  <h1 className="text-lg font-semibold">Dashboard</h1>
+                </div>
               </div>
               <MainContent />
             </div>

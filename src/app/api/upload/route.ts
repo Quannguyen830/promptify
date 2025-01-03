@@ -1,12 +1,5 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3"
-import { string } from 'zod';
-
-interface UploadFileParams {
-  fileBuffer: Buffer;
-  fileName: string;
-  mimetype: string;
-}
 
 const bucketName = process.env.AWS_BUCKET_NAME
 const region = process.env.AWS_BUCKET_REGION
