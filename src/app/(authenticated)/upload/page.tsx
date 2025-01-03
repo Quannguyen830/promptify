@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { Navbar } from '~/components/share/navbar'
-import { SidebarNav } from '~/components/share/sidebarComponent'
+import { Sidebar } from '~/components/share/sidebar'
 import { Button } from '~/components/ui/button'
 import { cn } from '~/lib/utils'
 
@@ -53,7 +53,7 @@ export default function Page() {
             isSidebarOpen ? "translate-x-0" : "-translate-x-full"
           )}
         >
-          <SidebarNav />
+          <Sidebar />
         </aside>
         <main className="flex-1 p-4">
           {/* Upload Button */}

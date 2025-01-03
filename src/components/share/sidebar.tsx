@@ -1,8 +1,9 @@
 'use client'
 
-import { Home, Archive, MessageCircle } from 'lucide-react'
+import { Home, Mail, Archive, Trash2, Settings, Users, MessageCircle, GithubIcon } from 'lucide-react'
+import Link from 'next/link'
 import {
-  Sidebar,
+  Sidebar as SidebarCn,
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
@@ -10,32 +11,35 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
+  SidebarHeader,
 } from '~/components/ui/sidebar'
 
 const navigation = [
   { name: 'Home', icon: Home, href: 'dashboard' },
   { name: 'Upload', icon: MessageCircle, href: 'upload' },
-  { name: 'Sign In', icon: Archive, href: 'sign-in' },
+  // { name: 'Archive', icon: Archive, href: '#' },
   // { name: 'Trash', icon: Trash2, href: '#' },
   // { name: 'Team', icon: Users, href: '#' },
   // { name: 'Settings', icon: Settings, href: '#' },
 ]
 
-export function SidebarNav() {
+export function Sidebar() {
   return (
-    <Sidebar className="h-full overflow-hidden w-full">
+    <SidebarCn collapsible='icon'>
+      <SidebarHeader>
+        {/* TODO: logo */}
+        <GithubIcon />
+      </SidebarHeader>
+
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel className="text-base font-medium text-muted-foreground border-b py-2.5 mb-2 h-10 flex items-center">
-            Navigation
-          </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className='gap-0'>
               {navigation.map((item) => (
-                <SidebarMenuItem key={item.name}>
-                  <SidebarMenuButton asChild className="text-sm py-2.5 gap-2 hover:bg-gray-700 rounded-md transition duration-200">
-                    <a href={item.href} className="flex items-center p-1.5">
-                      <item.icon className="h-4 w-4" />
+                <SidebarMenuItem key={item.name} className='p-1'>
+                  <SidebarMenuButton asChild>
+                    <a href={item.href} className="px-4 hover:bg-primary/10 transition duration-200">
+                      <item.icon className="h-6 w-6" />
                       <span>{item.name}</span>
                     </a>
                   </SidebarMenuButton>
@@ -45,7 +49,7 @@ export function SidebarNav() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-    </Sidebar>
+    </SidebarCn>
   )
 }
 
