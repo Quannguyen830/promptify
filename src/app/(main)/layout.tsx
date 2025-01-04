@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 
-export default function AuthenticatedLayout({
+export default function MainLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
@@ -53,7 +53,6 @@ export default function AuthenticatedLayout({
                   </ResizablePanelGroup>
                 </div>
               </div>
-
             </SidebarProvider>
           </TRPCReactProvider>
         </ThemeProvider>

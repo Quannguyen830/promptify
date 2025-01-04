@@ -7,13 +7,15 @@ import { SecondaryChat } from "../chat-section/secondary-chat"
 export function ChatSection() {
   return (
     <div className="flex flex-col h-full">
-      <div className="border-b h-10 flex items-center px-2">
+      <div className="h-10 flex items-center px-2">
         <h2 className="font-semibold text-lg">Chat</h2>
       </div>
+      
       <div className="flex-1 overflow-auto p-3 space-y-3">
         <PrimaryChat />
         <SecondaryChat />
       </div>
+
       <div className="p-3">
         <form className="flex gap-2 items-center">
           <Input
