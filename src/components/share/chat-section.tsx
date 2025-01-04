@@ -10,18 +10,21 @@ export function ChatSection() {
       <div className="border-b-[2px] p-3">
         <h2 className="font-semibold text-2xl">Chat</h2>
       </div>
-      <div className="flex-1 overflow-auto p-4 space-y-4">
+      
+      <div className="flex-1 overflow-auto p-3 space-y-3">
         <PrimaryChat />
         <SecondaryChat />
       </div>
-      <div className="p-4">
+
+      <div className="p-3">
         <form className="flex gap-2 items-center">
           <Input
             placeholder="Type your message..."
-            className="flex-1 text-lg placeholder:text-lg py-5 border-[3px]"
+            className="flex-1 text-sm placeholder:text-sm py-2 border"
           />
-          <Button size="icon" className="">
-            <Send className="h-6 w-6" />
+
+          <Button size="icon" className="h-8 w-8">
+            <Send className="h-4 w-4" />
             <span className="sr-only">Send message</span>
           </Button>
         </form>
