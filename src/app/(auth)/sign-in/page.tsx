@@ -61,6 +61,16 @@ export default function Page() {
           </div>
 
           <div className="text-center text-sm text-muted-foreground">
+            Don&apos;t have an account?{' '}
+            <Link
+              href="/sign-up"
+              className="font-medium underline underline-offset-4 hover:text-primary"
+            >
+              Sign up
+            </Link>
+          </div>
+
+          <div className="text-center text-sm text-muted-foreground">
             By clicking continue, you agree to our{' '}
             <Link
               href="/terms"
