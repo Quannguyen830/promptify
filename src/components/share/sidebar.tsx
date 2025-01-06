@@ -25,10 +25,10 @@ const navigation = [
 
 export function Sidebar() {
   return (
-    <SidebarCn collapsible='icon'>
-      <SidebarHeader>
+    <SidebarCn defaultValue={25}>
+      <SidebarHeader className='p-5'>
         {/* TODO: logo */}
-        <GithubIcon />
+        <h1 className='h-7 text-2xl font-bold text-justify'>promptify</h1>
       </SidebarHeader>
 
       <SidebarContent>
