@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 };
 
 export default function MainLayout({
-  children,
+  children, 
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={GeistSans.variable} suppressHydrationWarning>
