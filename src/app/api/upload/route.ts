@@ -23,7 +23,11 @@ export async function POST(request: NextRequest) {
     const formData = await request.formData();
     const file = formData.get("file") as File;
     const fileBuffer = await file.arrayBuffer();
-    const fileName = formData.get("caption") as string;
+    const originalFileName = formData.get("caption") as string;
+    
+    // Retrieve user ID from form data
+    const userId = formData.get("userId") as string;
+    const fileName = userId ? `${userId}/${originalFileName}` : originalFileName;
     const mimetype = file.type;
 
     const response = await uploadFile(Buffer.from(fileBuffer), fileName, mimetype);

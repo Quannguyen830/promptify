@@ -9,6 +9,7 @@ import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "~/componen
 import { cn } from "~/lib/utils";
 import { ChatSection } from "~/components/share/chat-section";
 import { Sidebar } from "~/components/share/sidebar";
+import { SessionProvider } from "next-auth/react";
 
 export const metadata: Metadata = {
   title: "Promptify",
@@ -16,8 +17,8 @@ export const metadata: Metadata = {
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 
-export default function MainLayout({
-  children, 
+export default function AuthenticatedLayout({
+  children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={GeistSans.variable} suppressHydrationWarning>
@@ -29,31 +30,33 @@ export default function MainLayout({
           disableTransitionOnChange
         >
           <TRPCReactProvider>
-            <SidebarProvider>
-              <div className="h-screen w-full flex flex-col bg-background">
-                <div className="flex flex-1 overflow-hidden h-full">
-                  <Sidebar />
+            <SessionProvider>
+              <SidebarProvider>
+                <div className="h-screen w-full flex flex-col bg-background">
+                  <div className="flex flex-1 overflow-hidden h-full">
+                    <Sidebar />
 
-                  <ResizablePanelGroup
-                    direction="horizontal"
-                    className={cn(
-                      "flex-1 transition-all duration-300 ease-in-out"
-                    )}
-                  >
-                    <ResizablePanel className='p-5' defaultSize={75} minSize={30}>
-                      <SidebarTrigger />
-                      {children}
-                    </ResizablePanel>
+                    <ResizablePanelGroup
+                      direction="horizontal"
+                      className={cn(
+                        "flex-1 transition-all duration-300 ease-in-out"
+                      )}
+                    >
+                      <ResizablePanel className='p-5' defaultSize={75} minSize={30}>
+                        <SidebarTrigger />
+                        {children}
+                      </ResizablePanel>
 
-                    <ResizableHandle withHandle />
+                      <ResizableHandle withHandle />
 
-                    <ResizablePanel minSize={30}>
-                      <ChatSection />
-                    </ResizablePanel>
-                  </ResizablePanelGroup>
+                      <ResizablePanel minSize={30}>
+                        <ChatSection />
+                      </ResizablePanel>
+                    </ResizablePanelGroup>
+                  </div>
                 </div>
-              </div>
-            </SidebarProvider>
+              </SidebarProvider>
+            </SessionProvider>
           </TRPCReactProvider>
         </ThemeProvider>
       </body>

@@ -1,10 +1,7 @@
 'use client'
 
-import React, { useState } from 'react'
-import { Navbar } from '~/components/share/navbar'
-import { Sidebar } from '~/components/share/sidebar'
+import { useSession } from 'next-auth/react';
 import { Button } from '~/components/ui/button'
-import { cn } from '~/lib/utils'
 
 interface UploadResponse {
   message: string;
@@ -12,9 +9,9 @@ interface UploadResponse {
   error?: string;
 }
 
-
 export default function Page() {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true)
+  const { data: session } = useSession();
+  // console.log(session?.user.id)
 
   const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -24,26 +21,38 @@ export default function Page() {
     formData.append("file", file);
     formData.append("caption", file.name);
 
+    if (session?.user.id) {
+      formData.append("userId", session.user.id);
+    }
+
     const response = await fetch('/api/upload', {
       method: 'POST',
       body: formData,
     });
 
     const result = await response.json() as UploadResponse;
+    console.log(result);
   }
 
   return (
-    <div className="flex justify-center items-center h-full">
-      <input type="file" onChange={handleUpload} className="hidden" id="fileInput" />
-      <label htmlFor="fileInput">
-        <Button
-          variant={"secondary"}
-          className='p-5 text-xl'
-          onClick={() => document.getElementById('fileInput')?.click()}
-        >
-          Upload Files
-        </Button>
-      </label>
+    <div className="h-screen w-full flex flex-col bg-background">
+      <div className="flex flex-1 overflow-hidden h-full">
+        <main className="flex-1 p-4">
+          {/* Upload Button */}
+          <div className="flex justify-center items-center h-full">
+            <input type="file" onChange={handleUpload} className="hidden" id="fileInput" />
+            <label htmlFor="fileInput">
+              <Button
+                variant={"secondary"}
+                className='p-5 text-xl'
+                onClick={() => document.getElementById('fileInput')?.click()}
+              >
+                Upload Files
+              </Button>
+            </label>
+          </div>
+        </main>
+      </div>
     </div>
   )
 }

@@ -1,7 +1,10 @@
+'use client'
+
 import Link from 'next/link'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Github, Facebook, Mail, ArrowLeft } from 'lucide-react'
+import { signIn } from "next-auth/react";
 
 export default function Page() {
   return (
@@ -49,7 +52,7 @@ export default function Page() {
                 <Github className="mr-2 h-5 w-5" />
                 GitHub
               </Button>
-              <Button variant="outline" className="h-12" size="lg">
+              <Button variant="outline" className="h-12" size="lg" onClick={() => signIn('google', { callbackUrl: '/dashboard' })}>
                 <Mail className="mr-2 h-5 w-5" />
                 Google
               </Button>
