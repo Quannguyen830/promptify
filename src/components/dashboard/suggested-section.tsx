@@ -10,10 +10,10 @@ interface SuggestedSectionProps {
 
 export function SuggestedSection({ title, type }: SuggestedSectionProps) {
   const folders = [
-    { title: "IOS", subtitle: "On My Drive" },
-    { title: "Comp Architecture", subtitle: "On My Drive" },
-    { title: "PHOTOS!!!", subtitle: "Shared with me" },
-    { title: "Oceanstar", subtitle: "Shared with me" },
+    { id: "ios", title: "IOS", subtitle: "On My Drive" },
+    { id: "comp-arch", title: "Comp Architecture", subtitle: "On My Drive" },
+    { id: "photos", title: "PHOTOS!!!", subtitle: "Shared with me" },
+    { id: "oceanstar", title: "Oceanstar", subtitle: "Shared with me" },
   ]
 
   const files = [
@@ -35,7 +35,8 @@ export function SuggestedSection({ title, type }: SuggestedSectionProps) {
         {type === "folders"
           ? folders.map((folder) => (
             <FolderCard
-              key={folder.title}
+              key={folder.id}
+              id={folder.id}
               title={folder.title}
               subtitle={folder.subtitle}
               icon={<Folder className="h-5 w-5" />}
