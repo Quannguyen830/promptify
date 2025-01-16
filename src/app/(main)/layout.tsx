@@ -4,7 +4,7 @@ import { GeistSans } from "geist/font/sans";
 import { type Metadata } from "next";
 import { ThemeProvider } from "~/components/share/theme-provider";
 import { TRPCReactProvider } from "~/trpc/react";
-import { SidebarProvider, SidebarTrigger } from "~/components/ui/sidebar";
+import { SidebarProvider } from "~/components/ui/sidebar";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "~/components/ui/resizable";
 import { cn } from "~/lib/utils";
 import { ChatSection } from "~/components/share/chat-section";
@@ -43,7 +43,6 @@ export default function AuthenticatedLayout({
                       )}
                     >
                       <ResizablePanel className='p-5' defaultSize={75} minSize={30}>
-                        <SidebarTrigger />
                         {children}
                       </ResizablePanel>
 

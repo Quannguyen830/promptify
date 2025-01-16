@@ -1,22 +1,8 @@
 import { type NextRequest, NextResponse } from 'next/server';
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3"
+import { PutObjectCommand } from "@aws-sdk/client-s3"
+import { s3Client } from '~/config/S3-client';
 
 const bucketName = process.env.AWS_BUCKET_NAME
-const region = process.env.AWS_BUCKET_REGION
-const accessKeyId = process.env.AWS_ACCESS_KEY_ID
-const secretAccessKey = process.env.AWS_SECRET
-
-if (!bucketName || !region || !accessKeyId || !secretAccessKey) {
-  throw new Error('Missing AWS credentials');
-}
-
-const s3Client = new S3Client({
-  region,
-  credentials: {
-    accessKeyId,
-    secretAccessKey
-  }
-})
 
 export async function POST(request: NextRequest) {
   try {
