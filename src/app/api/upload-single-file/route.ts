@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
     const formData = await request.formData();
     const file = formData.get("file") as File;
     const fileBuffer = await file.arrayBuffer();
-    const originalFileName = formData.get("caption") as string;
+    const originalFileName = formData.get("fileName") as string;
     
     // Retrieve user ID from form data
     const userId = formData.get("userId") as string;

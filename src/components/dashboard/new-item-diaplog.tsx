@@ -14,7 +14,7 @@ import {
   CommandList,
 } from "~/components/ui/command"
 import { DialogTitle } from "@radix-ui/react-dialog"
-import { uploadFile } from "~/services/uploadService"
+import { uploadFileService, uploadFolderService } from "~/services/uploadService"
 import { useSession } from "next-auth/react"
 import { useCallback, useRef } from 'react';
 import { NewFolderDialog } from './new-folder-dialog'
@@ -38,10 +38,21 @@ export function NewItemDialog({ children }: NewItemDialogProps) {
   const handleFileUpload = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
     try {
       if (session !== null) {
-        await uploadFile(session, event);
+        await uploadFileService(session, event);
       }
     } catch (error) {
       console.error("File upload failed:", error);
+    }
+  }, [session]);
+
+  const handleFolderUpload = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      if (session !== null) {
+        const folderName = "YourFolderName";
+        await uploadFolderService(session, event, folderName);
+      }
+    } catch (error) {
+      console.error("Folder upload failed:", error);
     }
   }, [session]);
 
@@ -85,8 +96,19 @@ export function NewItemDialog({ children }: NewItemDialogProps) {
 
                 {/* Upload folder */}
                 <CommandItem className="flex items-center gap-2 p-3">
-                  <Upload className="h-4 w-4" />
-                  <span className="flex-1">Upload folder</span>
+                  <input
+                    type="file"
+                    onChange={handleFolderUpload}
+                    className="hidden"
+                    {...{ webkitdirectory: true }}
+                  />
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    className="flex items-center gap-2 w-full text-left"
+                  >
+                    <Upload className="h-4 w-4" />
+                    <span className="flex-1">Upload folder</span>
+                  </button>
                 </CommandItem>
               </CommandGroup>
             </CommandList>

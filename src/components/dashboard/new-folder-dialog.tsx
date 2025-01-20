@@ -10,7 +10,7 @@ import {
 } from "~/components/ui/dialog"
 import { Input } from "~/components/ui/input"
 import { Button } from "~/components/ui/button"
-import { createNewFolder } from "~/services/uploadService"
+import { createNewFolderService } from "~/services/uploadService"
 import { useSession } from "next-auth/react"
 
 interface NewFolderDialogProps {
@@ -37,7 +37,7 @@ export function NewFolderDialog({ open, onOpenChange, onClose }: NewFolderDialog
     if (folderName.trim()) {
       try {
         if (session != null) {
-          await createNewFolder(session, folderName)
+          await createNewFolderService(session, folderName)
         }
       } catch (error) {
         console.log("File upload failed:", error)
