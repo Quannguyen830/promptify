@@ -7,7 +7,7 @@ import { TRPCReactProvider } from "~/trpc/react";
 import { SidebarProvider } from "~/components/ui/sidebar";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "~/components/ui/resizable";
 import { cn } from "~/lib/utils";
-import { ChatSection } from "~/components/share/chat-section";
+import { ChatSection } from "~/components/chat-section/chat-section";
 import { Sidebar } from "~/components/share/sidebar";
 import { SessionProvider } from "next-auth/react";
 
