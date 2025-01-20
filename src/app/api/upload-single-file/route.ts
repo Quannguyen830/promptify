@@ -1,29 +1,19 @@
 import { type NextRequest, NextResponse } from 'next/server';
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3"
+import { PutObjectCommand } from "@aws-sdk/client-s3"
+import { s3Client } from '~/config/S3-client';
 
 const bucketName = process.env.AWS_BUCKET_NAME
-const region = process.env.AWS_BUCKET_REGION
-const accessKeyId = process.env.AWS_ACCESS_KEY_ID
-const secretAccessKey = process.env.AWS_SECRET
-
-if (!bucketName || !region || !accessKeyId || !secretAccessKey) {
-  throw new Error('Missing AWS credentials');
-}
-
-const s3Client = new S3Client({
-  region,
-  credentials: {
-    accessKeyId,
-    secretAccessKey
-  }
-})
 
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
     const file = formData.get("file") as File;
     const fileBuffer = await file.arrayBuffer();
-    const fileName = formData.get("caption") as string;
+    const originalFileName = formData.get("caption") as string;
+    
+    // Retrieve user ID from form data
+    const userId = formData.get("userId") as string;
+    const fileName = userId ? `${userId}/${originalFileName}` : originalFileName;
     const mimetype = file.type;
 
     const response = await uploadFile(Buffer.from(fileBuffer), fileName, mimetype);

@@ -1,0 +1,6 @@
+{
+  "git": {
+    "ignoreBranches": ["*"],
+    "deployOnPush": "main"
+  }
+}
