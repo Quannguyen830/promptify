@@ -1,6 +1,7 @@
 import { type Session } from "next-auth";
 import { type UploadResponse } from "~/interface";
 
+// TODO: migrate to frontend
 export const uploadFile = async (session: Session, event: React.ChangeEvent<HTMLInputElement>) => {
   const file = event.target.files?.[0];
   if (!file) return;

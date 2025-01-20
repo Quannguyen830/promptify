@@ -23,7 +23,6 @@ export function ChatSection() {
     userMessages,
     addUserMessage,
     agentMessages,
-    addAgentMessage  
   } = useChatStore()
 
 
@@ -55,7 +54,7 @@ export function ChatSection() {
 
       <form onSubmit={handleSubmit(onSubmit)} className="flex gap-2 ">
         <Input {...register("userMessage")} type="text" className="ring-1 ring-black w-full"/>
-        
+
         <Button type="submit" size="icon" className="h-8 w-8">
           <Send className="h-4 w-4" />
         </Button>
