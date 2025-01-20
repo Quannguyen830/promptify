@@ -1,15 +1,30 @@
 "use client"
 
 import { Button } from "~/components/ui/button"
+import { Input } from "../ui/input"
 import { Send } from 'lucide-react'
-import { ChatBubble, ChatBubbleAvatar, ChatBubbleMessage } from "../ui/chat/chat-bubble"
-import { ChatInput } from "../ui/chat/chat-input"
+
 import ChatMessageList from "./chat-message-list"
-import { useState } from "react"
+
+import { type SubmitHandler, useForm } from "react-hook-form"
+import { useChatStore } from "./chat-store"
+import { ChatBubble, ChatBubbleAvatar, ChatBubbleMessage } from "../ui/chat/chat-bubble"
+
+export interface ChatSectionFormProps {
+  userMessage: string
+}
 
 export function ChatSection() {
-  // TODO: create separate context management
+  const {
+    register,
+    handleSubmit
+  } = useForm<ChatSectionFormProps>()
+  const { userMessages, addUserMessage } = useChatStore()
 
+
+  const onSubmit: SubmitHandler<ChatSectionFormProps> = (data) => { 
+    addUserMessage(data.userMessage)
+  }
 
   return (
     <div className="flex flex-col h-full p-5">
@@ -18,7 +33,15 @@ export function ChatSection() {
       
       {/* TODO: group this to a component */}
       <ChatMessageList className="overflow-y-auto h-full">
-        <ChatBubble>
+        {userMessages.map((message, index) => (
+          <ChatBubble key={index}>
+            <ChatBubbleAvatar />
+            <ChatBubbleMessage>{message}</ChatBubbleMessage>
+          </ChatBubble>
+        ))}
+
+
+        {/* <ChatBubble>
           <ChatBubbleAvatar />
           <ChatBubbleMessage>Chat</ChatBubbleMessage>
         </ChatBubble>
@@ -31,16 +54,15 @@ export function ChatSection() {
         <ChatBubble>
           <ChatBubbleAvatar/>
           <ChatBubbleMessage isLoading={true}>Loading</ChatBubbleMessage>
-        </ChatBubble>
+        </ChatBubble> */}
       </ChatMessageList>
 
-      <form className="flex gap-2 ">
+      <form onSubmit={handleSubmit(onSubmit)} className="flex gap-2 ">
         {/* <ChatInput/> */}
 
-        <input type="text" className="ring-1 w-full"/>
-        <Button size="icon" className="h-8 w-8">
+        <Input {...register("userMessage")} type="text" className="ring-1 ring-black w-full"/>
+        <Button type="submit" size="icon" className="h-8 w-8">
           <Send className="h-4 w-4" />
-          <span className="sr-only">Send message</span>
         </Button>
       </form>
     </div>
