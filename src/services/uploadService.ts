@@ -13,7 +13,7 @@ export const uploadFile = async (session: Session, event: React.ChangeEvent<HTML
     formData.append("userId", session.user.id);
   }
 
-  const response = await fetch('/api/upload', {
+  const response = await fetch('/api/upload-single-file', {
     method: 'POST',
     body: formData,
   });
@@ -22,7 +22,23 @@ export const uploadFile = async (session: Session, event: React.ChangeEvent<HTML
   console.log(result);
 }
 
-export const getFiles = () => {
+export const createNewFolder = async (session: Session, folderName: string) => {
+  const formData = new FormData();
+  formData.append("folderName", folderName);
   
+  if(session?.user.id) {
+    formData.append("userId", session.user.id)
+  }
+
+  const response = await fetch('/api/create-new-folder', {
+    method: 'POST',
+    body: formData,
+  })
+
+  const result = await response.json() as UploadResponse;
+  console.log(result)
+}
+
+export const getFiles = () => {
   console.log("Hello")
 }
