@@ -9,6 +9,7 @@ import ChatMessageList from "./chat-message-list"
 import { type SubmitHandler, useForm } from "react-hook-form"
 import { useChatStore } from "./chat-store"
 import { ChatBubble, ChatBubbleAvatar, ChatBubbleMessage } from "../ui/chat/chat-bubble"
+import { getResponse } from "~/server/services/gemini-service"
 
 export interface ChatSectionFormProps {
   userMessage: string
@@ -23,11 +24,17 @@ export function ChatSection() {
     userMessages,
     addUserMessage,
     agentMessages,
+    addAgentMessage
   } = useChatStore()
 
 
-  const onSubmit: SubmitHandler<ChatSectionFormProps> = (data) => { 
-    addUserMessage(data.userMessage)
+  const onSubmit: SubmitHandler<ChatSectionFormProps> = async (data) => { 
+    addUserMessage(data.userMessage);
+
+    // send msg to model
+    const response = await getResponse(data.userMessage);
+
+    addAgentMessage(response);
   }
 
   return (

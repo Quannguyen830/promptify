@@ -9,7 +9,7 @@ import { NewItemDialog } from "~/components/dashboard/new-item-diaplog"
 export default function Page() {
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
+      {/* <Navbar /> */}
       <main className="container mx-auto p-6 space-y-6">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-semibold">Welcome to Promptify Dashboard</h1>
