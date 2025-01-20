@@ -10,6 +10,7 @@ import { cn } from "~/lib/utils";
 import { ChatSection } from "~/components/chat-section/chat-section";
 import { Sidebar } from "~/components/share/sidebar";
 import { SessionProvider } from "next-auth/react";
+import { Navbar } from "~/components/dashboard/navbar";
 
 export const metadata: Metadata = {
   title: "Promptify",
@@ -42,8 +43,11 @@ export default function AuthenticatedLayout({
                         "flex-1 transition-all duration-300 ease-in-out"
                       )}
                     >
-                      <ResizablePanel className='p-5' defaultSize={75} minSize={30}>
-                        {children}
+                      <ResizablePanel defaultSize={75} minSize={30}>
+                        <Navbar />
+                        <div className='p-5'>
+                          {children}
+                        </div>
                       </ResizablePanel>
 
                       <ResizableHandle withHandle />

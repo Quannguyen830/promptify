@@ -11,6 +11,8 @@ import {
   SidebarMenuButton,
   SidebarHeader,
 } from '~/components/ui/sidebar'
+import { PromptifyLogo } from './promptify-logo'
+import Link from 'next/link'
 
 const navigation = [
   { name: 'Home', icon: Home, href: 'dashboard' },
@@ -23,9 +25,8 @@ const navigation = [
 export function Sidebar() {
   return (
     <SidebarCn defaultValue={25}>
-      <SidebarHeader className='p-5'>
-        {/* TODO: logo */}
-        <h1 className='h-7 text-2xl font-bold text-justify'>promptify</h1>
+      <SidebarHeader className='p-5 h-16'>
+        <PromptifyLogo />
       </SidebarHeader>
 
       <SidebarContent>
@@ -33,12 +34,12 @@ export function Sidebar() {
           <SidebarGroupContent>
             <SidebarMenu className='gap-0'>
               {navigation.map((item) => (
-                <SidebarMenuItem key={item.name} className='p-1'>
-                  <SidebarMenuButton asChild>
-                    <a href={item.href} className="px-4 hover:bg-primary/10 transition duration-200">
+                <SidebarMenuItem key={item.name} className='p-1 pt-0'>
+                  <SidebarMenuButton className='h-10' asChild>
+                    <Link href={item.href} className="px-4 py-0 hover:bg-primary/10 transition duration-200">
                       <item.icon className="h-6 w-6" />
-                      <span>{item.name}</span>
-                    </a>
+                      <span className="font-semibold">{item.name}</span>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
