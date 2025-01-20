@@ -24,6 +24,7 @@
     "@anthropic-ai/sdk": "^0.33.1",
     "@auth/prisma-adapter": "^2.7.2",
     "@aws-sdk/client-s3": "^3.717.0",
+    "@google/generative-ai": "^0.21.0",
     "@prisma/client": "^5.14.0",
     "@radix-ui/react-avatar": "^1.1.2",
     "@radix-ui/react-dialog": "^1.1.4",

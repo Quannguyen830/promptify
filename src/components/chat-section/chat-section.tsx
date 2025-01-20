@@ -19,7 +19,12 @@ export function ChatSection() {
     register,
     handleSubmit
   } = useForm<ChatSectionFormProps>()
-  const { userMessages, addUserMessage } = useChatStore()
+  const { 
+    userMessages,
+    addUserMessage,
+    agentMessages,
+    addAgentMessage  
+  } = useChatStore()
 
 
   const onSubmit: SubmitHandler<ChatSectionFormProps> = (data) => { 
@@ -40,27 +45,17 @@ export function ChatSection() {
           </ChatBubble>
         ))}
 
-
-        {/* <ChatBubble>
-          <ChatBubbleAvatar />
-          <ChatBubbleMessage>Chat</ChatBubbleMessage>
-        </ChatBubble>
-
-        <ChatBubble variant='sent'>
-          <ChatBubbleAvatar />
-          <ChatBubbleMessage>User Lorem ipsum dolor sit amet consectetur adipisicing elit. Et sit, non dolore earum numquam accusantium pariatur hic quia temporibus sequi eligendi, iste dolorum nam ut incidunt. Exercitationem vitae placeat ipsum.</ChatBubbleMessage>
-        </ChatBubble>
-
-        <ChatBubble>
-          <ChatBubbleAvatar/>
-          <ChatBubbleMessage isLoading={true}>Loading</ChatBubbleMessage>
-        </ChatBubble> */}
+        {agentMessages.map((message, index) => (
+          <ChatBubble key={index} variant='sent'>
+            <ChatBubbleAvatar />
+            <ChatBubbleMessage>{message}</ChatBubbleMessage>
+          </ChatBubble>
+        ))}
       </ChatMessageList>
 
       <form onSubmit={handleSubmit(onSubmit)} className="flex gap-2 ">
-        {/* <ChatInput/> */}
-
         <Input {...register("userMessage")} type="text" className="ring-1 ring-black w-full"/>
+        
         <Button type="submit" size="icon" className="h-8 w-8">
           <Send className="h-4 w-4" />
         </Button>

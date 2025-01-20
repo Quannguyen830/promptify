@@ -10,7 +10,7 @@ import {
 } from "~/components/ui/dialog"
 import { Input } from "~/components/ui/input"
 import { Button } from "~/components/ui/button"
-import { createNewFolder } from "~/services/uploadService"
+import { createNewFolder } from "~/services/file-service"
 import { useSession } from "next-auth/react"
 
 interface NewFolderDialogProps {

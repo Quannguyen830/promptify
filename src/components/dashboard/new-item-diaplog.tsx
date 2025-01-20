@@ -14,7 +14,7 @@ import {
   CommandList,
 } from "~/components/ui/command"
 import { DialogTitle } from "@radix-ui/react-dialog"
-import { uploadFile } from "~/services/uploadService"
+import { uploadFile } from "~/services/file-service"
 import { useSession } from "next-auth/react"
 import { useCallback, useRef } from 'react';
 import { NewFolderDialog } from './new-folder-dialog'
