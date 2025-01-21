@@ -1,4 +1,5 @@
 import { type Session } from "next-auth";
+import { type ApiResponse } from "~/interface";
 
 export const uploadFileService = async (session: Session, event: React.ChangeEvent<HTMLInputElement>) => {
   const file = event.target.files?.[0];
@@ -60,16 +61,14 @@ export const uploadFolderService = async (session: Session, event: React.ChangeE
 }
 
 export const getFiles = async (session: Session) => {
-  const formData = new FormData();
+  const userId = session?.user.id;
 
-  if(session?.user.id) {
-    formData.append("userId", session.user.id)
-  }
-
-  const response = await fetch('/api/retrieve-files', {
+  const response = await fetch(`/api/get-files?userId=${userId}`, {
     method: 'GET',
-    body: formData,
-  })
+  });
 
-  console.log(response.json())
+  const data = await response.json() as ApiResponse;
+  console.log("Response from front-end: ", data);
+
+  return data.Response;
 }

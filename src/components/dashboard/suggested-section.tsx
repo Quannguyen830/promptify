@@ -2,25 +2,20 @@ import { ChevronDown, Folder } from 'lucide-react'
 import { Button } from "~/components/ui/button"
 import { FolderCard } from "./folder-card"
 import { FileCard } from "./file-card"
+import { type S3File } from '~/interface'
 
 interface SuggestedSectionProps {
   title: string
   type: "folders" | "files"
+  files?: Array<S3File>
 }
 
-export function SuggestedSection({ title, type }: SuggestedSectionProps) {
+export function SuggestedSection({ title, type, files }: SuggestedSectionProps) {
   const folders = [
     { id: "ios", title: "IOS", subtitle: "On My Drive" },
     { id: "comp-arch", title: "Comp Architecture", subtitle: "On My Drive" },
     { id: "photos", title: "PHOTOS!!!", subtitle: "Shared with me" },
     { id: "oceanstar", title: "Oceanstar", subtitle: "Shared with me" },
-  ]
-
-  const files = [
-    { title: "IMG_2878.HEIC", date: "Created Dec 15, 2024", imageUrl: "/favicon.ico" },
-    { title: "DSCF1047.JPG", date: "Created Dec 15, 2024", imageUrl: "/favicon.ico" },
-    { title: "IMG_6064.JPG", date: "Created Dec 15, 2024", imageUrl: "/favicon.ico" },
-    { title: "DSC05518-2.jpg", date: "Created Dec 15, 2024", imageUrl: "/favicon.ico" },
   ]
 
   return (
@@ -42,12 +37,12 @@ export function SuggestedSection({ title, type }: SuggestedSectionProps) {
               icon={<Folder className="h-5 w-5" />}
             />
           ))
-          : files.map((file) => (
+          : files?.map((file) => (
             <FileCard
-              key={file.title}
-              title={file.title}
-              date={file.date}
-              imageUrl={file.imageUrl}
+              key={file.Key}
+              title={file.Key}
+              date={file.LastModified.toString()}
+              imageUrl={"/favicon.ico"}
             />
           ))}
       </div>

@@ -19,3 +19,14 @@ export interface FileCardProps {
   imageUrl: string
 }
 
+export interface S3File {
+  Key: string;
+  LastModified: Date;
+  Size: number;
+  ETag: string;
+}
+
+export interface ApiResponse {
+  Response: [];
+}
+
