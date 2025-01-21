@@ -39,13 +39,11 @@ export function ChatSection() {
 
   return (
     <div className="flex flex-col h-full">
-      {/* Tab header */}
-      <div className="h-16">
-        <h2 className="font-semibold text-2xl">Chat</h2>
+      <div className="h-16 p-4 border-b">
+        <h2 className="font-semibold text-2xl">Assistant</h2>
       </div>
       
-      {/* TODO: group this to a component */}
-      <ChatMessageList className="overflow-y-auto h-full">
+      <ChatMessageList className="overflow-y-auto h-full bg-red-200">
         {userMessages.map((message, index) => (
           <ChatBubble key={index}>
             <ChatBubbleAvatar />
@@ -61,7 +59,7 @@ export function ChatSection() {
         ))}
       </ChatMessageList>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="flex gap-2 ">
+      <form onSubmit={handleSubmit(onSubmit)} className="flex gap-2 bg-red-400 p-4">
         <Input {...register("userMessage")} type="text" className="ring-1 ring-black w-full"/>
 
         <Button type="submit" size="icon" className="h-8 w-8">
