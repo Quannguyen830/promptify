@@ -3,7 +3,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "~/lib/utils";
 import { Avatar, AvatarImage, AvatarFallback } from "~/components/ui/avatar";
 import MessageLoading from "./message-loading";
-import { Button, ButtonProps } from "../button";
+import { Button, type ButtonProps } from "../button";
 
 // ChatBubble
 const chatBubbleVariant = cva(
@@ -42,10 +42,10 @@ const ChatBubble = React.forwardRef<HTMLDivElement, ChatBubbleProps>(
     >
       {React.Children.map(children, (child) =>
         React.isValidElement(child) && typeof child.type !== "string"
-          ? React.cloneElement(child, {
+          ? React.cloneElement(child as React.ReactElement, {
               variant,
               layout,
-            } as React.ComponentProps<typeof child.type>)
+            })
           : child,
       )}
     </div>
