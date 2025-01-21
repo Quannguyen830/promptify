@@ -4,8 +4,20 @@ import { SuggestedSection } from "~/components/dashboard/suggested-section"
 import { Plus } from "lucide-react"
 import { Button } from "~/components/ui/button"
 import { NewItemDialog } from "~/components/dashboard/new-item-diaplog"
+import { useSession } from "next-auth/react"
+import { useEffect } from "react"
+import { getFiles } from "~/app/services/file-service"
 
 export default function Page() {
+  const { data: session } = useSession();
+
+  // if (session) {
+  //   useEffect({
+  //     const response = getFiles(session);
+  //     console.log(response)
+  //   }, [])
+  // }
+
   return (
     <div>
       <div className="flex items-center justify-between">
