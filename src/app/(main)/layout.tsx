@@ -45,12 +45,13 @@ export default function AuthenticatedLayout({
                     >
                       <ResizablePanel defaultSize={75} minSize={30}>
                         <Navbar />
-                        <div className='p-5'>
+
+                        <main className='p-5 h-full'>
                           {children}
-                        </div>
+                        </main>
                       </ResizablePanel>
 
-                      <ResizableHandle withHandle />
+                      <ResizableHandle />
 
                       <ResizablePanel minSize={30}>
                         <ChatSection />
