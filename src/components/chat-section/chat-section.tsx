@@ -38,9 +38,11 @@ export function ChatSection() {
   }
 
   return (
-    <div className="flex flex-col h-full p-5">
+    <div className="flex flex-col h-full">
       {/* Tab header */}
-      <h2 className="h-7 font-semibold text-2xl mb-5">Chat</h2>
+      <div className="h-16">
+        <h2 className="font-semibold text-2xl">Chat</h2>
+      </div>
       
       {/* TODO: group this to a component */}
       <ChatMessageList className="overflow-y-auto h-full">
