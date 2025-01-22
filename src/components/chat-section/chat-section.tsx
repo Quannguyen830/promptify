@@ -1,41 +1,17 @@
 "use client"
 
-import { Button } from "~/components/ui/button"
-import { Input } from "../ui/input"
-import { Send } from 'lucide-react'
-
 import ChatMessageList from "./chat-message-list"
+import ChatInput from "./chat-input"
 
-import { type SubmitHandler, useForm } from "react-hook-form"
 import { useChatStore } from "./chat-store"
 import { ChatBubble, ChatBubbleAvatar, ChatBubbleMessage } from "../ui/chat/chat-bubble"
-import { getResponse } from "~/server/services/gemini-service"
-
-export interface ChatSectionFormProps {
-  userMessage: string
-}
 
 export function ChatSection() {
-  const {
-    register,
-    handleSubmit
-  } = useForm<ChatSectionFormProps>()
   const { 
     userMessages,
-    addUserMessage,
     agentMessages,
-    addAgentMessage
   } = useChatStore()
 
-
-  const onSubmit: SubmitHandler<ChatSectionFormProps> = async (data) => { 
-    addUserMessage(data.userMessage);
-
-    // send msg to model
-    const response = await getResponse(data.userMessage);
-
-    addAgentMessage(response);
-  }
 
   return (
     <div className="flex flex-col h-full">
@@ -59,13 +35,7 @@ export function ChatSection() {
         ))}
       </ChatMessageList>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="flex gap-2 bg-red-400 p-4">
-        <Input {...register("userMessage")} type="text" className="ring-1 ring-black w-full"/>
-
-        <Button type="submit" size="icon" className="h-8 w-8">
-          <Send className="h-4 w-4" />
-        </Button>
-      </form>
+      <ChatInput/>
     </div>
   )
 }
