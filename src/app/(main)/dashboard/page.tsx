@@ -5,26 +5,16 @@ import { Plus } from "lucide-react"
 import { Button } from "~/components/ui/button"
 import { NewItemDialog } from "~/components/dashboard/new-item-diaplog"
 import { useSession } from "next-auth/react"
-import { useEffect, useState } from "react"
-import { getFiles } from "~/app/services/file-service"
+import { api } from "~/trpc/react"
 
 export default function Page() {
   const { data: session } = useSession();
-  const [files, setFiles] = useState([]);
+  const { data: fetchedFiles, isLoading, error } = api.file.getFile.useQuery(
+    { userId: session?.user.id ?? "" }
+  );
 
-  useEffect(() => {
-    const fetchFiles = async () => {
-      if (session) {
-        const fetchedFiles = await getFiles(session);
-        setFiles(fetchedFiles);
-      }
-    };
-
-    fetchFiles()
-      .catch((e: Error) => {
-        console.log(e.message)
-      })
-  }, [session]);
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error.message}</div>;
 
   return (
     <div>
@@ -39,7 +29,7 @@ export default function Page() {
       </div>
 
       <SuggestedSection title="Suggested folders" type="folders" />
-      <SuggestedSection title="Suggested files" type="files" files={files} />
+      <SuggestedSection title="Suggested files" type="files" files={fetchedFiles} />
     </div>
   )
 }
