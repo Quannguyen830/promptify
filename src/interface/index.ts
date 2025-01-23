@@ -30,3 +30,10 @@ export interface ApiResponse {
   Response: [];
 }
 
+export interface FileModel {
+  name: string,
+  size: number,
+  type: string,
+  workspaceId: string,
+  folderId: string,
+}
