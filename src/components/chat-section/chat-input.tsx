@@ -3,7 +3,7 @@ import {
   useForm
  } from "react-hook-form";
 
- import { useChatStore } from "./chat-store";
+ import { MessageType, useChatStore } from "./chat-store";
 import { getResponse } from "~/server/services/gemini-service"
 import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
@@ -17,22 +17,30 @@ interface ChatInputForm {
 const ChatInput = () => {
   const {
     register,
-    handleSubmit
+    handleSubmit,
+    reset
   } = useForm<ChatInputForm>()
   
   const {
-    addUserMessage,
-    addAgentMessage
+    addMessage
   } = useChatStore()
 
   const onSubmit: SubmitHandler<ChatInputForm> = async (data) => { 
-    addUserMessage(data.userMessage);
+    addMessage(data.userMessage, MessageType.USER);
+    reset();
 
     // send msg to model
     const response = await getResponse(data.userMessage);
-
-    addAgentMessage(response);
+    addMessage(response, MessageType.AGENT);
   }
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      void handleSubmit(onSubmit)();
+    }
+  };
+
 
   const addContext = () => {
     console.log("add context");
@@ -40,7 +48,11 @@ const ChatInput = () => {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col p-4 gap-2">
-      <Textarea {...register("userMessage")} className="relative z-0 resize-none overflow-hidden focus-visible:ring-0 w-full" />
+      <Textarea 
+        {...register("userMessage")} 
+        onKeyDown={handleKeyDown}
+        className="relative z-0 resize-none overflow-hidden focus-visible:ring-0 w-full"
+      />
       
       <div className="flex justify-between">
         <div>

@@ -2,13 +2,12 @@
 
 import ChatInput from "./chat-input"
 
-import { useChatStore } from "./chat-store"
+import { MessageType, useChatStore } from "./chat-store"
 import { ChatBubble, ChatBubbleAvatar, ChatBubbleMessage } from "../ui/chat/chat-bubble"
 
 export function ChatSection() {
   const { 
-    userMessages,
-    agentMessages,
+    messages
   } = useChatStore()
 
 
@@ -19,17 +18,10 @@ export function ChatSection() {
       </div>
       
       <div className="overflow-y-auto h-full flex flex-col gap-2 p-4 bg-red-200">
-        {userMessages.map((message, index) => (
-          <ChatBubble key={index}>
+        {messages.map((message, index) => (
+          <ChatBubble key={index} variant={message.type === MessageType.AGENT ? "received" : "sent"}>
             <ChatBubbleAvatar />
-            <ChatBubbleMessage>{message}</ChatBubbleMessage>
-          </ChatBubble>
-        ))}
-
-        {agentMessages.map((message, index) => (
-          <ChatBubble key={index} variant='sent'>
-            <ChatBubbleAvatar />
-            <ChatBubbleMessage>{message}</ChatBubbleMessage>
+            <ChatBubbleMessage>{message.message}</ChatBubbleMessage>
           </ChatBubble>
         ))}
       </div>
