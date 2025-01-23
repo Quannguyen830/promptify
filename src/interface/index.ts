@@ -7,12 +7,6 @@ export interface ButtonProps extends BaseProps {
   onClick: () => void;
 }
 
-export interface UploadResponse {
-  message: string;
-  response?: string; // This is the S3 response
-  error?: string;
-}
-
 export interface FolderCardProps {
   title: string
   subtitle: string
@@ -25,3 +19,21 @@ export interface FileCardProps {
   imageUrl: string
 }
 
+export interface S3File {
+  Key: string;
+  LastModified: Date;
+  Size: number;
+  ETag: string;
+}
+
+export interface ApiResponse {
+  Response: [];
+}
+
+export interface FileModel {
+  name: string,
+  size: number,
+  type: string,
+  workspaceId: string,
+  folderId: string,
+}
