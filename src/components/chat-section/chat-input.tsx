@@ -35,6 +35,7 @@ const ChatInput = () => {
   }
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    // shift + enter for new line
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
       void handleSubmit(onSubmit)();
