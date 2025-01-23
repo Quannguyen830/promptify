@@ -7,7 +7,8 @@ import {
 import { getResponse } from "~/server/services/gemini-service"
 import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
-import { Send } from "lucide-react";
+import { Paperclip, Send } from "lucide-react";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 
 interface ChatInputForm {
   userMessage: string
@@ -33,14 +34,41 @@ const ChatInput = () => {
     addAgentMessage(response);
   }
 
+  const addContext = () => {
+    console.log("add context");
+  }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="p-4 relative">
-      <Textarea {...register("userMessage")} className="relative resize-none overflow-hidden ring-1 ring-black w-full pr-10" />
+    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col p-4 gap-2">
+      <Textarea {...register("userMessage")} className="relative z-0 resize-none overflow-hidden focus-visible:ring-0 w-full" />
       
-      <Button type="submit" size="icon" className="absolute top-5 right-5 z-50 h-8 w-8">
-        <Send className="h-4 w-4" />
-      </Button>
+      <div className="flex justify-between">
+        <div>
+          <Button onClick={addContext} type="button" variant="ghost" size="icon" className="h-8 w-8">
+            <Paperclip className="h-4 w-4" />
+          </Button>
+        </div>
+
+        <div className="flex flex-row gap-1">
+          <Select>
+            <SelectTrigger className="focus-visible:ring-0 focus:ring-0 shadow-none w-auto h-8 gap-2">
+              <SelectValue placeholder="GPT-4" />
+            </SelectTrigger>
+
+            <SelectContent>
+              <SelectGroup>
+                <SelectItem value="gemini">Gemini</SelectItem>
+                <SelectItem value="gpt">GPT-4</SelectItem> 
+                <SelectItem value="claude">Super long claude model name</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+
+          <Button variant="default" type="submit" size="icon" className="h-8 w-8">
+            <Send className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
     </form>
   );
 };

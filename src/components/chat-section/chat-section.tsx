@@ -1,6 +1,5 @@
 "use client"
 
-import ChatMessageList from "./chat-message-list"
 import ChatInput from "./chat-input"
 
 import { useChatStore } from "./chat-store"
@@ -19,7 +18,7 @@ export function ChatSection() {
         <h2 className="font-semibold text-2xl">Assistant</h2>
       </div>
       
-      <ChatMessageList className="overflow-y-auto h-full bg-red-200">
+      <div className="overflow-y-auto h-full flex flex-col gap-2 p-4 bg-red-200">
         {userMessages.map((message, index) => (
           <ChatBubble key={index}>
             <ChatBubbleAvatar />
@@ -33,7 +32,7 @@ export function ChatSection() {
             <ChatBubbleMessage>{message}</ChatBubbleMessage>
           </ChatBubble>
         ))}
-      </ChatMessageList>
+      </div>
 
       <ChatInput/>
     </div>
