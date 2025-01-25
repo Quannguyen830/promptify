@@ -1,4 +1,4 @@
-import { type BaseProps } from "~/interface/index";
+import { type BaseProps } from "~/constants/interfaces";
 
 const MainContentHeader = ({ children }: BaseProps) => {
   return (

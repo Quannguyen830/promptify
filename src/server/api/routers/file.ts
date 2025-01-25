@@ -2,7 +2,7 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import { getFilesFromS3, uploadFileToS3 } from "~/server/services/s3-service";
 import { PrismaClient } from "@prisma/client";
-import { type FileModel } from "~/interface";
+import { type FileModel } from "~/constants/interfaces";
 
 const prisma = new PrismaClient();
 

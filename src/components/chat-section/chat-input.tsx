@@ -10,7 +10,7 @@ import { Button } from "../ui/button";
 import { Paperclip, Send } from "lucide-react";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 
-interface ChatInputForm {
+export interface ChatInputForm {
   userMessage: string
 }
 

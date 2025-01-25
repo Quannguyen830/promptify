@@ -1,5 +1,5 @@
 import { type Session } from "next-auth";
-import { type ApiResponse } from "~/interface";
+import { type ApiResponse } from "~/constants/interfaces";
 
 export const uploadFileService = async (session: Session, event: React.ChangeEvent<HTMLInputElement>) => {
   const file = event.target.files?.[0];

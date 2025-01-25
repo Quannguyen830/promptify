@@ -1,6 +1,6 @@
 "use client"
 
-import { type BaseProps } from "~/interface";
+import { type BaseProps } from "~/constants/interfaces";
 import { MessageType } from "./chat-store";
 import { Avatar, AvatarFallback } from "../ui/avatar";
 import { useSession } from "next-auth/react";
