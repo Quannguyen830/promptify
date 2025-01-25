@@ -8,7 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu"
 import Image from "next/image"
-import { type FileCardProps } from '~/interface'
+import { type FileCardProps } from '~/constants/interfaces'
 
 export function FileCard({ title, date, imageUrl }: FileCardProps) {
   return (

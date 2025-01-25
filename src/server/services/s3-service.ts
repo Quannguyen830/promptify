@@ -1,6 +1,6 @@
 import { ListObjectsV2Command, PutObjectCommand } from "@aws-sdk/client-s3";
 import { s3Client } from "~/config/S3-client";
-import { type S3File } from "~/interface";
+import { type S3File } from "~/constants/interfaces";
 
 const bucketName = process.env.AWS_BUCKET_NAME
 

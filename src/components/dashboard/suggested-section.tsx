@@ -2,7 +2,7 @@ import { ChevronDown, Folder } from 'lucide-react'
 import { Button } from "~/components/ui/button"
 import { FolderCard } from "./folder-card"
 import { FileCard } from "./file-card"
-import { type S3File } from '~/interface'
+import { type S3File } from '~/constants/interfaces'
 
 interface SuggestedSectionProps {
   title: string
