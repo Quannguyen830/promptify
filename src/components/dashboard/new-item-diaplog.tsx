@@ -14,10 +14,11 @@ import {
   CommandList,
 } from "~/components/ui/command"
 import { DialogTitle } from "@radix-ui/react-dialog"
-import { uploadFileService } from "~/app/services/file-service"
+// import { uploadFileService } from "~/app/services/file-service"
 import { useSession } from "next-auth/react"
 import { useCallback, useRef } from 'react';
 import { NewFolderDialog } from './new-folder-dialog'
+import { api } from "~/trpc/react";
 
 interface NewItemDialogProps {
   children: React.ReactNode
@@ -30,6 +31,8 @@ export function NewItemDialog({ children }: NewItemDialogProps) {
   const [isNewItemOpen, setIsNewItemOpen] = React.useState(false)
   const [isNewFolderOpen, setIsNewFolderOpen] = React.useState(false)
 
+  const uploadFileMutation = api.file.uploadFile.useMutation();
+
   const handleNewFolder = async () => {
     setIsNewItemOpen(false)
     setIsNewFolderOpen(true)
@@ -38,12 +41,22 @@ export function NewItemDialog({ children }: NewItemDialogProps) {
   const handleFileUpload = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
     try {
       if (session !== null) {
-        await uploadFileService(session, event);
+        const file = event.target.files?.[0];
+        console.log("File: ", file)
+        if (file) {
+          const result = await uploadFileMutation.mutateAsync({
+            userId: session.user.id,
+            fileName: file.name,
+            fileSize: file.size.toString(),
+            fileType: file.type,
+          });
+          console.log("File uploaded successfully:", result);
+        }
       }
     } catch (error) {
       console.error("File upload failed:", error);
     }
-  }, [session]);
+  }, [session, uploadFileMutation]);
 
   const handleFileUploadClick = () => {
     fileInputRef.current?.click();

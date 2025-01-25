@@ -83,11 +83,9 @@ model File {
   size      Float
   type      String
 
-  folder    Folder?  @relation(fields: [folderId], references: [id])
-  folderId    String
-
-  Workspace   Workspace @relation(fields: [workspaceId], references: [id])
-  workspaceId String
+  folderId    String?
+  Workspace   Workspace? @relation(fields: [workspaceId], references: [id])
+  workspaceId String?
 }
 
 model Workspace {
