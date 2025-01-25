@@ -76,9 +76,9 @@ model File {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
 
-  folderId    String
-  Workspace   Workspace @relation(fields: [workspaceId], references: [id])
-  workspaceId String
+  folderId    String?
+  Workspace   Workspace? @relation(fields: [workspaceId], references: [id])
+  workspaceId String?
 }
 
 model Workspace {
