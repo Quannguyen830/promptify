@@ -7,33 +7,40 @@ import { type FileModel } from "~/interface";
 const prisma = new PrismaClient();
 
 export const fileRouter = createTRPCRouter({
-  uploadFile: publicProcedure
+  uploadFile: protectedProcedure
     .input(z.object({ 
       userId: z.string(),
       fileName: z.string(),
-      file: z.instanceof(Buffer),
+      fileSize: z.string(),
+      fileType: z.string(),
     }))
     .mutation(async ({ input }) => {
-      const { userId, fileName, file } = input;
+      const { fileName, fileSize, fileType, } = input;
 
-      await uploadFileToS3(file, fileName, "application/octet-stream");
-
-      try {
-        const newFile = await prisma.file.create({
-          data: {
-            name: fileName,
-            size: file.length,
-            type: "application/octet-stream",
-            workspaceId: userId,
-            folderId: "default-folder-id",
-          },
-        }) as FileModel;
-
-        return newFile;
-      } catch (error) {
-        console.error("Error creating file:", error);
-        throw new Error("Failed to upload file. Please try again.");
+      const newFileData = {
+        name: fileName,
+        size: parseFloat(fileSize),
+        type: fileType,
       }
+
+      console.log("New file data: ", newFileData);
+      const newFile = prisma.file.create({
+        data: newFileData
+      })
+
+      return newFile.id;
+
+      // try {
+
+      //   return newFile.id;
+      // } catch (error) {
+      //   if (error instanceof Error) {
+      //     console.error("Error creating file:", error);
+      //   } else {
+      //     console.error("Unknown error occurred:", error);
+      //   }
+      //   throw new Error("Failed to upload file. Please try again.");
+      // }
     }),
 
   getFile: protectedProcedure
