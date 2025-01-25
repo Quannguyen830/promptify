@@ -1,5 +1,5 @@
 import { type Session } from "next-auth";
-import { type UploadResponse } from "~/interface";
+import { type ApiResponse } from "~/interface";
 
 export const uploadFileService = async (session: Session, event: React.ChangeEvent<HTMLInputElement>) => {
   const file = event.target.files?.[0];
@@ -18,8 +18,7 @@ export const uploadFileService = async (session: Session, event: React.ChangeEve
     body: formData,
   });
 
-  const result = await response.json() as UploadResponse;
-  console.log(result);
+  console.log(response.json());
 }
 
 export const createNewFolderService = async (session: Session, folderName: string) => {
@@ -35,8 +34,7 @@ export const createNewFolderService = async (session: Session, folderName: strin
     body: formData,
   })
 
-  const result = await response.json() as UploadResponse;
-  console.log(result)
+  console.log(response.json());
 }
 
 export const uploadFolderService = async (session: Session, event: React.ChangeEvent<HTMLInputElement>, folderName: string) => {
@@ -59,10 +57,18 @@ export const uploadFolderService = async (session: Session, event: React.ChangeE
     body: formData,
   });
 
-  const result = await response.json() as UploadResponse;
-  console.log(result);
+  console.log(response.json());
 }
 
-export const getFiles = () => {
-  console.log("Hello")
+export const getFiles = async (session: Session) => {
+  const userId = session?.user.id;
+
+  const response = await fetch(`/api/get-files?userId=${userId}`, {
+    method: 'GET',
+  });
+
+  const data = await response.json() as ApiResponse;
+  console.log("Response from front-end: ", data);
+
+  return data.Response;
 }

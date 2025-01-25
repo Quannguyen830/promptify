@@ -14,7 +14,7 @@ import {
   CommandList,
 } from "~/components/ui/command"
 import { DialogTitle } from "@radix-ui/react-dialog"
-import { uploadFileService, uploadFolderService } from "~/app/services/file-service"
+import { uploadFileService } from "~/app/services/file-service"
 import { useSession } from "next-auth/react"
 import { useCallback, useRef } from 'react';
 import { NewFolderDialog } from './new-folder-dialog'
@@ -42,17 +42,6 @@ export function NewItemDialog({ children }: NewItemDialogProps) {
       }
     } catch (error) {
       console.error("File upload failed:", error);
-    }
-  }, [session]);
-
-  const handleFolderUpload = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
-    try {
-      if (session !== null) {
-        const folderName = "YourFolderName";
-        await uploadFolderService(session, event, folderName);
-      }
-    } catch (error) {
-      console.error("Folder upload failed:", error);
     }
   }, [session]);
 
@@ -98,9 +87,9 @@ export function NewItemDialog({ children }: NewItemDialogProps) {
                 <CommandItem className="flex items-center gap-2 p-3">
                   <input
                     type="file"
-                    onChange={handleFolderUpload}
+                    // onChange={handleFolderUpload}
                     className="hidden"
-                    {...{ webkitdirectory: true }}
+                    {...({ webkitdirectory: "true" })}
                   />
                   <button
                     onClick={() => fileInputRef.current?.click()}

@@ -4,8 +4,18 @@ import { SuggestedSection } from "~/components/dashboard/suggested-section"
 import { Plus } from "lucide-react"
 import { Button } from "~/components/ui/button"
 import { NewItemDialog } from "~/components/dashboard/new-item-diaplog"
+import { useSession } from "next-auth/react"
+import { api } from "~/trpc/react"
 
 export default function Page() {
+  const { data: session } = useSession();
+  const { data: fetchedFiles, isLoading, error } = api.file.getFile.useQuery(
+    { userId: session?.user.id ?? "" }
+  );
+
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error.message}</div>;
+
   return (
     <div>
       <div className="flex items-center justify-between">
@@ -19,7 +29,7 @@ export default function Page() {
       </div>
 
       <SuggestedSection title="Suggested folders" type="folders" />
-      <SuggestedSection title="Suggested files" type="files" />
+      <SuggestedSection title="Suggested files" type="files" files={fetchedFiles} />
     </div>
   )
 }
