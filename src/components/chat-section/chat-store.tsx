@@ -1,17 +1,21 @@
 import { create } from "zustand";
 
-interface ChatStoreState {
-  userMessages: string[];
-  addUserMessage: (message: string) => void;
+export enum MessageType {
+  USER,
+  AGENT
+}
 
-  agentMessages: string[];
-  addAgentMessage: (message: string) => void;
+interface ChatMessage {
+  message: string;
+  type: MessageType
+}
+
+interface ChatStoreState {
+  messages: ChatMessage[];
+  addMessage: (message: string, type: MessageType) => void;
 }
 
 export const useChatStore = create<ChatStoreState>((set) => ({
-  userMessages: [],
-  addUserMessage: (message: string) => set((state) => ({ userMessages: [...state.userMessages, message] })),
-
-  agentMessages: [],
-  addAgentMessage: (message: string) => set((state) => ({ agentMessages: [...state.agentMessages, message] }))
+  messages: [],
+  addMessage: (message, type) => set((state) => ({ messages: [...state.messages, { message, type }] }))
 }));

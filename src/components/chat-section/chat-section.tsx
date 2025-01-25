@@ -1,73 +1,31 @@
 "use client"
 
-import { Button } from "~/components/ui/button"
-import { Input } from "../ui/input"
-import { Send } from 'lucide-react'
+import ChatBubble from "./chat-bubble"
+import ChatInput from "./chat-input"
 
-import ChatMessageList from "./chat-message-list"
-
-import { type SubmitHandler, useForm } from "react-hook-form"
 import { useChatStore } from "./chat-store"
-import { ChatBubble, ChatBubbleAvatar, ChatBubbleMessage } from "../ui/chat/chat-bubble"
-import { getResponse } from "~/server/services/gemini-service"
-
-export interface ChatSectionFormProps {
-  userMessage: string
-}
 
 export function ChatSection() {
-  const {
-    register,
-    handleSubmit
-  } = useForm<ChatSectionFormProps>()
   const { 
-    userMessages,
-    addUserMessage,
-    agentMessages,
-    addAgentMessage
+    messages
   } = useChatStore()
 
 
-  const onSubmit: SubmitHandler<ChatSectionFormProps> = async (data) => { 
-    addUserMessage(data.userMessage);
-
-    // send msg to model
-    const response = await getResponse(data.userMessage);
-
-    addAgentMessage(response);
-  }
-
   return (
     <div className="flex flex-col h-full">
-      {/* Tab header */}
-      <div className="h-16">
-        <h2 className="font-semibold text-2xl">Chat</h2>
+      <div className="h-16 p-4 border-b">
+        <h2 className="font-semibold text-2xl">Assistant</h2>
       </div>
       
-      {/* TODO: group this to a component */}
-      <ChatMessageList className="overflow-y-auto h-full">
-        {userMessages.map((message, index) => (
-          <ChatBubble key={index}>
-            <ChatBubbleAvatar />
-            <ChatBubbleMessage>{message}</ChatBubbleMessage>
+      <div className="overflow-y-auto h-full flex flex-col gap-2 p-4">
+        {messages.map((message, index) => (
+          <ChatBubble key={index} variant={message.type}>
+            {message.message}
           </ChatBubble>
         ))}
+      </div>
 
-        {agentMessages.map((message, index) => (
-          <ChatBubble key={index} variant='sent'>
-            <ChatBubbleAvatar />
-            <ChatBubbleMessage>{message}</ChatBubbleMessage>
-          </ChatBubble>
-        ))}
-      </ChatMessageList>
-
-      <form onSubmit={handleSubmit(onSubmit)} className="flex gap-2 ">
-        <Input {...register("userMessage")} type="text" className="ring-1 ring-black w-full"/>
-
-        <Button type="submit" size="icon" className="h-8 w-8">
-          <Send className="h-4 w-4" />
-        </Button>
-      </form>
+      <ChatInput/>
     </div>
   )
 }

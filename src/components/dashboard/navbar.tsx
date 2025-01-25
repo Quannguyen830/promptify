@@ -8,8 +8,7 @@ import { useSession } from "next-auth/react"
 
 export function Navbar() {
   const { data: session } = useSession();
-  const username = session?.user.email
-  const firstLetter = username?.slice(0, 1).toUpperCase();
+  const firstLetter = session?.user?.email?.[0]?.toUpperCase() ?? '';
 
   return (
     <header className="flex items-center justify-between g-backbground border-b h-16 px-3">

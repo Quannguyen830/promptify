@@ -45,6 +45,8 @@ model User {
   email         String?     @unique
   emailVerified DateTime?
   image         String?
+
+  chatSessions  ChatSession[]
   accounts      Account[]
   sessions      Session[]
   Workspace     Workspace[]
@@ -58,23 +60,28 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
+// WORKSPACE SYSTEM
 model Folder {
   id          String    @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+ 
   name        String
   size        Float
   files       File[]
+
   Workspace   Workspace @relation(fields: [workspaceId], references: [id])
   workspaceId String
 }
 
 model File {
   id        String   @id @default(cuid())
-  folder    Folder?  @relation(fields: [folderId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  
   name      String
   size      Float
   type      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now())
 
   folderId    String?
   Workspace   Workspace? @relation(fields: [workspaceId], references: [id])
@@ -83,10 +90,47 @@ model File {
 
 model Workspace {
   id      String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  
   name    String
-  // size    Float
-  user    User     @relation(fields: [userId], references: [id])
   files   File[]
   folders Folder[]
+
+  user    User     @relation(fields: [userId], references: [id])
   userId  String
 }
+
+// CHAT AGENT SYSTEM
+model ChatSession {
+  id         String    @id @default(cuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+  
+  agentMessage AgentMessage[]       
+  userMessage  UserMessage[]
+
+  user        User      @relation(fields: [userId], references: [id])
+  userId      String
+
+}
+
+model UserMessage {
+  id         String    @id @default(cuid())
+  createdAt   DateTime @default(now())
+
+  message     String
+
+  chatSession ChatSession @relation(fields: [chatSessionId], references: [id])
+  chatSessionId String
+}
+
+model AgentMessage {
+  id         String    @id @default(cuid())
+  createdAt   DateTime @default(now())
+
+  message     String
+
+  chatSession ChatSession @relation(fields: [chatSessionId], references: [id])
+  chatSessionId String
+} 
