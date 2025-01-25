@@ -1,15 +1,13 @@
 "use client"
 
-import ChatMessageList from "./chat-message-list"
+import ChatBubble from "./chat-bubble"
 import ChatInput from "./chat-input"
 
 import { useChatStore } from "./chat-store"
-import { ChatBubble, ChatBubbleAvatar, ChatBubbleMessage } from "../ui/chat/chat-bubble"
 
 export function ChatSection() {
   const { 
-    userMessages,
-    agentMessages,
+    messages
   } = useChatStore()
 
 
@@ -19,21 +17,13 @@ export function ChatSection() {
         <h2 className="font-semibold text-2xl">Assistant</h2>
       </div>
       
-      <ChatMessageList className="overflow-y-auto h-full bg-red-200">
-        {userMessages.map((message, index) => (
-          <ChatBubble key={index}>
-            <ChatBubbleAvatar />
-            <ChatBubbleMessage>{message}</ChatBubbleMessage>
+      <div className="overflow-y-auto h-full flex flex-col gap-2 p-4">
+        {messages.map((message, index) => (
+          <ChatBubble key={index} variant={message.type}>
+            {message.message}
           </ChatBubble>
         ))}
-
-        {agentMessages.map((message, index) => (
-          <ChatBubble key={index} variant='sent'>
-            <ChatBubbleAvatar />
-            <ChatBubbleMessage>{message}</ChatBubbleMessage>
-          </ChatBubble>
-        ))}
-      </ChatMessageList>
+      </div>
 
       <ChatInput/>
     </div>
