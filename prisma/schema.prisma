@@ -109,30 +109,28 @@ model ChatSession {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @default(now()) @updatedAt
   
-  agentMessage AgentMessage[]       
-  userMessage  UserMessage[]
+  messages  Message[]
 
   user        User      @relation(fields: [userId], references: [id])
   userId      String
-
 }
 
-model UserMessage {
-  id         String    @id @default(cuid())
-  createdAt   DateTime @default(now())
-
-  message     String
-
-  chatSession ChatSession @relation(fields: [chatSessionId], references: [id])
-  chatSessionId String
+enum MessageSender {
+  USER
+  AGENT
 }
 
-model AgentMessage {
+model Message {
   id         String    @id @default(cuid())
-  createdAt   DateTime @default(now())
-
-  message     String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now()) @updatedAt
+  
+  content    String
+  sender      String
 
   chatSession ChatSession @relation(fields: [chatSessionId], references: [id])
-  chatSessionId String
-} 
+  chatSessionId String 
+
+  @@index([id, chatSessionId])
+}
+ 
