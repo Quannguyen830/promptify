@@ -37,3 +37,13 @@ export interface FileModel {
   workspaceId: string,
   folderId: string,
 }
+
+// CHAT SECTION
+export interface ChatInputForm {
+  userMessage: string
+}
+
+export interface ChatModel {
+  value: string;
+  name: string;
+}

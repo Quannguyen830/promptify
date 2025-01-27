@@ -1,18 +1,22 @@
 import { 
   type SubmitHandler,
   useForm
- } from "react-hook-form";
+} from "react-hook-form";
+import { Paperclip, Send } from "lucide-react";
 
- import { MessageType, useChatStore } from "./chat-store";
+import { MessageType, useChatStore } from "./chat-store";
 import { getResponse } from "~/server/services/gemini-service"
+import { type ChatInputForm, type ChatModel } from "~/constants/interfaces";
+
 import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
-import { Paperclip, Send } from "lucide-react";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 
-export interface ChatInputForm {
-  userMessage: string
-}
+const CHAT_MODELS: ChatModel[] = [
+  { value: "gemini", name: "Gemini" },
+  // { value: "gpt", name: "GPT-4" },
+  // { value: "claude", name: "Super long claude model name" }
+]
 
 const ChatInput = () => {
   const {
@@ -21,6 +25,7 @@ const ChatInput = () => {
     reset
   } = useForm<ChatInputForm>()
   
+
   const {
     addMessage
   } = useChatStore()
@@ -41,7 +46,6 @@ const ChatInput = () => {
       void handleSubmit(onSubmit)();
     }
   };
-
 
   const addContext = () => {
     console.log("add context");
@@ -65,14 +69,14 @@ const ChatInput = () => {
         <div className="flex flex-row gap-1">
           <Select>
             <SelectTrigger className="focus-visible:ring-0 focus:ring-0 shadow-none w-auto h-8 gap-2">
-              <SelectValue placeholder="GPT-4" />
+              <SelectValue placeholder={CHAT_MODELS[0]?.name} />
             </SelectTrigger>
 
             <SelectContent>
               <SelectGroup>
-                <SelectItem value="gemini">Gemini</SelectItem>
-                <SelectItem value="gpt">GPT-4</SelectItem> 
-                <SelectItem value="claude">Super long claude model name</SelectItem>
+                {CHAT_MODELS.map((model) => (
+                  <SelectItem key={model.value} value={model.value}>{model.name}</SelectItem>
+                ))}
               </SelectGroup>
             </SelectContent>
           </Select>
