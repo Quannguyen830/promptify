@@ -1,8 +1,7 @@
 import { z } from "zod";
-import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
-import { getFilesFromS3, uploadFileToS3 } from "~/server/services/s3-service";
+import { createTRPCRouter, protectedProcedure } from "../trpc";
+import { extractFileId, listFileFromS3, uploadFileToS3 } from "~/server/services/s3-service";
 import { PrismaClient } from "@prisma/client";
-import { type FileModel } from "~/constants/interfaces";
 
 const prisma = new PrismaClient();
 
@@ -13,9 +12,12 @@ export const fileRouter = createTRPCRouter({
       fileName: z.string(),
       fileSize: z.string(),
       fileType: z.string(),
+      fileBuffer: z.instanceof(Uint8Array),
     }))
     .mutation(async ({ input }) => {
-      const { fileName, fileSize, fileType, } = input;
+      const { userId, fileName, fileSize, fileType, fileBuffer } = input;
+      const buffer = Buffer.from(fileBuffer);
+
 
       const newFileData = {
         name: fileName,
@@ -24,29 +26,36 @@ export const fileRouter = createTRPCRouter({
       }
 
       console.log("New file data: ", newFileData);
-      const newFile = prisma.file.create({
+      const newFile = await prisma.file.create({
         data: newFileData
       })
 
-      return newFile.id;
+      const s3Response = await uploadFileToS3(buffer, newFile.id, userId)
 
-      // try {
-
-      //   return newFile.id;
-      // } catch (error) {
-      //   if (error instanceof Error) {
-      //     console.error("Error creating file:", error);
-      //   } else {
-      //     console.error("Unknown error occurred:", error);
-      //   }
-      //   throw new Error("Failed to upload file. Please try again.");
-      // }
+      return s3Response;
     }),
 
-  getFile: protectedProcedure
+  listFileByUserId: protectedProcedure
     .input(z.object({ userId: z.string() }))
     .query(async ({ input }) => {
-      const files = await getFilesFromS3(input.userId);
-      return files;
+      const files = await listFileFromS3(input.userId);
+
+      console.log(files);
+      
+      const fileIds = files?.map(file => {
+        return extractFileId(file.Key ?? "");
+      }).filter((id): id is string => id !== undefined);
+
+      console.log(fileIds);
+
+      const prismaFiles = await prisma.file.findMany({
+        where: {
+          id: {
+            in: fileIds,
+          },
+        },
+      });
+
+      return prismaFiles;
     }),
 })

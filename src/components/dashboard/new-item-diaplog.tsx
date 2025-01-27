@@ -44,11 +44,15 @@ export function NewItemDialog({ children }: NewItemDialogProps) {
         const file = event.target.files?.[0];
         console.log("File: ", file)
         if (file) {
+          const arrayBuffer = await file.arrayBuffer();
+          const uint8Array = new Uint8Array(arrayBuffer);
+
           const result = await uploadFileMutation.mutateAsync({
             userId: session.user.id,
             fileName: file.name,
             fileSize: file.size.toString(),
             fileType: file.type,
+            fileBuffer: uint8Array
           });
           console.log("File uploaded successfully:", result);
         }

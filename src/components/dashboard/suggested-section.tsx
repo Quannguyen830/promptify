@@ -2,12 +2,12 @@ import { ChevronDown, Folder } from 'lucide-react'
 import { Button } from "~/components/ui/button"
 import { FolderCard } from "./folder-card"
 import { FileCard } from "./file-card"
-import { type S3File } from '~/constants/interfaces'
+import { type File } from '@prisma/client'
 
 interface SuggestedSectionProps {
   title: string
   type: "folders" | "files"
-  files?: Array<S3File>
+  files?: Array<File>
 }
 
 export function SuggestedSection({ title, type, files }: SuggestedSectionProps) {
@@ -39,9 +39,9 @@ export function SuggestedSection({ title, type, files }: SuggestedSectionProps) 
           ))
           : files?.map((file) => (
             <FileCard
-              key={file.Key}
-              title={file.Key}
-              date={file.LastModified.toString()}
+              key={file.id}
+              title={file.name}
+              date={file.createdAt.toDateString()}
               imageUrl={"/favicon.ico"}
             />
           ))}
