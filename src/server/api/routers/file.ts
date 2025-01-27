@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
-import { listFileFromS3, uploadFileToS3 } from "~/server/services/s3-service";
+import { extractFileId, listFileFromS3, uploadFileToS3 } from "~/server/services/s3-service";
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
@@ -39,8 +39,23 @@ export const fileRouter = createTRPCRouter({
     .input(z.object({ userId: z.string() }))
     .query(async ({ input }) => {
       const files = await listFileFromS3(input.userId);
-      
+
       console.log(files);
-      return files;
+      
+      const fileIds = files?.map(file => {
+        return extractFileId(file.Key ?? "");
+      }).filter((id): id is string => id !== undefined);
+
+      console.log(fileIds);
+
+      const prismaFiles = await prisma.file.findMany({
+        where: {
+          id: {
+            in: fileIds,
+          },
+        },
+      });
+
+      return prismaFiles;
     }),
 })

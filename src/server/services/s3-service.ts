@@ -1,6 +1,5 @@
 import { ListObjectsV2Command, PutObjectCommand } from "@aws-sdk/client-s3";
 import { s3Client } from "~/config/S3-client";
-import { type S3File } from "~/constants/interfaces";
 
 const bucketName = process.env.AWS_BUCKET_NAME
 
@@ -27,7 +26,7 @@ export function createNewFolderToS3(folderName: string) {
   return s3Client.send(new PutObjectCommand(uploadParams));
 }
 
-export async function listFileFromS3(userId: string): Promise<S3File[]> {
+export async function listFileFromS3(userId: string) {
   const getParam = {
     Bucket: bucketName,
     Prefix: userId,
@@ -35,14 +34,9 @@ export async function listFileFromS3(userId: string): Promise<S3File[]> {
 
   const response = await s3Client.send(new ListObjectsV2Command(getParam));
   
-  return response.Contents?.map(item => ({
-    Key: extractFileName(item.Key ?? ""),
-    LastModified: item.LastModified ?? new Date(),
-    Size: item.Size ?? 0,
-    ETag: item.ETag ?? "",
-  })) ?? [];
+  return response.Contents;
 }
 
-function extractFileName(fileName: string) {
-  return fileName.split('/').pop() ?? fileName;
+export function extractFileId(fileName: string) {
+  return fileName.split("/").pop();
 }
