@@ -4,12 +4,13 @@ import { type S3File } from "~/constants/interfaces";
 
 const bucketName = process.env.AWS_BUCKET_NAME
 
-export function uploadFileToS3(fileBuffer: Buffer, fileName: string, mimetype: string) {
+export function uploadFileToS3(fileBuffer: Buffer, fileName: string, userId: string) {
+  const fileIdOnS3 = userId ? `${userId}/${fileName}` : fileName;
+
   const uploadParams = {
     Bucket: bucketName,
     Body: fileBuffer,
-    Key: fileName,
-    ContentType: mimetype
+    Key: fileIdOnS3,
   }
 
   return s3Client.send(new PutObjectCommand(uploadParams));
@@ -26,7 +27,7 @@ export function createNewFolderToS3(folderName: string) {
   return s3Client.send(new PutObjectCommand(uploadParams));
 }
 
-export async function getFilesFromS3(userId: string): Promise<S3File[]> {
+export async function listFileFromS3(userId: string): Promise<S3File[]> {
   const getParam = {
     Bucket: bucketName,
     Prefix: userId,

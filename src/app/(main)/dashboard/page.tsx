@@ -9,7 +9,7 @@ import { api } from "~/trpc/react"
 
 export default function Page() {
   const { data: session } = useSession();
-  const { data: fetchedFiles, isLoading, error } = api.file.getFile.useQuery(
+  const { data: fetchedFiles, isLoading, error } = api.file.listFileByUserId.useQuery(
     { userId: session?.user.id ?? "" }
   );
 
