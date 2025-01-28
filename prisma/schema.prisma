@@ -126,7 +126,7 @@ model Message {
   updatedAt  DateTime @default(now()) @updatedAt
   
   content    String
-  sender      String
+  sender     MessageSender 
 
   chatSession ChatSession @relation(fields: [chatSessionId], references: [id])
   chatSessionId String 
