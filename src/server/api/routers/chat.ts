@@ -1,12 +1,13 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
+import { MessageSender } from "@prisma/client";
 
 export const ChatRouter = createTRPCRouter({
   createChatSessionWithMessage: protectedProcedure
     .input(z.object({
       userId: z.string(),
       content: z.string(),
-      sender: z.string(),
+      sender: z.nativeEnum(MessageSender),
     }))
     .mutation(async ({ input, ctx }) => {
       const { userId, content, sender } = input;
@@ -25,6 +26,8 @@ export const ChatRouter = createTRPCRouter({
           messages: true,
         },
       });
+
+      console.log("createChatSessionWithMessage: ", response);
       return response;
     }),
 
@@ -35,6 +38,8 @@ export const ChatRouter = createTRPCRouter({
           messages: true,
         },
       });
+
+      console.log("getAllChatSessions: ", response);
       return response;
     }
   ),
@@ -54,6 +59,8 @@ export const ChatRouter = createTRPCRouter({
           messages: true,
         },
       });
+
+      console.log("getChatSessionById: ", response);
       return response;
     }
   ),
@@ -62,7 +69,7 @@ export const ChatRouter = createTRPCRouter({
     .input(z.object({
       chatSessionId: z.string(),
       content: z.string(),
-      sender: z.string(),
+      sender: z.nativeEnum(MessageSender),
     }))
     .mutation(async ({ input, ctx }) => {
       const { chatSessionId, content, sender } = input;
@@ -74,6 +81,8 @@ export const ChatRouter = createTRPCRouter({
           sender: sender,
         },
       });
+
+      console.log("addMessage: ", response);
       return response;
     }),
 });

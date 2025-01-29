@@ -3,6 +3,7 @@ import {
   useForm
 } from "react-hook-form";
 import { Paperclip, Send } from "lucide-react";
+import { api } from "~/trpc/react";
 
 import { MessageType, useChatStore } from "./chat-store";
 import { getResponse } from "~/server/services/gemini-service"
@@ -11,6 +12,7 @@ import { type ChatInputForm, type ChatModel } from "~/constants/interfaces";
 import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { useSession } from "next-auth/react";
 
 const CHAT_MODELS: ChatModel[] = [
   { value: "gemini", name: "Gemini" },
@@ -20,17 +22,36 @@ const CHAT_MODELS: ChatModel[] = [
 
 const ChatInput = () => {
   const {
+    messages,
+    addMessage,
+    currentChatSessionId
+  } = useChatStore()
+  const {
     register,
     handleSubmit,
     reset
   } = useForm<ChatInputForm>()
-  
 
-  const {
-    addMessage
-  } = useChatStore()
+  const saveInitialMessage = api.chat.createChatSessionWithMessage.useMutation();
+  const saveMessage = api.chat.addMessage.useMutation();
+  const userId = useSession().data?.user?.id;
 
+  if (!userId) return;
+ 
   const onSubmit: SubmitHandler<ChatInputForm> = async (data) => { 
+    if (messages.length === 0) {
+      saveInitialMessage.mutate({
+        userId: userId,
+        content: data.userMessage,
+        sender: "USER"
+      });
+    } else {
+      saveMessage.mutate({
+        chatSessionId: currentChatSessionId,
+        content: data.userMessage,
+        sender: "USER"
+      });
+    }
     addMessage(data.userMessage, MessageType.USER);
     reset();
 
