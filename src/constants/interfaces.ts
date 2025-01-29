@@ -7,6 +7,7 @@ export interface ButtonProps extends BaseProps {
   onClick: () => void;
 }
 
+// FILE SYSTEM
 export interface FolderCardProps {
   title: string
   subtitle: string
@@ -46,4 +47,8 @@ export interface ChatInputForm {
 export interface ChatModel {
   value: string;
   name: string;
+}
+
+export interface ChatSessionCardProps extends BaseProps {
+  title: string
 }
