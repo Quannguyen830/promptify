@@ -6,7 +6,7 @@ import {
   DialogContent,
   DialogTrigger,
 } from "~/components/ui/dialog"
-import { FolderPlus, Upload, FileUp } from 'lucide-react'
+import { FolderPlus, Upload, FileUp, Briefcase } from 'lucide-react'
 import {
   Command,
   CommandGroup,
@@ -19,6 +19,7 @@ import { useSession } from "next-auth/react"
 import { useCallback, useRef } from 'react';
 import { NewFolderDialog } from './new-folder-dialog'
 import { api } from "~/trpc/react";
+import { NewWorkspaceDialog } from './new-workspace-dialog'
 
 interface NewItemDialogProps {
   children: React.ReactNode
@@ -30,12 +31,18 @@ export function NewItemDialog({ children }: NewItemDialogProps) {
 
   const [isNewItemOpen, setIsNewItemOpen] = React.useState(false)
   const [isNewFolderOpen, setIsNewFolderOpen] = React.useState(false)
+  const [isNewWorkspaceOpen, setIsNewWorkspaceOpen] = React.useState(false)
 
   const uploadFileMutation = api.file.uploadFile.useMutation();
 
   const handleNewFolder = async () => {
     setIsNewItemOpen(false)
     setIsNewFolderOpen(true)
+  }
+
+  const handleNewWorkspace = async () => {
+    setIsNewItemOpen(false)
+    setIsNewWorkspaceOpen(true)
   }
 
   const handleFileUpload = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -77,14 +84,24 @@ export function NewItemDialog({ children }: NewItemDialogProps) {
           <Command>
             <CommandList>
               <CommandGroup>
+                {/* New Workspace */}
+                <CommandItem onSelect={handleNewWorkspace}
+                  className="flex cursor-pointer items-center gap-2 p-3"
+                >
+                  <Briefcase className="h-4 w-4" />
+                  <span className="flex-1">New Workspace</span>
+                </CommandItem>
+
                 {/* New Folder */}
-                <CommandItem onSelect={handleNewFolder} className="flex items-center gap-2 p-3">
+                <CommandItem onSelect={handleNewFolder}
+                  className="flex cursor-pointer items-center gap-2 p-3"
+                >
                   <FolderPlus className="h-4 w-4" />
-                  <span className="flex-1">New folder</span>
+                  <span className="flex-1">New Folder</span>
                 </CommandItem>
 
                 {/* Upload file */}
-                <CommandItem className="flex items-center gap-2 p-3">
+                <CommandItem className="flex cursor-pointer items-center gap-2 p-3">
                   <input
                     type="file"
                     ref={fileInputRef}
@@ -96,12 +113,12 @@ export function NewItemDialog({ children }: NewItemDialogProps) {
                     className="flex items-center gap-2 w-full text-left"
                   >
                     <FileUp className="h-4 w-4" />
-                    <span className="flex-1">Upload file</span>
+                    <span className="flex-1">Upload File</span>
                   </button>
                 </CommandItem>
 
                 {/* Upload folder */}
-                <CommandItem className="flex items-center gap-2 p-3">
+                <CommandItem className="flex cursor-pointer items-center gap-2 p-3">
                   <input
                     type="file"
                     // onChange={handleFolderUpload}
@@ -113,7 +130,7 @@ export function NewItemDialog({ children }: NewItemDialogProps) {
                     className="flex items-center gap-2 w-full text-left"
                   >
                     <Upload className="h-4 w-4" />
-                    <span className="flex-1">Upload folder</span>
+                    <span className="flex-1">Upload Folder</span>
                   </button>
                 </CommandItem>
               </CommandGroup>
@@ -126,6 +143,12 @@ export function NewItemDialog({ children }: NewItemDialogProps) {
         open={isNewFolderOpen}
         onOpenChange={setIsNewFolderOpen}
         onClose={() => setIsNewFolderOpen(false)}
+      />
+
+      <NewWorkspaceDialog
+        open={isNewWorkspaceOpen}
+        onOpenChange={setIsNewWorkspaceOpen}
+        onClose={() => setIsNewWorkspaceOpen(false)}
       />
     </>
   )
