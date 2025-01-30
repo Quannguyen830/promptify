@@ -16,10 +16,11 @@ import {
 import { DialogTitle } from "@radix-ui/react-dialog"
 // import { uploadFileService } from "~/app/services/file-service"
 import { useSession } from "next-auth/react"
-import { useCallback, useRef } from 'react';
+import { type ChangeEvent, useCallback, useRef, useState } from 'react';
 import { NewFolderDialog } from './new-folder-dialog'
 import { api } from "~/trpc/react";
 import { NewWorkspaceDialog } from './new-workspace-dialog'
+import { UploadFileDialog } from './upload-file-dialog'
 
 interface NewItemDialogProps {
   children: React.ReactNode
@@ -29,9 +30,10 @@ export function NewItemDialog({ children }: NewItemDialogProps) {
   const { data: session } = useSession();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const [isNewItemOpen, setIsNewItemOpen] = React.useState(false)
-  const [isNewFolderOpen, setIsNewFolderOpen] = React.useState(false)
-  const [isNewWorkspaceOpen, setIsNewWorkspaceOpen] = React.useState(false)
+  const [isNewItemOpen, setIsNewItemOpen] = useState(false)
+  const [isUploadFileOpen, setIsUploadFileOpen] = useState(false)
+  const [isNewFolderOpen, setIsNewFolderOpen] = useState(false)
+  const [isNewWorkspaceOpen, setIsNewWorkspaceOpen] = useState(false)
 
   const uploadFileMutation = api.file.uploadFile.useMutation();
 
@@ -45,29 +47,33 @@ export function NewItemDialog({ children }: NewItemDialogProps) {
     setIsNewWorkspaceOpen(true)
   }
 
-  const handleFileUpload = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
-    try {
-      if (session !== null) {
-        const file = event.target.files?.[0];
-        console.log("File: ", file)
-        if (file) {
-          const arrayBuffer = await file.arrayBuffer();
-          const uint8Array = new Uint8Array(arrayBuffer);
+  // const handleFileUpload = useCallback(async (event: ChangeEvent<HTMLInputElement>) => {
+  //   try {
+  //     if (session !== null) {
+  //       const file = event.target.files?.[0];
+  //       console.log("File: ", file)
+  //       if (file) {
+  //         const arrayBuffer = await file.arrayBuffer();
+  //         const uint8Array = new Uint8Array(arrayBuffer);
 
-          const result = await uploadFileMutation.mutateAsync({
-            userId: session.user.id,
-            fileName: file.name,
-            fileSize: file.size.toString(),
-            fileType: file.type,
-            fileBuffer: uint8Array
-          });
-          console.log("File uploaded successfully:", result);
-        }
-      }
-    } catch (error) {
-      console.error("File upload failed:", error);
-    }
-  }, [session, uploadFileMutation]);
+  //         const result = await uploadFileMutation.mutateAsync({
+  //           fileName: file.name,
+  //           fileSize: file.size.toString(),
+  //           fileType: file.type,
+  //           fileBuffer: uint8Array
+  //         });
+  //         console.log("File uploaded successfully:", result);
+  //       }
+  //     }
+  //   } catch (error) {
+  //     console.error("File upload failed:", error);
+  //   }
+  // }, [session, uploadFileMutation]);
+
+  const handleFileUpload = () => {
+    setIsNewItemOpen(false);
+    setIsUploadFileOpen(true);
+  }
 
   const handleFileUploadClick = () => {
     fileInputRef.current?.click();
@@ -101,8 +107,8 @@ export function NewItemDialog({ children }: NewItemDialogProps) {
                 </CommandItem>
 
                 {/* Upload file */}
-                <CommandItem className="flex cursor-pointer items-center gap-2 p-3">
-                  <input
+                <CommandItem onSelect={handleFileUpload} className="flex cursor-pointer items-center gap-2 p-3">
+                  {/* <input
                     type="file"
                     ref={fileInputRef}
                     onChange={handleFileUpload}
@@ -111,10 +117,10 @@ export function NewItemDialog({ children }: NewItemDialogProps) {
                   <button
                     onClick={handleFileUploadClick}
                     className="flex items-center gap-2 w-full text-left"
-                  >
-                    <FileUp className="h-4 w-4" />
-                    <span className="flex-1">Upload File</span>
-                  </button>
+                  > */}
+                  <FileUp className="h-4 w-4" />
+                  <span className="flex-1">Upload File</span>
+                  {/* </button> */}
                 </CommandItem>
 
                 {/* Upload folder */}
@@ -138,6 +144,12 @@ export function NewItemDialog({ children }: NewItemDialogProps) {
           </Command>
         </DialogContent>
       </Dialog>
+
+      <UploadFileDialog
+        open={isUploadFileOpen}
+        onOpenChange={setIsUploadFileOpen}
+        onClose={() => setIsUploadFileOpen(false)}
+      />
 
       <NewFolderDialog
         open={isNewFolderOpen}

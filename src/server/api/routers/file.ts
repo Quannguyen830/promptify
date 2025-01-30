@@ -5,29 +5,25 @@ import { extractFileId, listFileFromS3, uploadFileToS3 } from "~/server/services
 export const fileRouter = createTRPCRouter({
   uploadFile: protectedProcedure
     .input(z.object({ 
-      userId: z.string(),
       fileName: z.string(),
       fileSize: z.string(),
       fileType: z.string(),
       fileBuffer: z.instanceof(Uint8Array),
     }))
     .mutation(async ({ input, ctx }) => {
-      const { userId, fileName, fileSize, fileType, fileBuffer } = input;
+      const { fileName, fileSize, fileType, fileBuffer } = input;
       const buffer = Buffer.from(fileBuffer);
 
-
-      const newFileData = {
-        name: fileName,
-        size: parseFloat(fileSize),
-        type: fileType,
-      }
-
-      console.log("New file data: ", newFileData);
       const newFile = await ctx.db.file.create({
-        data: newFileData
+        data: {
+          name: fileName,
+          size: parseFloat(fileSize),
+          type: fileType,
+          workspaceId: "cm6j9s9i40006gbpn9h7nh796"
+        }
       })
 
-      const s3Response = await uploadFileToS3(buffer, newFile.id, userId)
+      const s3Response = await uploadFileToS3(buffer, newFile.id)
 
       return s3Response;
     }),

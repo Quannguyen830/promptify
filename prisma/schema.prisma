@@ -40,16 +40,16 @@ model Session {
 }
 
 model User {
-  id            String      @id @default(cuid())
+  id            String    @id @default(cuid())
   name          String?
-  email         String?     @unique
+  email         String?   @unique
   emailVerified DateTime?
   image         String?
 
-  chatSessions  ChatSession[]
-  accounts      Account[]
-  sessions      Session[]
-  Workspace     Workspace[]
+  chatSessions ChatSession[]
+  accounts     Account[]
+  sessions     Session[]
+  Workspace    Workspace[]
 }
 
 model VerificationToken {
@@ -62,13 +62,13 @@ model VerificationToken {
 
 // WORKSPACE SYSTEM
 model Folder {
-  id          String    @id @default(cuid())
+  id        String   @id @default(cuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
- 
-  name        String
-  size        Float
-  files       File[]
+
+  name  String
+  size  Float
+  files File[]
 
   Workspace   Workspace @relation(fields: [workspaceId], references: [id])
   workspaceId String
@@ -78,41 +78,41 @@ model File {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
-  
-  name      String
-  size      Float
-  type      String
 
-  folder Folder? @relation(fields: [folderId], references: [id])
-  folderId    String?
-  
-  Workspace   Workspace? @relation(fields: [workspaceId], references: [id])
-  workspaceId String?
+  name String
+  size Float
+  type String
+
+  folder   Folder? @relation(fields: [folderId], references: [id])
+  folderId String?
+
+  Workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  workspaceId String
 }
 
 model Workspace {
-  id      String   @id @default(cuid())
+  id        String   @id @default(cuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
-  
+
   name    String
   files   File[]
   folders Folder[]
 
-  user    User     @relation(fields: [userId], references: [id])
-  userId  String
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
 }
 
 // CHAT AGENT SYSTEM
 model ChatSession {
-  id         String    @id @default(cuid())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @default(now()) @updatedAt
-  
-  messages  Message[]
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 
-  user        User      @relation(fields: [userId], references: [id])
-  userId      String
+  messages Message[]
+
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
 }
 
 enum MessageSender {
@@ -121,16 +121,15 @@ enum MessageSender {
 }
 
 model Message {
-  id         String    @id @default(cuid())
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @default(now()) @updatedAt
-  
-  content    String
-  sender      MessageSender
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 
-  chatSession ChatSession @relation(fields: [chatSessionId], references: [id])
-  chatSessionId String 
+  content String
+  sender  MessageSender
+
+  chatSession   ChatSession @relation(fields: [chatSessionId], references: [id])
+  chatSessionId String
 
   @@index([id, chatSessionId])
 }
- 

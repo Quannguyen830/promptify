@@ -3,13 +3,11 @@ import { s3Client } from "~/config/S3-client";
 
 const bucketName = process.env.AWS_BUCKET_NAME
 
-export function uploadFileToS3(fileBuffer: Buffer, fileName: string, userId: string) {
-  const fileIdOnS3 = userId ? `${userId}/${fileName}` : fileName;
-
+export function uploadFileToS3(fileBuffer: Buffer, fileName: string) {
   const uploadParams = {
     Bucket: bucketName,
     Body: fileBuffer,
-    Key: fileIdOnS3,
+    Key: fileName,
   }
 
   return s3Client.send(new PutObjectCommand(uploadParams));
