@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
-import { extractFileId, listFileFromS3, uploadFileToS3 } from "~/server/services/s3-service";
+import { uploadFileToS3 } from "~/server/services/s3-service";
 
 export const fileRouter = createTRPCRouter({
   uploadFile: protectedProcedure
@@ -9,9 +9,10 @@ export const fileRouter = createTRPCRouter({
       fileSize: z.string(),
       fileType: z.string(),
       fileBuffer: z.instanceof(Uint8Array),
+      workspaceId: z.string()
     }))
     .mutation(async ({ input, ctx }) => {
-      const { fileName, fileSize, fileType, fileBuffer } = input;
+      const { fileName, fileSize, fileType, fileBuffer, workspaceId } = input;
       const buffer = Buffer.from(fileBuffer);
 
       const newFile = await ctx.db.file.create({
@@ -19,7 +20,7 @@ export const fileRouter = createTRPCRouter({
           name: fileName,
           size: parseFloat(fileSize),
           type: fileType,
-          workspaceId: "cm6j9s9i40006gbpn9h7nh796"
+          workspaceId: workspaceId
         }
       })
 
@@ -31,20 +32,11 @@ export const fileRouter = createTRPCRouter({
   listFileByUserId: protectedProcedure
     .input(z.object({ userId: z.string() }))
     .query(async ({ input, ctx }) => {
-      const files = await listFileFromS3(input.userId);
-
-      console.log(files);
-      
-      const fileIds = files?.map(file => {
-        return extractFileId(file.Key ?? "");
-      }).filter((id): id is string => id !== undefined);
-
-      console.log(fileIds);
 
       const prismaFiles = await ctx.db.file.findMany({
         where: {
-          id: {
-            in: fileIds,
+          Workspace: {
+            userId: input.userId
           },
         },
       });

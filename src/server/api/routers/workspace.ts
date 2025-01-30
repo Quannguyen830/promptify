@@ -18,6 +18,19 @@ export const workspaceRouter = createTRPCRouter({
       });
 
       return newWorkspace.id;
-    })
+    }),
 
+    listWorkspaceByUserId: protectedProcedure
+      .input(z.object({
+        userId: z.string()
+      }))
+      .query(async ({ input, ctx }) => {
+        const workspaces = await ctx.db.workspace.findMany({
+          where: {
+            userId: input.userId
+          }
+        })
+
+        return workspaces;
+      })
 })
