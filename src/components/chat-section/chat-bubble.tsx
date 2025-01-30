@@ -1,12 +1,12 @@
 "use client"
 
 import { type BaseProps } from "~/constants/interfaces";
-import { MessageType } from "./chat-store";
 import { Avatar, AvatarFallback } from "../ui/avatar";
 import { useSession } from "next-auth/react";
+import { MessageSenderSchema } from "~/constants/types";
 
 interface ChatBubbleProps extends BaseProps {
-  variant: MessageType
+  variant: string
 }
 
 const ChatBubble = ({ className, children, variant }: ChatBubbleProps) => {
@@ -18,7 +18,7 @@ const ChatBubble = ({ className, children, variant }: ChatBubbleProps) => {
 
   return (
     <>
-      {variant === MessageType.AGENT ? (
+      {variant === MessageSenderSchema.enum.AGENT ? (
         <div className={`${AGENT_BUBBLE_STYLE} ${className}`}>
           <p>{children}</p>
         </div>

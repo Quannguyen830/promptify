@@ -1,13 +1,13 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
-import { MessageSender } from "@prisma/client";
+import { MessageSenderSchema } from "~/constants/types";
 
 export const ChatRouter = createTRPCRouter({
   createChatSessionWithMessage: protectedProcedure
     .input(z.object({
       userId: z.string(),
       content: z.string(),
-      sender: z.nativeEnum(MessageSender),
+      sender: MessageSenderSchema,
     }))
     .mutation(async ({ input, ctx }) => {
       const { userId, content, sender } = input;
@@ -34,9 +34,18 @@ export const ChatRouter = createTRPCRouter({
   getAllChatSessions: protectedProcedure
     .query(async ({ ctx }) => {
       const response = await ctx.db.chatSession.findMany({
-        include: {
-          messages: true,
+        select: {
+          id: true,
+          messages: {
+            select: {
+              content: true,
+              sender: true
+            }
+          }
         },
+        orderBy: {
+          createdAt: 'asc'
+        }
       });
 
       console.log("getAllChatSessions: ", response);
@@ -69,7 +78,7 @@ export const ChatRouter = createTRPCRouter({
     .input(z.object({
       chatSessionId: z.string(),
       content: z.string(),
-      sender: z.nativeEnum(MessageSender),
+      sender: MessageSenderSchema,
     }))
     .mutation(async ({ input, ctx }) => {
       const { chatSessionId, content, sender } = input;

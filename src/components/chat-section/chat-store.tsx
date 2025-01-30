@@ -1,36 +1,42 @@
 import { create } from "zustand";
+import { 
+  type ClientChatSession,
+  type ClientMessage
+} from "~/constants/types";
 
-export enum MessageType {
-  USER,
-  AGENT
-}
 export enum ChatSectionState {
-  ALL_SESSIONS,
-  NEW_SESSION,
-  SELECTED_SESSION
+  ALL_SESSIONS, // default state: displaying all existing sessions
+  NEW_SESSION, // when user chat directly without opening existing chat session
+  SELECTED_SESSION // when user select an existing chat session
 }
 
-export interface ChatMessage {
-  message: string;
-  type: MessageType;
-}
 
 export interface ChatStoreState {
-  messages: ChatMessage[];
-
   currentChatState: ChatSectionState;
 
-  currentChatSessionId: string;
-  setChatSession: (sessionId: string) => void;
-
-  addMessage: (message: string, type: MessageType) => void;
+  messages: ClientMessage[];
+  addMessage: (message: ClientMessage) => void;
+  
+  currentChatSession: ClientChatSession | null;
+  setChatSession: (session: ClientChatSession) => void;
+  
 }
 
 export const useChatStore = create<ChatStoreState>((set) => ({
   currentChatState: ChatSectionState.ALL_SESSIONS,
-  currentChatSessionId: "",
+  
   messages: [],
+  addMessage: (message) => set((state) => ({
+    messages: [
+      ...state.messages,
+      message
+    ]
+  })),
 
-  setChatSession: (sessionId) => set(() => ({ currentChatState: ChatSectionState.SELECTED_SESSION, currentChatSessionId: sessionId })),
-  addMessage: (message, type) => set((state) => ({ messages: [...state.messages, { message, type }] }))
+  currentChatSession: null,
+  setChatSession: (session: ClientChatSession) => set(() => ({
+    currentChatState: ChatSectionState.SELECTED_SESSION,
+    messages: session.messages,
+    currentChatSession: session,
+  }))
 }));

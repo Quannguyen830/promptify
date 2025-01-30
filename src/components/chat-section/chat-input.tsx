@@ -5,7 +5,7 @@ import {
 import { Paperclip, Send } from "lucide-react";
 import { api } from "~/trpc/react";
 
-import { MessageType, useChatStore } from "./chat-store";
+import { useChatStore } from "./chat-store";
 import { getResponse } from "~/server/services/gemini-service"
 import { type ChatInputForm, type ChatModel } from "~/constants/interfaces";
 
@@ -23,9 +23,10 @@ const CHAT_MODELS: ChatModel[] = [
 const ChatInput = () => {
   const {
     messages,
+    currentChatSession,
     addMessage,
-    currentChatSessionId
   } = useChatStore()
+
   const {
     register,
     handleSubmit,
@@ -39,7 +40,7 @@ const ChatInput = () => {
   if (!userId) return;
  
   const onSubmit: SubmitHandler<ChatInputForm> = async (data) => { 
-    if (messages.length === 0) {
+    if (messages.length === 0 || !currentChatSession?.id) {
       saveInitialMessage.mutate({
         userId: userId,
         content: data.userMessage,
@@ -47,17 +48,23 @@ const ChatInput = () => {
       });
     } else {
       saveMessage.mutate({
-        chatSessionId: currentChatSessionId,
+        chatSessionId: currentChatSession.id,
         content: data.userMessage,
         sender: "USER"
       });
     }
-    addMessage(data.userMessage, MessageType.USER);
+    addMessage({
+      content: data.userMessage,
+      sender: "USER"
+    });
     reset();
 
     // send msg to model
     const response = await getResponse(data.userMessage);
-    addMessage(response, MessageType.AGENT);
+    addMessage({
+      content: response,
+      sender: "AGENT" 
+    });
   }
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {

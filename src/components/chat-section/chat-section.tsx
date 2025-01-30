@@ -8,12 +8,12 @@ import { ChatSectionState, useChatStore } from "./chat-store";
 import ChatSessionCard from "./chat-session-card";
 
 export function ChatSection() {
-  const { data: chatSessions } = api.chat.getAllChatSessions.useQuery();
-  
   const { 
     messages,
     currentChatState,
   } = useChatStore();
+
+  const { data: chatSessions } = api.chat.getAllChatSessions.useQuery();
 
   return (
     <div className="flex flex-col h-full">
@@ -34,8 +34,8 @@ export function ChatSection() {
       {currentChatState === ChatSectionState.SELECTED_SESSION && (
         <div className="overflow-y-auto h-full flex flex-col gap-2 p-4">
           {messages.map((message, index) => (
-            <ChatBubble key={index} variant={message.type}>
-              {message.message}
+            <ChatBubble key={index} variant={message.sender}>
+              {message.content}
             </ChatBubble>
           ))}
         </div>
