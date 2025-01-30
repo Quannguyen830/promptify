@@ -1,9 +1,6 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { extractFileId, listFileFromS3, uploadFileToS3 } from "~/server/services/s3-service";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
 
 export const fileRouter = createTRPCRouter({
   uploadFile: protectedProcedure
@@ -14,7 +11,7 @@ export const fileRouter = createTRPCRouter({
       fileType: z.string(),
       fileBuffer: z.instanceof(Uint8Array),
     }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const { userId, fileName, fileSize, fileType, fileBuffer } = input;
       const buffer = Buffer.from(fileBuffer);
 
@@ -26,7 +23,7 @@ export const fileRouter = createTRPCRouter({
       }
 
       console.log("New file data: ", newFileData);
-      const newFile = await prisma.file.create({
+      const newFile = await ctx.db.file.create({
         data: newFileData
       })
 
@@ -37,7 +34,7 @@ export const fileRouter = createTRPCRouter({
 
   listFileByUserId: protectedProcedure
     .input(z.object({ userId: z.string() }))
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
       const files = await listFileFromS3(input.userId);
 
       console.log(files);
@@ -48,7 +45,7 @@ export const fileRouter = createTRPCRouter({
 
       console.log(fileIds);
 
-      const prismaFiles = await prisma.file.findMany({
+      const prismaFiles = await ctx.db.file.findMany({
         where: {
           id: {
             in: fileIds,
