@@ -8,7 +8,7 @@ import { ChatSectionState, useChatStore } from "./chat-store";
 import ChatSessionCard from "./chat-session-card";
 
 export function ChatSection() {
-  const { 
+  const {
     messages,
     currentChatState,
   } = useChatStore();
@@ -16,13 +16,13 @@ export function ChatSection() {
   const { data: chatSessions } = api.chat.getAllChatSessions.useQuery();
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full bg-sidebar">
       <div className="h-16 p-4 border-b">
         <h2 className="font-semibold text-2xl">Assistant</h2>
       </div>
 
       {currentChatState === ChatSectionState.ALL_SESSIONS && (
-        <div className="overflow-y-auto h-full flex flex-col gap-2 p-4">
+        <div className="overflow-y-auto h-full flex flex-col gap-2 p-4 bg">
           {chatSessions?.map((session, index) => (
             <ChatSessionCard key={index} title={session.id}>
               {session.id}

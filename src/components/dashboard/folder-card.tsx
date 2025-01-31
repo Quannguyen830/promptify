@@ -18,7 +18,7 @@ interface FolderCardProps {
 
 export function FolderCard({ id, title, subtitle, icon }: FolderCardProps) {
   return (
-    <Card className="group relative hover:bg-accent/50 transition-colors">
+    <Card className="group relative bg-[#202020] hover:bg-accent border-0 transition-colors">
       <Link href={`/folder/${id}`} className="block">
         <div className="p-4 flex items-start">
           <div className="mt-1 flex-shrink-0 mr-4">

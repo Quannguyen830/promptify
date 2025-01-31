@@ -35,5 +35,19 @@ export const folderRouter = createTRPCRouter({
       })
 
       return folders;
+    }),
+
+  listFolderByWorkspaceId: protectedProcedure
+    .input(z.object({
+      workspaceId: z.string()
+    }))
+    .query(async ({ input, ctx }) => {
+      const folders = ctx.db.folder.findMany({
+        where: {
+          workspaceId: input.workspaceId
+        }
+      });
+
+      return folders;
     })
 })

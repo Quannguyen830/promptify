@@ -14,7 +14,7 @@ export function Navbar() {
     <header className="flex items-center justify-between g-backbground border-b h-16 px-3">
       <SidebarTrigger className="mr-3" />
 
-      <div className="flex items-center flex-1 max-w-xl bg-red-100 rounded-full px-4">
+      <div className="flex items-center flex-1 max-w-xl bg-[#202020] rounded-full px-4">
         <Search className="h-4 w-4 text-muted-foreground" />
         <Input
           type="search"
