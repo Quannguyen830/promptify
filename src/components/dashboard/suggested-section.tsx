@@ -1,23 +1,19 @@
-import { ChevronDown, Folder } from 'lucide-react'
+import { ChevronDown, Folder as FolderIcon } from 'lucide-react'
 import { Button } from "~/components/ui/button"
 import { FolderCard } from "./folder-card"
 import { FileCard } from "./file-card"
-import { type File } from '@prisma/client'
+import { type Folder, type File, type Workspace } from '@prisma/client'
+import { WorkspaceCard } from "./workspace-card"
 
 interface SuggestedSectionProps {
   title: string
-  type: "folders" | "files"
+  type: "folders" | "files" | "workspaces"
   files?: Array<File>
+  folders?: Array<Folder>
+  workspaces?: Array<Workspace>
 }
 
-export function SuggestedSection({ title, type, files }: SuggestedSectionProps) {
-  const folders = [
-    { id: "ios", title: "IOS", subtitle: "On My Drive" },
-    { id: "comp-arch", title: "Comp Architecture", subtitle: "On My Drive" },
-    { id: "photos", title: "PHOTOS!!!", subtitle: "Shared with me" },
-    { id: "oceanstar", title: "Oceanstar", subtitle: "Shared with me" },
-  ]
-
+export function SuggestedSection({ title, type, files, folders = [], workspaces = [] }: SuggestedSectionProps) {
   return (
     <section className="space-y-4">
       <div className="flex items-center">
@@ -32,19 +28,28 @@ export function SuggestedSection({ title, type, files }: SuggestedSectionProps) 
             <FolderCard
               key={folder.id}
               id={folder.id}
-              title={folder.title}
-              subtitle={folder.subtitle}
-              icon={<Folder className="h-5 w-5" />}
+              title={folder.name}
+              subtitle={folder.name}
+              icon={<FolderIcon className="h-5 w-5" />}
             />
           ))
-          : files?.map((file) => (
-            <FileCard
-              key={file.id}
-              title={file.name}
-              date={file.createdAt.toDateString()}
-              imageUrl={"/favicon.ico"}
-            />
-          ))}
+          : type === "workspaces"
+            ? workspaces.map((workspace) => (
+              <WorkspaceCard
+                key={workspace.id}
+                id={workspace.id}
+                name={workspace.name}
+              // type={workspace.type}
+              />
+            ))
+            : files?.map((file) => (
+              <FileCard
+                key={file.id}
+                title={file.name}
+                date={file.createdAt.toDateString()}
+                imageUrl={"/favicon.ico"}
+              />
+            ))}
       </div>
     </section>
   )
