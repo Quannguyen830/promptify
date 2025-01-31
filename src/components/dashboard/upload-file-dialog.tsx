@@ -6,57 +6,17 @@ import { Button } from "~/components/ui/button"
 import { Input } from "~/components/ui/input"
 import { Label } from "~/components/ui/label"
 import { ScrollArea } from "~/components/ui/scroll-area"
-import { Folder, ChevronRight, Search, ArrowRight, Upload } from "lucide-react"
-import { type ChangeEvent, useState, Fragment, useRef, useEffect } from "react"
+import { Folder, Search, Upload } from "lucide-react"
+import { type ChangeEvent, useState, useRef } from "react"
 import { useSession } from "next-auth/react"
 import { api } from "~/trpc/react"
-import { Workspace } from "@prisma/client"
+import { type Workspace } from "@prisma/client"
 
 interface UploadFileDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   onClose: () => void
 }
-
-interface FolderType {
-  id: string
-  name: string
-  path: string[]
-  children?: FolderType[]
-}
-
-// Mock folder structure - in real app this would come from your backend
-const mockFolders: FolderType[] = [
-  {
-    id: "1",
-    name: "My Drive",
-    path: ["My Drive"],
-    children: [
-      {
-        id: "2",
-        name: "Documents",
-        path: ["My Drive", "Documents"],
-        children: [
-          {
-            id: "5",
-            name: "Work",
-            path: ["My Drive", "Documents", "Work"],
-          },
-        ],
-      },
-      {
-        id: "3",
-        name: "Photos",
-        path: ["My Drive", "Photos"],
-      },
-      {
-        id: "4",
-        name: "Projects",
-        path: ["My Drive", "Projects"],
-      },
-    ],
-  },
-]
 
 export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDialogProps) {
   const [selectedFile, setSelectedFile] = useState<File | undefined>(undefined)
@@ -110,6 +70,7 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
               workspaceId: selectedWorkspace.id
             });
             console.log("File uploaded successfully:", result);
+            onClose();
           }
         }
       } catch (error) {

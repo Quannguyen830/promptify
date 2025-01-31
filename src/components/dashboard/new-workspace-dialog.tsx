@@ -45,6 +45,7 @@ export function NewWorkspaceDialog({ open, onOpenChange, onClose }: NewFolderDia
           });
 
           console.log("New workspace created: ", newWorkspaceId);
+          onClose();
         }
       } catch (error) {
         console.log("File upload failed:", error)

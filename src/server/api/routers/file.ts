@@ -32,8 +32,7 @@ export const fileRouter = createTRPCRouter({
   listFileByUserId: protectedProcedure
     .input(z.object({ userId: z.string() }))
     .query(async ({ input, ctx }) => {
-
-      const prismaFiles = await ctx.db.file.findMany({
+      const files = await ctx.db.file.findMany({
         where: {
           Workspace: {
             userId: input.userId
@@ -41,6 +40,6 @@ export const fileRouter = createTRPCRouter({
         },
       });
 
-      return prismaFiles;
+      return files;
     }),
 })
