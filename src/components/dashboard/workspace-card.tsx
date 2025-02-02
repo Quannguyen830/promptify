@@ -11,10 +11,10 @@ interface WorkspaceCardProps {
 
 export function WorkspaceCard({ name }: WorkspaceCardProps) {
   return (
-    <Card className="group relative hover:bg-accent/50 transition-colors">
+    <Card className="group relative hover:bg-accent bg-[#202020] border-0 transition-colors">
       <div className="p-4 flex items-start">
         <div className="mt-1 flex-shrink-0 mr-4">
-          <Briefcase className="h-5 w-5" />
+          <Briefcase className="h-6 w-6" />
         </div>
         <div className="flex-1 min-w-0 pr-8">
           <h3 className="text-sm font-medium leading-none truncate mb-1">{name}</h3>

@@ -12,14 +12,14 @@ import { type FileCardProps } from '~/constants/interfaces'
 
 export function FileCard({ title, date, imageUrl }: FileCardProps) {
   return (
-    <Card className="hover:bg-accent transition-colors">
+    <Card className="hover:bg-accent cursor-pointer bg-[#202020] border-0 transition-colors">
       <CardHeader className="p-0">
         <div className="relative aspect-video w-full">
           <Image
             src={imageUrl}
             alt={title}
             fill
-            className="object-cover rounded-t-lg"
+            className="object-cover p-3 rounded-[20px]"
           />
         </div>
       </CardHeader>

@@ -15,11 +15,13 @@ interface SuggestedSectionProps {
 
 export function SuggestedSection({ title, type, files, folders = [], workspaces = [] }: SuggestedSectionProps) {
   return (
-    <section className="space-y-4">
+    <section className="space-y-4 mt-3">
       <div className="flex items-center">
         <Button variant="ghost" className="px-2">
           <ChevronDown className="h-4 w-4 mr-2" />
-          {title}
+          <h3 className='text-lg'>
+            {title}
+          </h3>
         </Button>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -29,8 +31,8 @@ export function SuggestedSection({ title, type, files, folders = [], workspaces 
               key={folder.id}
               id={folder.id}
               title={folder.name}
-              subtitle={folder.name}
-              icon={<FolderIcon className="h-5 w-5" />}
+              subtitle={folder.createdAt.toDateString()}
+              icon={<FolderIcon className="h-6 w-6" />}
             />
           ))
           : type === "workspaces"
@@ -47,7 +49,7 @@ export function SuggestedSection({ title, type, files, folders = [], workspaces 
                 key={file.id}
                 title={file.name}
                 date={file.createdAt.toDateString()}
-                imageUrl={"/favicon.ico"}
+                imageUrl={"/sample-1.jpg"}
               />
             ))}
       </div>
