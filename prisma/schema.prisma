@@ -74,8 +74,13 @@ model Folder {
   parentFolder   Folder?  @relation("ParentChild", fields: [parentFolderId], references: [id])
   parentFolderId String?
 
-  Workspace   Workspace @relation(fields: [workspaceId], references: [id])
-  workspaceId String
+  hasSubfolders Boolean @default(false)
+
+  Workspace     Workspace @relation(fields: [workspaceId], references: [id])
+  workspaceId   String
+  workspaceName String
+
+  @@index([workspaceId])
 }
 
 model File {
@@ -103,8 +108,13 @@ model Workspace {
   files   File[]
   folders Folder[]
 
+  hasSubfolders Boolean @default(false)
+
   user   User   @relation(fields: [userId], references: [id])
   userId String
+
+  @@index([id])
+  @@index([userId])
 }
 
 // CHAT AGENT SYSTEM

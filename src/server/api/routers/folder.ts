@@ -5,18 +5,31 @@ export const folderRouter = createTRPCRouter({
   createNewFolder: protectedProcedure
     .input(z.object({
       workspaceId: z.string(),
-      folderName: z.string()
+      folderName: z.string(),
+      workspaceName: z.string()
     }))
     .mutation(async ({ input, ctx }) => {
-      const { workspaceId, folderName } = input;
+      const { workspaceId, folderName, workspaceName } = input;
 
       const newFolder = await ctx.db.folder.create({
         data: {
           name: folderName,
           workspaceId: workspaceId,
-          size: 0
+          size: 0,
+          workspaceName: workspaceName
         }
       })
+
+      const updatedWorkspace = await ctx.db.workspace.update({
+        where: {
+          id: workspaceId
+        },
+        data: {
+          hasSubfolders: true
+        }
+      })
+
+      console.log("Successfully update workspace: ", updatedWorkspace.hasSubfolders)
       
       return newFolder.id;
     }),
@@ -49,38 +62,5 @@ export const folderRouter = createTRPCRouter({
       });
 
       return folders;
-    }),
-
-  hasParents: protectedProcedure
-    .input(z.object({
-      id: z.string(),
-    }))
-    .query(async ({ input, ctx }) => {
-      const { id } = input;
-
-      const workspace = await ctx.db.workspace.findUnique({
-        where: { id },
-        include: {
-          folders: true,
-          files: true,
-        },
-      });
-
-      if (workspace) {
-        return workspace.folders.length > 0;
-      }
-
-      const folder = await ctx.db.folder.findUnique({
-        where: { id },
-        include: {
-          files: true,
-        },
-      });
-
-      if (folder) {
-        return folder.files.length > 0;
-      }
-
-      return false;
     }),
 })
