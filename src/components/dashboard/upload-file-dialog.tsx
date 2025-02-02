@@ -18,23 +18,32 @@ interface UploadFileDialogProps {
   onClose: () => void
 }
 
-type FolderHistoryItem = Workspace | Folder;
+interface Root {
+  id: string,
+  name: string,
+}
 
+type FolderHistoryItem = Workspace | Folder | Root;
 
+const MyDrive = {
+  id: "root",
+  name: "My Drive"
+}
 
 export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDialogProps) {
   const [selectedFile, setSelectedFile] = useState<File | undefined>(undefined)
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedFolder, setSelectedFolder] = useState<Folder | Workspace>();
   const [workspaceOrFolderList, setWorkspaceOrFolderList] = useState<Folder[] | Workspace[]>([]);
-  const [folderHistory, setFolderHistory] = useState<FolderHistoryItem[]>([]);
   const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
+  const [folderHistory, setFolderHistory] = useState<FolderHistoryItem[]>([MyDrive]);
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { data: session } = useSession();
 
   const { data: workspaces } = api.workspace.listWorkspaceByUserId.useQuery({
     userId: session?.user.id ?? ""
   });
+
 
   const { data: folders } = api.folder.listFolderByWorkspaceId.useQuery(
     { workspaceId: currentFolderId! },
@@ -123,6 +132,11 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
   }
 
   const handleBreadcrumbClick = (index: number) => {
+    if (index == 0) {
+      setWorkspaceOrFolderList(workspaces ?? []);
+      setFolderHistory([MyDrive])
+    }
+
     setFolderHistory(folderHistory.slice(0, index + 1));
     const selected = folderHistory[index];
 
@@ -142,7 +156,7 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
     setSelectedFolder(undefined);
     setWorkspaceOrFolderList(workspaces ?? []);
     setCurrentFolderId(null);
-    setFolderHistory([]);
+    setFolderHistory([MyDrive]);
   };
 
   // Reset state when the dialog is closed
