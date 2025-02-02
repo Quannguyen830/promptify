@@ -49,5 +49,38 @@ export const folderRouter = createTRPCRouter({
       });
 
       return folders;
-    })
+    }),
+
+  hasParents: protectedProcedure
+    .input(z.object({
+      id: z.string(),
+    }))
+    .query(async ({ input, ctx }) => {
+      const { id } = input;
+
+      const workspace = await ctx.db.workspace.findUnique({
+        where: { id },
+        include: {
+          folders: true,
+          files: true,
+        },
+      });
+
+      if (workspace) {
+        return workspace.folders.length > 0;
+      }
+
+      const folder = await ctx.db.folder.findUnique({
+        where: { id },
+        include: {
+          files: true,
+        },
+      });
+
+      if (folder) {
+        return folder.files.length > 0;
+      }
+
+      return false;
+    }),
 })
