@@ -6,8 +6,8 @@ import { Button } from "~/components/ui/button"
 import { Input } from "~/components/ui/input"
 import { Label } from "~/components/ui/label"
 import { ScrollArea } from "~/components/ui/scroll-area"
-import { ChevronRight, Folder as FolderIcon, Search, Upload } from "lucide-react"
-import { type ChangeEvent, useState, useRef, useEffect } from "react"
+import { ArrowRight, ChevronRight, Folder as FolderIcon, Search, Upload } from "lucide-react"
+import { type ChangeEvent, useState, useRef, useEffect, Fragment } from "react"
 import { useSession } from "next-auth/react"
 import { api } from "~/trpc/react"
 import { type Folder, type Workspace } from "@prisma/client"
@@ -18,18 +18,32 @@ interface UploadFileDialogProps {
   onClose: () => void
 }
 
+interface Root {
+  id: string,
+  name: string,
+}
+
+type FolderHistoryItem = Workspace | Folder | Root;
+
+const MyDrive = {
+  id: "root",
+  name: "My Drive"
+}
+
 export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDialogProps) {
   const [selectedFile, setSelectedFile] = useState<File | undefined>(undefined)
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedFolder, setSelectedFolder] = useState<Folder | Workspace>();
   const [workspaceOrFolderList, setWorkspaceOrFolderList] = useState<Folder[] | Workspace[]>([]);
   const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
+  const [folderHistory, setFolderHistory] = useState<FolderHistoryItem[]>([MyDrive]);
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { data: session } = useSession();
 
   const { data: workspaces } = api.workspace.listWorkspaceByUserId.useQuery({
     userId: session?.user.id ?? ""
   });
+
 
   const { data: folders } = api.folder.listFolderByWorkspaceId.useQuery(
     { workspaceId: currentFolderId! },
@@ -41,12 +55,11 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
   }, [workspaces]);
 
   useEffect(() => {
-    if (folders) {
+    if (folders && folders.length > 0) {
+      console.log(folders)
       setWorkspaceOrFolderList(folders);
     }
   }, [folders]);
-
-  // const [folderHistory, setFolderHistory] = useState<FolderType[]>([mockFolders[0]])
 
   const uploadFileMutation = api.file.uploadFile.useMutation();
 
@@ -71,16 +84,8 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
       setCurrentFolderId(workspaceOrFolder.id); // Set the current workspace ID
     }
 
-    // setFolderHistory((prev) => [...prev, folder])
+    setFolderHistory((prev) => [...prev, workspaceOrFolder]);
   }
-
-  // const handleBackClick = () => {
-  //   if (folderHistory.length > 1) {
-  //     const newHistory = folderHistory.slice(0, -1)
-  //     setFolderHistory(newHistory)
-  //     setSelectedWorkspace(newHistory[newHistory.length - 1])
-  //   }
-  // }
 
   const handleUpload = async () => {
     if (selectedFile && selectedFolder) {
@@ -94,13 +99,27 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
             // Determine the workspaceId based on the type of selectedFolder
             const workspaceId = 'workspaceId' in selectedFolder ? selectedFolder.workspaceId : selectedFolder.id;
 
-            const result = await uploadFileMutation.mutateAsync({
+            const uploadPayload: {
+              fileName: string;
+              fileSize: string;
+              fileType: string;
+              fileBuffer: Uint8Array;
+              workspaceId: string;
+              folderId?: string;
+            } = {
               fileName: selectedFile.name,
               fileSize: selectedFile.size.toString(),
               fileType: selectedFile.type,
               fileBuffer: uint8Array,
-              workspaceId: workspaceId
-            });
+              workspaceId: workspaceId,
+            };
+
+            // This is a folder
+            if ('workspaceId' in selectedFolder) {
+              uploadPayload.folderId = selectedFolder.id;
+            }
+
+            const result = await uploadFileMutation.mutateAsync(uploadPayload);
 
             console.log("File uploaded successfully:", result);
             handleClose();
@@ -112,6 +131,24 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
     }
   }
 
+  const handleBreadcrumbClick = (index: number) => {
+    if (index == 0) {
+      setWorkspaceOrFolderList(workspaces ?? []);
+      setFolderHistory([MyDrive])
+    }
+
+    setFolderHistory(folderHistory.slice(0, index + 1));
+    const selected = folderHistory[index];
+
+    if (selected) {
+      if ('workspaceId' in selected) {
+        setCurrentFolderId(selected.id); // Set the current folder ID
+      } else {
+        setCurrentFolderId(null); // Reset to root
+      }
+    }
+  };
+
   // Reset state function
   const resetState = () => {
     setSelectedFile(undefined);
@@ -119,6 +156,7 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
     setSelectedFolder(undefined);
     setWorkspaceOrFolderList(workspaces ?? []);
     setCurrentFolderId(null);
+    setFolderHistory([MyDrive]);
   };
 
   // Reset state when the dialog is closed
@@ -127,7 +165,7 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
     onClose();
   };
 
-  const handleOpenChange = (isOpen: boolean) => {
+  const handleDialogOpenChange = (isOpen: boolean) => {
     if (!isOpen) {
       handleClose();
     }
@@ -135,7 +173,7 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
   };
 
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
+    <Dialog open={open} onOpenChange={handleDialogOpenChange}>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
@@ -157,22 +195,19 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
             <Label>Select destination location</Label>
 
             {/* Breadcrumb Navigation */}
-            {/* <div className="flex items-center gap-1 text-sm text-muted-foreground pb-2">
+            <div className="flex items-center gap-1 text-sm text-muted-foreground pb-2">
               {folderHistory.map((folder, index) => (
                 <Fragment key={folder.id}>
                   {index > 0 && <ChevronRight className="h-4 w-4" />}
                   <button
-                    onClick={() => {
-                      setFolderHistory(folderHistory.slice(0, index + 1))
-                      setSelectedWorkspace(folder)
-                    }}
+                    onClick={() => handleBreadcrumbClick(index)}
                     className="hover:text-primary transition-colors"
                   >
                     {folder.name}
                   </button>
                 </Fragment>
               ))}
-            </div> */}
+            </div>
 
             {/* Folder Search */}
             <div className="relative">
@@ -197,7 +232,7 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
                   >
                     <FolderIcon className="h-4 w-4" />
                     <span className="flex-1">{workspaceOrFolder.name}</span>
-                    {/* {workspaceOrFolder. && <ChevronRight className="h-4 w-4" />} */}
+                    {workspaceOrFolder.hasSubfolders && <ChevronRight className="h-4 w-4" />}
                   </button>
                 ))}
               </div>
@@ -205,10 +240,10 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
           </div>
 
           {/* Selected Path Display */}
-          {/* <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <ArrowRight className="h-4 w-4" />
-            Files will be uploaded to: {selectedWorkspace.name.join(" > ")}
-          </div> */}
+            Files will be uploaded to: {selectedFolder ? selectedFolder.name : "No folder selected"}
+          </div>
         </div>
 
         <DialogFooter>

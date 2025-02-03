@@ -31,7 +31,7 @@ export function SuggestedSection({ title, type, files, folders = [], workspaces 
               key={folder.id}
               id={folder.id}
               title={folder.name}
-              subtitle={folder.createdAt.toDateString()}
+              subtitle={folder.workspaceName}
               icon={<FolderIcon className="h-6 w-6" />}
             />
           ))

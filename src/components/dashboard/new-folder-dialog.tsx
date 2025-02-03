@@ -50,7 +50,8 @@ export function NewFolderDialog({ open, onOpenChange, onClose }: NewFolderDialog
     if (workspace && folderName.trim()) {
       const newFolderId = createFolderMutation.mutateAsync({
         workspaceId: workspace.id,
-        folderName: folderName
+        folderName: folderName,
+        workspaceName: workspace.name
       })
 
       console.log("Creating folder:", newFolderId, "in workspace:", workspace.name)
