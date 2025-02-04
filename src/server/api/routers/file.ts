@@ -11,9 +11,11 @@ export const fileRouter = createTRPCRouter({
       fileBuffer: z.instanceof(Uint8Array),
       workspaceId: z.string(),
       folderId: z.string().optional(),
+      workspaceName: z.string(),
+      folderName: z.string().optional(),
     }))
     .mutation(async ({ input, ctx }) => {
-      const { fileName, fileSize, fileType, fileBuffer, workspaceId, folderId } = input;
+      const { fileName, fileSize, fileType, fileBuffer, workspaceId, folderId, workspaceName, folderName } = input;
       const buffer = Buffer.from(fileBuffer);
 
       const newFile = await ctx.db.file.create({
@@ -22,7 +24,9 @@ export const fileRouter = createTRPCRouter({
           size: parseFloat(fileSize),
           type: fileType,
           workspaceId: workspaceId,
-          folderId: folderId
+          folderId: folderId,
+          workspaceName: workspaceName,
+          folderName: folderName
         }
       })
 

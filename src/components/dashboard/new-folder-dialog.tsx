@@ -8,7 +8,7 @@ import { Label } from "~/components/ui/label"
 import { WorkspaceSelector } from "./workspace-selector-dialog"
 import { FolderPlus, ArrowLeft } from "lucide-react"
 import { useEffect, useRef, useState, type ChangeEvent } from "react"
-import { type Workspace } from "@prisma/client"
+import { type Folder, type Workspace } from "@prisma/client"
 import { api } from "~/trpc/react"
 
 interface NewFolderDialogProps {
@@ -21,7 +21,7 @@ type Step = "workspace" | "folder"
 
 export function NewFolderDialog({ open, onOpenChange, onClose }: NewFolderDialogProps) {
   const [step, setStep] = useState<Step>("workspace")
-  const [workspace, setWorkspace] = useState<Workspace | null>(null)
+  const [selectedParent, setSelectedParent] = useState<Workspace | Folder | null>(null)
   const [folderName, setFolderName] = useState("")
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -30,7 +30,7 @@ export function NewFolderDialog({ open, onOpenChange, onClose }: NewFolderDialog
   useEffect(() => {
     if (open) {
       setStep("workspace")
-      setWorkspace(null)
+      setSelectedParent(null)
       setFolderName("")
     }
   }, [open])
@@ -41,20 +41,36 @@ export function NewFolderDialog({ open, onOpenChange, onClose }: NewFolderDialog
     }
   }, [step])
 
-  const handleWorkspaceSelect = (selectedWorkspace: Workspace) => {
-    setWorkspace(selectedWorkspace)
+  const handleWorkspaceSelect = (selectedWorkspace: Workspace | Folder) => {
+    setSelectedParent(selectedWorkspace)
     setStep("folder")
   }
 
   const handleCreate = () => {
-    if (workspace && folderName.trim()) {
-      const newFolderId = createFolderMutation.mutateAsync({
-        workspaceId: workspace.id,
-        folderName: folderName,
-        workspaceName: workspace.name
-      })
+    if (selectedParent && folderName.trim()) {
+      const workspaceId = 'workspaceId' in selectedParent ? selectedParent.workspaceId : selectedParent.id;
+      const workspaceName = 'workspaceId' in selectedParent ? selectedParent.workspaceName : selectedParent.name
 
-      console.log("Creating folder:", newFolderId, "in workspace:", workspace.name)
+      const uploadPayload: {
+        workspaceId: string;
+        workspaceName: string;
+        name: string;
+        parentsFolderId?: string
+      } = {
+        workspaceId: workspaceId,
+        workspaceName: workspaceName,
+        name: folderName
+      };
+
+      // This is a folder
+      if ('workspaceId' in selectedParent) {
+        console.log("This is folder: ", selectedParent);
+        uploadPayload.parentsFolderId = selectedParent.id;
+      }
+
+      const newFolderId = createFolderMutation.mutateAsync(uploadPayload);
+
+      console.log("Creating folder:", newFolderId, "in workspace:", selectedParent.name)
       onClose()
     }
   }
@@ -88,7 +104,7 @@ export function NewFolderDialog({ open, onOpenChange, onClose }: NewFolderDialog
                 <ArrowLeft className="h-4 w-4" />
                 Back
               </Button>
-              Creating folder in: {workspace?.name}
+              Creating folder in: {selectedParent?.name}
             </div>
             <div className="space-y-2">
               <Label htmlFor="folderName">Folder name</Label>

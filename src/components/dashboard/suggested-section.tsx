@@ -49,6 +49,7 @@ export function SuggestedSection({ title, type, files, folders = [], workspaces 
                 key={file.id}
                 title={file.name}
                 date={file.createdAt.toDateString()}
+                subtitle={file.folderName ?? file.workspaceName}
                 imageUrl={"/sample-1.jpg"}
               />
             ))}

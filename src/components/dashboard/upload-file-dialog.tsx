@@ -11,23 +11,12 @@ import { type ChangeEvent, useState, useRef, useEffect, Fragment } from "react"
 import { useSession } from "next-auth/react"
 import { api } from "~/trpc/react"
 import { type Folder, type Workspace } from "@prisma/client"
+import { type FolderHistoryItem, MyDrive } from "~/constants/interfaces"
 
 interface UploadFileDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   onClose: () => void
-}
-
-interface Root {
-  id: string,
-  name: string,
-}
-
-type FolderHistoryItem = Workspace | Folder | Root;
-
-const MyDrive = {
-  id: "root",
-  name: "My Drive"
 }
 
 export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDialogProps) {
@@ -43,7 +32,6 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
   const { data: workspaces } = api.workspace.listWorkspaceByUserId.useQuery({
     userId: session?.user.id ?? ""
   });
-
 
   const { data: folders } = api.folder.listFolderByWorkspaceId.useQuery(
     { workspaceId: currentFolderId! },
@@ -98,6 +86,8 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
 
             // Determine the workspaceId based on the type of selectedFolder
             const workspaceId = 'workspaceId' in selectedFolder ? selectedFolder.workspaceId : selectedFolder.id;
+            const workspaceName = 'workspaceId' in selectedFolder ? selectedFolder.workspaceName : selectedFolder.name
+            const folderName = 'workspaceId' in selectedFolder ? selectedFolder.name : undefined;
 
             const uploadPayload: {
               fileName: string;
@@ -106,12 +96,16 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
               fileBuffer: Uint8Array;
               workspaceId: string;
               folderId?: string;
+              workspaceName: string;
+              folderName?: string
             } = {
               fileName: selectedFile.name,
               fileSize: selectedFile.size.toString(),
               fileType: selectedFile.type,
               fileBuffer: uint8Array,
               workspaceId: workspaceId,
+              workspaceName: workspaceName,
+              folderName: folderName
             };
 
             // This is a folder
