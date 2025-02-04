@@ -7,6 +7,7 @@ import { NewItemDialog } from "~/components/dashboard/new-item-diaplog"
 import { useSession } from "next-auth/react"
 import { api } from "~/trpc/react"
 import { useEffect, useState } from 'react'
+import { useChatProvider } from "~/components/chat-section/chat-store"
 
 export default function Page() {
   const { data: session } = useSession();
@@ -23,6 +24,10 @@ export default function Page() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const {
+    toggleOpen
+  } = useChatProvider();
+
   useEffect(() => {
     if (loadingFiles || loadingFolders || loadingWorkspaces) {
       setIsLoading(true);
@@ -35,7 +40,7 @@ export default function Page() {
       }
     }
   }, [loadingFiles, loadingFolders, loadingWorkspaces, errorFiles, errorFolders, errorWorkspaces]);
-
+  
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
 

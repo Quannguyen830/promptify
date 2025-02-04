@@ -11,7 +11,7 @@ export enum ChatSectionState {
   SELECTED_SESSION // when user select an existing chat session
 }
 
-export interface ChatStoreState {
+export interface ChatStore {
   currentChatState: ChatSectionState;
 
   messages: ClientMessage[];
@@ -22,7 +22,7 @@ export interface ChatStoreState {
   setChatSession: (session: ClientChatSession) => void; 
 }
 
-export const useChatStore = create<ChatStoreState>((set) => ({
+export const useChatStore = create<ChatStore>((set) => ({
   currentChatState: ChatSectionState.ALL_SESSIONS,
   
   messages: [],
@@ -48,3 +48,16 @@ export const useChatStore = create<ChatStoreState>((set) => ({
     currentChatSession: session,
   }))
 }));
+
+
+export interface ChatProvider {
+  isOpen: boolean;
+  toggleOpen: () => void;
+}
+
+export const useChatProvider = create<ChatProvider>((set) => ({
+  isOpen: false,
+  toggleOpen: () => {
+    set((state) => ({ isOpen: !state.isOpen }))
+  }
+}))
