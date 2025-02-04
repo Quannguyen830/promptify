@@ -48,4 +48,16 @@ export const fileRouter = createTRPCRouter({
 
       return files;
     }),
+
+  deleteFileByFileId: protectedProcedure
+    .input(z.object({ fileId: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      const removedFile = await ctx.db.file.delete({
+        where: {
+          id: input.fileId
+        }
+      })
+
+      return removedFile.name;
+    })
 })

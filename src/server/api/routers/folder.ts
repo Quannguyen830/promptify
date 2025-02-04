@@ -91,5 +91,17 @@ export const folderRouter = createTRPCRouter({
       })
 
       return folders;
+    }),
+
+  deleteFolderByFolderId: protectedProcedure
+    .input(z.object({ folderId: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      const removedFolder = await ctx.db.folder.delete({
+        where: {
+          id: input.folderId
+        }
+      })
+
+      return removedFolder.name;
     })
 })

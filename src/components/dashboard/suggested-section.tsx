@@ -47,6 +47,7 @@ export function SuggestedSection({ title, type, files, folders = [], workspaces 
             : files?.map((file) => (
               <FileCard
                 key={file.id}
+                id={file.id}
                 title={file.name}
                 date={file.createdAt.toDateString()}
                 subtitle={file.folderName ?? file.workspaceName}
