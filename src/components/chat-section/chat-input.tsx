@@ -6,7 +6,6 @@ import { Paperclip, Send } from "lucide-react";
 import { api } from "~/trpc/react";
 
 import { useChatStore } from "./chat-store";
-import { getResponse } from "~/server/services/gemini-service"
 import { type ChatInputForm, type ChatModel } from "~/constants/interfaces";
 
 import { Textarea } from "../ui/textarea";
@@ -25,6 +24,7 @@ const ChatInput = () => {
     messages,
     currentChatSession,
     addMessage,
+    addAgentResponse
   } = useChatStore()
 
   const {
@@ -35,36 +35,41 @@ const ChatInput = () => {
 
   const saveInitialMessage = api.chat.createChatSessionWithMessage.useMutation();
   const saveMessage = api.chat.addMessage.useMutation();
-  const userId = useSession().data?.user?.id;
 
+  const userId = useSession().data?.user?.id;
   if (!userId) return;
  
   const onSubmit: SubmitHandler<ChatInputForm> = async (data) => { 
-    if (messages.length === 0 || !currentChatSession?.id) {
+    if (!currentChatSession) return;
+    
+    if (messages.length === 0) {
       saveInitialMessage.mutate({
-        userId: userId,
-        content: data.userMessage,
+        content: data.message,
         sender: "USER"
       });
     } else {
       saveMessage.mutate({
         chatSessionId: currentChatSession.id,
-        content: data.userMessage,
+        content: data.message,
         sender: "USER"
       });
     }
     addMessage({
-      content: data.userMessage,
+      content: data.message,
       sender: "USER"
     });
     reset();
 
-    // send msg to model
-    const response = await getResponse(data.userMessage);
-    addMessage({
-      content: response,
-      sender: "AGENT" 
+    // handle agent reply state and saving
+    const reply = await addAgentResponse({
+      content: data.message,
+      sender: "AGENT"
     });
+    saveMessage.mutate({
+      chatSessionId: currentChatSession.id,
+      content: reply,
+      sender: "AGENT"
+    })
   }
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -82,7 +87,7 @@ const ChatInput = () => {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col p-4 gap-2">
       <Textarea 
-        {...register("userMessage")} 
+        {...register("message")} 
         onKeyDown={handleKeyDown}
         className="relative z-0 resize-none overflow-hidden focus-visible:ring-0 w-full"
       />

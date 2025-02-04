@@ -41,7 +41,7 @@ export interface FileModel {
 
 // CHAT SECTION
 export interface ChatInputForm {
-  userMessage: string
+  message: string
 }
 
 export interface ChatModel {

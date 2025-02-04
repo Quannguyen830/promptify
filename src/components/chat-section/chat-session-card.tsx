@@ -10,18 +10,15 @@ export const ChatSessionCard = ({children, title} : ChatSessionCardProps) => {
     id: title
   },
   {
-    enabled: sessionSelected
-  }
-);
+    // enabled: sessionSelected
+  });
+
   const {
     setChatSession
   } = useChatStore();
 
   const handleClick = () => {
     setSessionSelected(true);
-
-    console.log()
-
     if (selectedChatSession) setChatSession(selectedChatSession);
   };
   

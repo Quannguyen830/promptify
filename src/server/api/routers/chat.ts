@@ -5,16 +5,15 @@ import { MessageSenderSchema } from "~/constants/types";
 export const ChatRouter = createTRPCRouter({
   createChatSessionWithMessage: protectedProcedure
     .input(z.object({
-      userId: z.string(),
       content: z.string(),
       sender: MessageSenderSchema,
     }))
     .mutation(async ({ input, ctx }) => {
-      const { userId, content, sender } = input;
+      const { content, sender } = input;
 
       const response = await ctx.db.chatSession.create({
         data: {
-          userId: userId,
+          userId: ctx.session.user.id,
           messages: {
             create: {
               content: content,
