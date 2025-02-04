@@ -24,8 +24,13 @@ export function WorkspaceSelector({ onSelect }: WorkspaceSelectorProps) {
     userId: session?.user.id ?? ""
   });
 
-  const { data: folders } = api.folder.listFolderByWorkspaceId.useQuery(
+  const { data: folders } = api.folder.listRootFoldersByWorkspaceId.useQuery(
     { workspaceId: currentFolderId! },
+    { enabled: !!currentFolderId }
+  );
+
+  const { data: childFolders } = api.folder.listFolderByParentsFolderId.useQuery(
+    { parentsFolderId: currentFolderId! },
     { enabled: !!currentFolderId }
   );
 
@@ -39,6 +44,12 @@ export function WorkspaceSelector({ onSelect }: WorkspaceSelectorProps) {
       setWorkspaceOrFolderList(folders);
     }
   }, [folders]);
+
+  useEffect(() => {
+    if (childFolders && childFolders.length > 0) {
+      setWorkspaceOrFolderList(childFolders);
+    }
+  }, [childFolders])
 
   const handleItemClick = (item: Workspace | Folder) => {
     setFolderHistory((prev) => [...prev, item])

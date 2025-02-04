@@ -14,12 +14,12 @@ export function Navbar() {
     <header className="flex items-center justify-between g-backbground border-b h-16 px-3">
       <SidebarTrigger className="mr-3" />
 
-      <div className="flex items-center flex-1 max-w-xl bg-[#202020] rounded-full px-4">
+      <div className="flex items-center flex-1 max-w-xl border border-gray-300 shadow-sm rounded-full px-4">
         <Search className="h-4 w-4 text-muted-foreground" />
         <Input
           type="search"
           placeholder="Search in Drive"
-          className="flex items-center border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 w-full shadow-none"
+          className="flex items-center border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 w-full"
         />
       </div>
 
