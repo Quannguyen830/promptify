@@ -9,8 +9,22 @@ import {
 } from "~/components/ui/dropdown-menu"
 import Image from "next/image"
 import { type FileCardProps } from '~/constants/interfaces'
+import { api } from '~/trpc/react'
 
-export function FileCard({ title, date, imageUrl, subtitle }: FileCardProps) {
+export function FileCard({ id, title, date, imageUrl, subtitle }: FileCardProps) {
+  const { mutate: removeFile } = api.file.deleteFileByFileId.useMutation();
+
+  const handleRemove = () => {
+    removeFile({ fileId: id }, {
+      onSuccess: () => {
+        console.log(`File with ID ${id} removed successfully.`);
+      },
+      onError: (error) => {
+        console.error("Error removing file:", error);
+      }
+    });
+  }
+
   return (
     <Card className="hover:bg-accent cursor-pointer transition-colors">
       <CardHeader className="p-0">
@@ -39,7 +53,7 @@ export function FileCard({ title, date, imageUrl, subtitle }: FileCardProps) {
             <DropdownMenuContent align="end">
               <DropdownMenuItem>Share</DropdownMenuItem>
               <DropdownMenuItem>Get link</DropdownMenuItem>
-              <DropdownMenuItem>Remove</DropdownMenuItem>
+              <DropdownMenuItem onClick={handleRemove}>Remove</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

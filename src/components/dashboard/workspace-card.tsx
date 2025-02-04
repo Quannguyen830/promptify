@@ -2,6 +2,7 @@ import { Briefcase, MoreVertical } from "lucide-react"
 import { Button } from "~/components/ui/button"
 import { Card } from "~/components/ui/card"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "~/components/ui/dropdown-menu"
+import { api } from "~/trpc/react"
 
 interface WorkspaceCardProps {
   id: string
@@ -9,7 +10,19 @@ interface WorkspaceCardProps {
   // type: "personal" | "shared"
 }
 
-export function WorkspaceCard({ name }: WorkspaceCardProps) {
+export function WorkspaceCard({ id, name }: WorkspaceCardProps) {
+  const { mutate: removeWorkspace } = api.workspace.deleteWorkspaceByWorkspaceId.useMutation();
+
+  const handleRemove = () => {
+    removeWorkspace({ workspaceId: id }, {
+      onSuccess: () => {
+        console.log(`File with ID ${id} removed successfully.`);
+      },
+      onError: (error) => {
+        console.error("Error removing file:", error);
+      }
+    });
+  }
   return (
     <Card className="group cursor-pointer relative hover:bg-accent transition-colors">
       <div className="p-4 flex items-start">
@@ -33,7 +46,7 @@ export function WorkspaceCard({ name }: WorkspaceCardProps) {
             <DropdownMenuContent align="end">
               <DropdownMenuItem>Open</DropdownMenuItem>
               <DropdownMenuItem>Share</DropdownMenuItem>
-              <DropdownMenuItem>Remove from list</DropdownMenuItem>
+              <DropdownMenuItem onClick={handleRemove}>Remove from list</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

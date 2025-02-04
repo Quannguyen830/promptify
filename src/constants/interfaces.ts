@@ -21,25 +21,7 @@ export interface FileCardProps {
   subtitle: string
   date: string
   imageUrl: string
-}
-
-export interface S3File {
-  Key: string;
-  LastModified: Date;
-  Size: number;
-  ETag: string;
-}
-
-export interface ApiResponse {
-  Response: [];
-}
-
-export interface FileModel {
-  name: string,
-  size: number,
-  type: string,
-  workspaceId: string,
-  folderId: string,
+  id: string
 }
 
 interface Root {

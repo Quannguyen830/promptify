@@ -8,6 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu"
 import Link from "next/link"
+import { api } from '~/trpc/react'
 
 interface FolderCardProps {
   id: string
@@ -17,6 +18,19 @@ interface FolderCardProps {
 }
 
 export function FolderCard({ id, title, subtitle, icon }: FolderCardProps) {
+  const { mutate: removeFolder } = api.folder.deleteFolderByFolderId.useMutation();
+
+  const handleRemove = () => {
+    removeFolder({ folderId: id }, {
+      onSuccess: () => {
+        console.log(`File with ID ${id} removed successfully.`);
+      },
+      onError: (error) => {
+        console.error("Error removing file:", error);
+      }
+    });
+  }
+
   return (
     <Card className="group relative hover:bg-accent transition-colors">
       <Link href={`/folder/${id}`} className="block">
@@ -45,7 +59,7 @@ export function FolderCard({ id, title, subtitle, icon }: FolderCardProps) {
           <DropdownMenuContent align="end">
             <DropdownMenuItem>Share</DropdownMenuItem>
             <DropdownMenuItem>Get link</DropdownMenuItem>
-            <DropdownMenuItem>Remove</DropdownMenuItem>
+            <DropdownMenuItem onClick={handleRemove}>Remove</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
