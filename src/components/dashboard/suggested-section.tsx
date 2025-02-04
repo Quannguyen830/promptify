@@ -1,4 +1,4 @@
-import { ChevronDown, Folder as FolderIcon } from 'lucide-react'
+import { ChevronDown, Folder as FolderIcon, AlertTriangle } from 'lucide-react'
 import { Button } from "~/components/ui/button"
 import { FolderCard } from "./folder-card"
 import { FileCard } from "./file-card"
@@ -13,7 +13,7 @@ interface SuggestedSectionProps {
   workspaces?: Array<Workspace>
 }
 
-export function SuggestedSection({ title, type, files, folders = [], workspaces = [] }: SuggestedSectionProps) {
+export function SuggestedSection({ title, type, files = [], folders = [], workspaces = [] }: SuggestedSectionProps) {
   return (
     <section className="space-y-4 mt-3">
       <div className="flex items-center">
@@ -25,26 +25,41 @@ export function SuggestedSection({ title, type, files, folders = [], workspaces 
         </Button>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {type === "folders"
-          ? folders.map((folder) => (
-            <FolderCard
-              key={folder.id}
-              id={folder.id}
-              title={folder.name}
-              subtitle={folder.workspaceName}
-              icon={<FolderIcon className="h-6 w-6" />}
-            />
-          ))
-          : type === "workspaces"
-            ? workspaces.map((workspace) => (
+        {type === "workspaces" ? (
+          workspaces.length > 0 ? (
+            workspaces.map((workspace) => (
               <WorkspaceCard
                 key={workspace.id}
                 id={workspace.id}
                 name={workspace.name}
-              // type={workspace.type}
               />
             ))
-            : files?.map((file) => (
+          ) : (
+            <div className="flex items-center justify-center text-gray-500 col-span-1 md:col-span-2 lg:col-span-4">
+              <AlertTriangle className="h-5 w-5 mr-2" />
+              <span>No workspaces available. Please create a workspace to continue</span>
+            </div>
+          )
+        ) : type === "folders" ? (
+          folders.length > 0 ? (
+            folders.map((folder) => (
+              <FolderCard
+                key={folder.id}
+                id={folder.id}
+                title={folder.name}
+                subtitle={folder.workspaceName}
+                icon={<FolderIcon className="h-6 w-6" />}
+              />
+            ))
+          ) : (
+            <div className="flex items-center justify-center text-gray-500 col-span-1 md:col-span-2 lg:col-span-4">
+              <AlertTriangle className="h-5 w-5 mr-2" />
+              <span>No folders available. Please create a folder to continue</span>
+            </div>
+          )
+        ) : (
+          files.length > 0 ? (
+            files.map((file) => (
               <FileCard
                 key={file.id}
                 id={file.id}
@@ -53,7 +68,14 @@ export function SuggestedSection({ title, type, files, folders = [], workspaces 
                 subtitle={file.folderName ?? file.workspaceName}
                 imageUrl={"/sample-1.jpg"}
               />
-            ))}
+            ))
+          ) : (
+            <div className="flex items-center justify-center text-gray-500 col-span-1 md:col-span-2 lg:col-span-4">
+              <AlertTriangle className="h-5 w-5 mr-2" />
+              <span>No files available. Please create a file to continue</span>
+            </div>
+          )
+        )}
       </div>
     </section>
   )
