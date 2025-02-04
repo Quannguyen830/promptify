@@ -5,22 +5,38 @@ export const folderRouter = createTRPCRouter({
   createNewFolder: protectedProcedure
     .input(z.object({
       workspaceId: z.string(),
-      folderName: z.string(),
-      workspaceName: z.string()
+      name: z.string(),
+      workspaceName: z.string(),
+      parentsFolderId: z.string().optional(),
     }))
     .mutation(async ({ input, ctx }) => {
-      const { workspaceId, folderName, workspaceName } = input;
+      const { workspaceId, name, workspaceName, parentsFolderId } = input;
+
+      console.log("Input: ", input)
 
       const newFolder = await ctx.db.folder.create({
         data: {
-          name: folderName,
+          name: name,
           workspaceId: workspaceId,
           size: 0,
-          workspaceName: workspaceName
+          workspaceName: workspaceName,
+          parentFolderId: parentsFolderId
         }
       })
 
-      const updatedWorkspace = await ctx.db.workspace.update({
+      // Update parent folder and workspace hasSubFolder field
+      if(parentsFolderId) {
+        await ctx.db.folder.update({
+          where: {
+            id: parentsFolderId
+          },
+          data: {
+            hasSubfolders: true
+          }
+        })
+      }
+
+      await ctx.db.workspace.update({
         where: {
           id: workspaceId
         },
@@ -28,8 +44,6 @@ export const folderRouter = createTRPCRouter({
           hasSubfolders: true
         }
       })
-
-      console.log("Successfully update workspace: ", updatedWorkspace.hasSubfolders)
       
       return newFolder.id;
     }),
