@@ -12,7 +12,7 @@ import { type FileCardProps } from '~/constants/interfaces'
 
 export function FileCard({ title, date, imageUrl, subtitle }: FileCardProps) {
   return (
-    <Card className="hover:bg-accent cursor-pointer bg-[#202020] border-0 transition-colors">
+    <Card className="hover:bg-accent cursor-pointer transition-colors">
       <CardHeader className="p-0">
         <div className="relative aspect-video w-full">
           <Image

@@ -11,7 +11,7 @@ interface WorkspaceCardProps {
 
 export function WorkspaceCard({ name }: WorkspaceCardProps) {
   return (
-    <Card className="group relative hover:bg-accent bg-[#202020] border-0 transition-colors">
+    <Card className="group cursor-pointer relative hover:bg-accent transition-colors">
       <div className="p-4 flex items-start">
         <div className="mt-1 flex-shrink-0 mr-4">
           <Briefcase className="h-6 w-6" />

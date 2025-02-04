@@ -33,8 +33,13 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
     userId: session?.user.id ?? ""
   });
 
-  const { data: folders } = api.folder.listFolderByWorkspaceId.useQuery(
+  const { data: rootFolders } = api.folder.listRootFoldersByWorkspaceId.useQuery(
     { workspaceId: currentFolderId! },
+    { enabled: !!currentFolderId }
+  );
+
+  const { data: childFolders } = api.folder.listFolderByParentsFolderId.useQuery(
+    { parentsFolderId: currentFolderId! },
     { enabled: !!currentFolderId }
   );
 
@@ -43,11 +48,16 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
   }, [workspaces]);
 
   useEffect(() => {
-    if (folders && folders.length > 0) {
-      console.log(folders)
-      setWorkspaceOrFolderList(folders);
+    if (rootFolders && rootFolders.length > 0) {
+      setWorkspaceOrFolderList(rootFolders);
     }
-  }, [folders]);
+  }, [rootFolders]);
+
+  useEffect(() => {
+    if (childFolders && childFolders.length > 0) {
+      setWorkspaceOrFolderList(childFolders);
+    }
+  }, [childFolders])
 
   const uploadFileMutation = api.file.uploadFile.useMutation();
 
@@ -60,8 +70,8 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
     }
   }
 
-  const handleFolderClick = (workspaceOrFolder: Workspace | Folder) => {
-    setSelectedFolder(workspaceOrFolder)
+  const handleFolderClick = async (workspaceOrFolder: Workspace | Folder) => {
+    setSelectedFolder(workspaceOrFolder);
 
     // This is a folder
     if ('workspaceId' in workspaceOrFolder) {
@@ -73,7 +83,7 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
     }
 
     setFolderHistory((prev) => [...prev, workspaceOrFolder]);
-  }
+  };
 
   const handleUpload = async () => {
     if (selectedFile && selectedFolder) {
