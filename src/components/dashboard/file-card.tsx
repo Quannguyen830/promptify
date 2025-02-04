@@ -10,7 +10,7 @@ import {
 import Image from "next/image"
 import { type FileCardProps } from '~/constants/interfaces'
 
-export function FileCard({ title, date, imageUrl }: FileCardProps) {
+export function FileCard({ title, date, imageUrl, subtitle }: FileCardProps) {
   return (
     <Card className="hover:bg-accent cursor-pointer bg-[#202020] border-0 transition-colors">
       <CardHeader className="p-0">
@@ -27,7 +27,8 @@ export function FileCard({ title, date, imageUrl }: FileCardProps) {
         <div className="flex items-center justify-between">
           <div>
             <h3 className="font-medium leading-none">{title}</h3>
-            <p className="text-sm text-muted-foreground pt-1">{date}</p>
+            <p className="text-sm text-muted-foreground truncate mt-1">{subtitle}</p>
+            <p className="text-sm text-muted-foreground mt-2">{date}</p>
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
