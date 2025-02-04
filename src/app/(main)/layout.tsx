@@ -73,7 +73,7 @@ export default function AuthenticatedLayout({
 
                       <ResizableHandle />
                       
-                      {isOpen && (
+                      {isOpen &&   (
                         <ResizablePanel minSize={20}>
                           <ChatSection />
                         </ResizablePanel>
