@@ -103,5 +103,21 @@ export const folderRouter = createTRPCRouter({
       })
 
       return removedFolder.name;
+    }),
+
+  getFolderContentByFolderId: protectedProcedure
+    .input(z.object({ folderId: z.string() }))
+    .query(async ({ input, ctx }) => {
+      const folder = await ctx.db.folder.findUnique({
+        where: {
+          id: input.folderId
+        },
+        include: {
+          subfolders: true,
+          files: true,
+        }
+      });
+
+      return folder;
     })
 })

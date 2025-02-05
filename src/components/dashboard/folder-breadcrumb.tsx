@@ -37,7 +37,7 @@ export function FolderBreadcrumb({ items }: FolderBreadcrumbProps) {
               </DropdownMenuTrigger>
               <DropdownMenuContent>
                 <DropdownMenuItem>
-                  Rename folder
+                  Rename
                 </DropdownMenuItem>
                 <DropdownMenuItem>
                   Move to

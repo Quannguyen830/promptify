@@ -44,5 +44,21 @@ export const workspaceRouter = createTRPCRouter({
       })
 
       return removedWorkspace.name;
-    })
+    }),
+
+  getWorkspaceByWorkspaceId: protectedProcedure
+    .input(z.object({ workspaceId: z.string() }))
+    .query(async ({ input, ctx }) => {
+      const workspace = await ctx.db.workspace.findUnique({
+        where: {
+          id: input.workspaceId
+        },
+        include: {
+          folders: true,
+          files: true
+        }
+      })
+
+      return workspace;
+    }),
 })
