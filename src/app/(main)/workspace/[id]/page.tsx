@@ -8,15 +8,15 @@ import { FolderBreadcrumb } from "~/components/dashboard/folder-breadcrumb"
 import { useParams } from 'next/navigation'
 import { api } from '~/trpc/react'
 
-export default function FolderPage() {
+export default function WorkspacePage() {
   const { id } = useParams<{ id: string }>();
 
-  const { data: fetchFolder, isLoading: isLoading, error: error } = api.folder.getFolderContentByFolderId.useQuery(
-    { folderId: id }
+  const { data: fetchedWorkspace, isLoading: isLoading, error: error } = api.workspace.getWorkspaceByWorkspaceId.useQuery(
+    { workspaceId: id }
   );
 
   if (!id || Array.isArray(id)) {
-    return <div>Error: Invalid folder ID</div>;
+    return <div>Error: Invalid workspace ID</div>;
   }
 
   if (isLoading) return <div>Loading...</div>;
@@ -29,7 +29,7 @@ export default function FolderPage() {
           <FolderBreadcrumb
             items={[
               { label: "My Drive", href: "/dashboard" },
-              { label: fetchFolder?.name ?? id, href: `/folder/${id}`, current: true }
+              { label: fetchedWorkspace?.name ?? id, href: `/workspace/${id}`, current: true }
             ]}
           />
           <NewItemDialog>
@@ -39,8 +39,8 @@ export default function FolderPage() {
             </Button>
           </NewItemDialog>
         </div>
-        <SuggestedSection title="Folder contents" type="folders" folders={fetchFolder?.subfolders ?? []} />
-        <SuggestedSection title="File contents" type="files" files={fetchFolder?.files ?? []} />
+        <SuggestedSection title="Folder contents" type="folders" folders={fetchedWorkspace?.folders ?? []} />
+        <SuggestedSection title="File contents" type="files" files={fetchedWorkspace?.files ?? []} />
       </main>
     </div>
   )

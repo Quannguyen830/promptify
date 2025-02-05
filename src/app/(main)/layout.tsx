@@ -63,7 +63,7 @@ export default function AuthenticatedLayout({
                         "flex-1 transition-all duration-300 ease-in-out"
                       )}
                     >
-                      <ResizablePanel defaultSize={80} minSize={30}>
+                      <ResizablePanel className="px-5" defaultSize={80} minSize={30}>
                         <Navbar />
 
                         <main className='p-5 h-full'>
