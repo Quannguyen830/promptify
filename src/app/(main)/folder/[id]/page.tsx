@@ -17,7 +17,6 @@ export default function FolderPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
       <main className="container mx-auto p-6 space-y-6">
         <div className="flex items-center justify-between">
           <FolderBreadcrumb
