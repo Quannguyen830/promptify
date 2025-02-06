@@ -141,9 +141,22 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
 
   const handleBreadcrumbClick = (index: number) => {
     console.log("Breadcrumb clicked at index:", index);
-    if (index == 0) {
+    if (index === 0) {
       setWorkspaceOrFolderList(workspaces ?? []);
-      setFolderHistory([MyDrive])
+      setFolderHistory([MyDrive]);
+    } else {
+      const selectedItem = folderHistory[index] as Workspace | Folder;
+      setSelectedFolder(selectedItem);
+
+      // Check if the selected item is a folder or workspace and set the children accordingly
+      if ('workspaceId' in selectedItem) {
+        const subfolders = allFolders.filter(folder => folder.parentFolderId === selectedItem.id);
+        setWorkspaceOrFolderList(subfolders);
+      } else if ('folders' in selectedItem) {
+        const folders = selectedItem.folders as Folder[];
+        const filteredRootFolders = folders.filter(folder => folder.parentFolderId === null && folder.workspaceId === selectedItem.id);
+        setWorkspaceOrFolderList(filteredRootFolders);
+      }
     }
 
     setFolderHistory(folderHistory.slice(0, index + 1));

@@ -68,9 +68,22 @@ export function WorkspaceSelector({ onSelect }: WorkspaceSelectorProps) {
 
   const handleBreadcrumbClick = (index: number) => {
     console.log("Breadcrumb clicked at index:", index);
-    if (index == 0) {
+    if (index === 0) {
       setWorkspaceOrFolderList(workspaces ?? []);
-      setFolderHistory([MyDrive])
+      setFolderHistory([MyDrive]);
+    } else {
+      const selectedItem = folderHistory[index];
+
+      if (selectedItem) {
+        if ('workspaceId' in selectedItem) {
+          const subfolders = allFolders.filter(folder => folder.parentFolderId === selectedItem.id);
+          setWorkspaceOrFolderList(subfolders);
+        } else if ('folders' in selectedItem) {
+          const folders = selectedItem.folders as Folder[];
+          const filteredRootFolders = folders.filter(folder => folder.parentFolderId === null && folder.workspaceId === selectedItem.id);
+          setWorkspaceOrFolderList(filteredRootFolders);
+        }
+      }
     }
 
     setFolderHistory(folderHistory.slice(0, index + 1));
