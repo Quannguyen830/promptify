@@ -11,13 +11,13 @@ import { GuestUser } from "~/constants/interfaces"
 
 export default function Page() {
   const { data: session } = useSession();
-  const { data: fetchedFiles, isLoading: loadingFiles, error: errorFiles, refetch: refetchFiles } = api.file.listFileByUserId.useQuery(
+  const { data: fetchedFiles, isLoading: loadingFiles, error: errorFiles } = api.file.listFileByUserId.useQuery(
     { userId: session?.user.id ?? GuestUser.id }
   );
-  const { data: fetchedFolders, isLoading: loadingFolders, error: errorFolders, refetch: refetchFolders } = api.folder.listFolderByUserId.useQuery(
+  const { data: fetchedFolders, isLoading: loadingFolders, error: errorFolders } = api.folder.listFolderByUserId.useQuery(
     { userId: session?.user.id ?? GuestUser.id }
   );
-  const { data: fetchedWorkspaces, isLoading: loadingWorkspaces, error: errorWorkspaces, refetch: refetchWorkspaces } = api.workspace.listWorkspaceByUserId.useQuery(
+  const { data: fetchedWorkspaces, isLoading: loadingWorkspaces, error: errorWorkspaces } = api.workspace.listWorkspaceByUserId.useQuery(
     { userId: session?.user.id ?? GuestUser.id }
   );
 
@@ -36,28 +36,6 @@ export default function Page() {
       }
     }
   }, [loadingFiles, loadingFolders, loadingWorkspaces, errorFiles, errorFolders, errorWorkspaces]);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const fetchData = async () => {
-        try {
-          // Refetch the queries
-          await refetchFiles();
-          await refetchFolders();
-          await refetchWorkspaces();
-        } catch (error) {
-          console.error("Error refetching data:", error);
-        }
-      };
-
-      fetchData()
-        .catch((e: Error) => {
-          console.log(e);
-        })
-    }, 5000);
-
-    return () => clearInterval(interval); // Cleanup on unmount
-  }, [refetchFiles, refetchFolders, refetchWorkspaces]);
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
