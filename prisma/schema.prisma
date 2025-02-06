@@ -130,10 +130,14 @@ model ChatSession {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
+  name String
   messages Message[]
 
   user   User   @relation(fields: [userId], references: [id])
   userId String
+
+  @@index([id])
+  @@index([userId])
 }
 
 enum MessageSender {

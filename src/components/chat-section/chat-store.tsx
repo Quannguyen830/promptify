@@ -3,7 +3,6 @@ import {
   type ClientChatSession,
   type ClientMessage
 } from "~/constants/types";
-import { getResponse } from "~/server/services/gemini-service";
 
 export enum ChatSectionState {
   ALL_SESSIONS, // default state: displaying all existing sessions
@@ -11,17 +10,17 @@ export enum ChatSectionState {
   SELECTED_SESSION // when user select an existing chat session
 }
 
+
 export interface ChatStore {
   currentChatState: ChatSectionState;
 
   messages: ClientMessage[];
   addMessage: (message: ClientMessage) => void;
-  addAgentResponse: (message: ClientMessage) => Promise<string>;
+  addAgentResponse: (message: ClientMessage) => void;
   
   currentChatSession: ClientChatSession | null;
   setChatSession: (session: ClientChatSession) => void; 
 }
-
 export const useChatStore = create<ChatStore>((set) => ({
   currentChatState: ChatSectionState.ALL_SESSIONS,
   
@@ -31,14 +30,10 @@ export const useChatStore = create<ChatStore>((set) => ({
       messages: [...state.messages, message]
     }));
   },
-  addAgentResponse: async (message) => {
-    const reply = await getResponse(message.content);
-    console.log("REPLY", reply)
-
+  addAgentResponse: (message) => {
     set((state) => ({
-      messages: [...state.messages, { content: reply, sender: "AGENT"}]
+      messages: [...state.messages, { content: message.content, sender: "AGENT"}]
     }));
-    return reply;
   },
 
   currentChatSession: null,
@@ -50,11 +45,11 @@ export const useChatStore = create<ChatStore>((set) => ({
 }));
 
 
+
 export interface ChatProvider {
   isOpen: boolean;
   toggleOpen: () => void;
 }
-
 export const useChatProvider = create<ChatProvider>((set) => ({
   isOpen: false,
   toggleOpen: () => {

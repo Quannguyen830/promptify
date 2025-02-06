@@ -33,8 +33,8 @@ const ChatInput = () => {
     reset
   } = useForm<ChatInputForm>()
 
-  const saveInitialMessage = api.chat.createChatSessionWithMessage.useMutation();
-  const saveMessage = api.chat.addMessage.useMutation();
+  const createSessionWithMessage = api.chat.createChatSessionWithMessage.useMutation();
+  const saveMessage = api.chat.createMessageAndGetResponse.useMutation();
 
   const userId = useSession().data?.user?.id;
   if (!userId) return;
@@ -43,33 +43,31 @@ const ChatInput = () => {
     if (!currentChatSession) return;
     
     if (messages.length === 0) {
-      saveInitialMessage.mutate({
+      const reply = await createSessionWithMessage.mutateAsync({
         content: data.message,
         sender: "USER"
       });
+      reset();
+      addAgentResponse({
+        content: reply,
+        sender: "AGENT"
+      })
     } else {
-      saveMessage.mutate({
+      const reply = await saveMessage.mutateAsync({
         chatSessionId: currentChatSession.id,
         content: data.message,
         sender: "USER"
       });
+      addMessage({
+        content: data.message,
+        sender: "USER"
+      });
+      reset();
+      addAgentResponse({
+        content: reply.content,
+        sender: "AGENT"
+      });
     }
-    addMessage({
-      content: data.message,
-      sender: "USER"
-    });
-    reset();
-
-    // handle agent reply state and saving
-    const reply = await addAgentResponse({
-      content: data.message,
-      sender: "AGENT"
-    });
-    saveMessage.mutate({
-      chatSessionId: currentChatSession.id,
-      content: reply,
-      sender: "AGENT"
-    })
   }
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
