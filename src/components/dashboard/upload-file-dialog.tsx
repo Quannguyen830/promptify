@@ -24,37 +24,36 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedFolder, setSelectedFolder] = useState<Folder | Workspace>();
   const [workspaceOrFolderList, setWorkspaceOrFolderList] = useState<Folder[] | Workspace[]>([]);
-  const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
+  const [allFolders, setAllFolders] = useState<Folder[]>([])
+  const [rootFolders, setRootFolders] = useState<Folder[]>();
+  const [childFolders, setChildFolders] = useState<Folder[]>();
   const [folderHistory, setFolderHistory] = useState<FolderHistoryItem[]>([MyDrive]);
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { data: session } = useSession();
+  console.log("Session data:", session);
 
   const { data: workspaces } = api.workspace.listWorkspaceByUserId.useQuery({
     userId: session?.user.id ?? ""
   });
 
-  const { data: rootFolders } = api.folder.listRootFoldersByWorkspaceId.useQuery(
-    { workspaceId: currentFolderId! },
-    { enabled: !!currentFolderId }
-  );
-
-  const { data: childFolders } = api.folder.listFolderByParentsFolderId.useQuery(
-    { parentsFolderId: currentFolderId! },
-    { enabled: !!currentFolderId }
-  );
-
   useEffect(() => {
+    console.log("Workspaces updated:", workspaces);
     setWorkspaceOrFolderList(workspaces ?? []);
+    if (workspaces) {
+      setAllFolders(workspaces.flatMap(workspace => workspace.folders));
+    }
   }, [workspaces]);
 
   useEffect(() => {
     if (rootFolders && rootFolders.length > 0) {
+      console.log("Root folders updated:", rootFolders);
       setWorkspaceOrFolderList(rootFolders);
     }
   }, [rootFolders]);
 
   useEffect(() => {
     if (childFolders && childFolders.length > 0) {
+      console.log("Child folders updated:", childFolders);
       setWorkspaceOrFolderList(childFolders);
     }
   }, [childFolders])
@@ -71,21 +70,26 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
   }
 
   const handleFolderClick = async (workspaceOrFolder: Workspace | Folder) => {
+    console.log("Folder clicked:", workspaceOrFolder);
     setSelectedFolder(workspaceOrFolder);
 
     // This is a folder
     if ('workspaceId' in workspaceOrFolder) {
-      setCurrentFolderId(workspaceOrFolder.id); // Set the current folder ID
+      const subfolders = allFolders.filter(folder => folder.parentFolderId === workspaceOrFolder.id);
+      setChildFolders(subfolders)
     }
     // This is a workspace 
-    else {
-      setCurrentFolderId(workspaceOrFolder.id); // Set the current workspace ID
+    else if ('folders' in workspaceOrFolder) {
+      const folders = workspaceOrFolder.folders as Folder[];
+      const filteredRootFolders = folders.filter(folder => folder.parentFolderId === null && folder.workspaceId === workspaceOrFolder.id);
+      setRootFolders(filteredRootFolders);
     }
 
     setFolderHistory((prev) => [...prev, workspaceOrFolder]);
   };
 
   const handleUpload = async () => {
+    console.log("Upload initiated with file:", selectedFile, "and folder:", selectedFolder);
     if (selectedFile && selectedFolder) {
       try {
         if (session !== null) {
@@ -136,21 +140,26 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
   }
 
   const handleBreadcrumbClick = (index: number) => {
-    if (index == 0) {
+    console.log("Breadcrumb clicked at index:", index);
+    if (index === 0) {
       setWorkspaceOrFolderList(workspaces ?? []);
-      setFolderHistory([MyDrive])
+      setFolderHistory([MyDrive]);
+    } else {
+      const selectedItem = folderHistory[index] as Workspace | Folder;
+      setSelectedFolder(selectedItem);
+
+      // Check if the selected item is a folder or workspace and set the children accordingly
+      if ('workspaceId' in selectedItem) {
+        const subfolders = allFolders.filter(folder => folder.parentFolderId === selectedItem.id);
+        setWorkspaceOrFolderList(subfolders);
+      } else if ('folders' in selectedItem) {
+        const folders = selectedItem.folders as Folder[];
+        const filteredRootFolders = folders.filter(folder => folder.parentFolderId === null && folder.workspaceId === selectedItem.id);
+        setWorkspaceOrFolderList(filteredRootFolders);
+      }
     }
 
     setFolderHistory(folderHistory.slice(0, index + 1));
-    const selected = folderHistory[index];
-
-    if (selected) {
-      if ('workspaceId' in selected) {
-        setCurrentFolderId(selected.id); // Set the current folder ID
-      } else {
-        setCurrentFolderId(null); // Reset to root
-      }
-    }
   };
 
   // Reset state function
@@ -159,7 +168,6 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
     setSearchQuery("");
     setSelectedFolder(undefined);
     setWorkspaceOrFolderList(workspaces ?? []);
-    setCurrentFolderId(null);
     setFolderHistory([MyDrive]);
   };
 

@@ -5,7 +5,7 @@ export const workspaceRouter = createTRPCRouter({
   createNewWorkspace: protectedProcedure
     .input(z.object({
       userId: z.string(),
-      workspaceName: z.string()
+      workspaceName: z.string(),
     }))
     .mutation(async ({ input, ctx }) => {
       const { userId, workspaceName } = input;
@@ -28,6 +28,10 @@ export const workspaceRouter = createTRPCRouter({
       const workspaces = await ctx.db.workspace.findMany({
         where: {
           userId: input.userId
+        },
+        include: {
+          files: true,
+          folders: true
         }
       })
 

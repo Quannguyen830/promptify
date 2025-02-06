@@ -17,33 +17,27 @@ export function WorkspaceSelector({ onSelect }: WorkspaceSelectorProps) {
   const { data: session } = useSession();
   const [folderHistory, setFolderHistory] = useState<FolderHistoryItem[]>([MyDrive]);
   const [workspaceOrFolderList, setWorkspaceOrFolderList] = useState<Workspace[] | Folder[]>([]);
-  const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
-
+  const [allFolders, setAllFolders] = useState<Folder[]>([])
+  const [rootFolders, setRootFolders] = useState<Folder[]>();
+  const [childFolders, setChildFolders] = useState<Folder[]>();
 
   const { data: workspaces } = api.workspace.listWorkspaceByUserId.useQuery({
     userId: session?.user.id ?? ""
   });
 
-  const { data: folders } = api.folder.listRootFoldersByWorkspaceId.useQuery(
-    { workspaceId: currentFolderId! },
-    { enabled: !!currentFolderId }
-  );
-
-  const { data: childFolders } = api.folder.listFolderByParentsFolderId.useQuery(
-    { parentsFolderId: currentFolderId! },
-    { enabled: !!currentFolderId }
-  );
-
   useEffect(() => {
     setWorkspaceOrFolderList(workspaces ?? []);
+    if (workspaces) {
+      setAllFolders(workspaces.flatMap(workspace => workspace.folders));
+    }
   }, [workspaces]);
 
   useEffect(() => {
-    if (folders && folders.length > 0) {
-      console.log(folders)
-      setWorkspaceOrFolderList(folders);
+    if (rootFolders && rootFolders.length > 0) {
+      console.log("Root folders updated:", rootFolders);
+      setWorkspaceOrFolderList(rootFolders);
     }
-  }, [folders]);
+  }, [rootFolders]);
 
   useEffect(() => {
     if (childFolders && childFolders.length > 0) {
@@ -60,31 +54,39 @@ export function WorkspaceSelector({ onSelect }: WorkspaceSelectorProps) {
 
     // This is a folder
     if ('workspaceId' in item) {
-      setCurrentFolderId(item.id); // Set the current folder ID
+      const subfolders = allFolders.filter(folder => folder.parentFolderId === item.id);
+      setChildFolders(subfolders)
     }
     // This is a workspace 
-    else {
-      setCurrentFolderId(item.id); // Set the current workspace ID
+    else if ('folders' in item) {
+      const folders = item.folders as Folder[];
+      const filteredRootFolders = folders.filter(folder => folder.parentFolderId === null && folder.workspaceId === item.id);
+      setRootFolders(filteredRootFolders);
     }
 
   }
 
   const handleBreadcrumbClick = (index: number) => {
-    if (index == 0) {
+    console.log("Breadcrumb clicked at index:", index);
+    if (index === 0) {
       setWorkspaceOrFolderList(workspaces ?? []);
-      setFolderHistory([MyDrive])
+      setFolderHistory([MyDrive]);
+    } else {
+      const selectedItem = folderHistory[index];
+
+      if (selectedItem) {
+        if ('workspaceId' in selectedItem) {
+          const subfolders = allFolders.filter(folder => folder.parentFolderId === selectedItem.id);
+          setWorkspaceOrFolderList(subfolders);
+        } else if ('folders' in selectedItem) {
+          const folders = selectedItem.folders as Folder[];
+          const filteredRootFolders = folders.filter(folder => folder.parentFolderId === null && folder.workspaceId === selectedItem.id);
+          setWorkspaceOrFolderList(filteredRootFolders);
+        }
+      }
     }
 
     setFolderHistory(folderHistory.slice(0, index + 1));
-    const selected = folderHistory[index];
-
-    if (selected) {
-      if ('workspaceId' in selected) {
-        setCurrentFolderId(selected.id); // Set the current folder ID
-      } else {
-        setCurrentFolderId(null); // Reset to root
-      }
-    }
   };
 
   return (
