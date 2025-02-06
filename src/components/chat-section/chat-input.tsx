@@ -24,7 +24,6 @@ const ChatInput = () => {
     messages,
     currentChatSession,
     addMessage,
-    addAgentResponse
   } = useChatStore()
 
   const {
@@ -47,8 +46,12 @@ const ChatInput = () => {
         content: data.message,
         sender: "USER"
       });
+      addMessage({
+        content: data.message,
+        sender: "USER"
+      });
       reset();
-      addAgentResponse({
+      addMessage({
         content: reply,
         sender: "AGENT"
       })
@@ -63,7 +66,7 @@ const ChatInput = () => {
         sender: "USER"
       });
       reset();
-      addAgentResponse({
+      addMessage({
         content: reply.content,
         sender: "AGENT"
       });

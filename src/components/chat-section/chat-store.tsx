@@ -16,7 +16,6 @@ export interface ChatStore {
 
   messages: ClientMessage[];
   addMessage: (message: ClientMessage) => void;
-  addAgentResponse: (message: ClientMessage) => void;
   
   currentChatSession: ClientChatSession | null;
   setChatSession: (session: ClientChatSession) => void; 
@@ -30,11 +29,7 @@ export const useChatStore = create<ChatStore>((set) => ({
       messages: [...state.messages, message]
     }));
   },
-  addAgentResponse: (message) => {
-    set((state) => ({
-      messages: [...state.messages, { content: message.content, sender: "AGENT"}]
-    }));
-  },
+
 
   currentChatSession: null,
   setChatSession: (session: ClientChatSession) => set(() => ({
