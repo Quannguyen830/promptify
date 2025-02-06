@@ -25,21 +25,21 @@ import { useChatProvider } from "~/components/chat-section/chat-store";
 export default function AuthenticatedLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const { toggleOpen, isOpen } = useChatProvider();
+  // const { toggleOpen, isOpen } = useChatProvider();
 
-  useEffect(() => {
-    const handleKeyPress = (e: KeyboardEvent) => {
-      if (e.key.toLowerCase() === 'l' && (e.metaKey || e.ctrlKey)) {
-        e.preventDefault();
-        toggleOpen();
-      }
-    };
-    window.addEventListener('keydown', handleKeyPress);
+  // useEffect(() => {
+  //   const handleKeyPress = (e: KeyboardEvent) => {
+  //     if (e.key.toLowerCase() === 'l' && (e.metaKey || e.ctrlKey)) {
+  //       e.preventDefault();
+  //       toggleOpen();
+  //     }
+  //   };
+  //   window.addEventListener('keydown', handleKeyPress);
 
-    return () => {
-      window.removeEventListener('keydown', handleKeyPress);
-    };
-  }, [toggleOpen])
+  //   return () => {
+  //     window.removeEventListener('keydown', handleKeyPress);
+  //   };
+  // }, [toggleOpen])
 
   return (
     <html lang="en" className={GeistSans.variable} suppressHydrationWarning>
@@ -73,11 +73,11 @@ export default function AuthenticatedLayout({
 
                       <ResizableHandle />
 
-                      {isOpen && (
-                        <ResizablePanel minSize={20}>
-                          <ChatSection />
-                        </ResizablePanel>
-                      )}
+                      <ResizablePanel minSize={20}>
+                        <ChatSection />
+                      </ResizablePanel>
+                      {/* {isOpen && (
+                      )} */}
                     </ResizablePanelGroup>
                   </div>
                 </div>
