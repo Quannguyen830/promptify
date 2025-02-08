@@ -35,12 +35,12 @@ export default function AuthenticatedLayout({
       }
     };
     window.addEventListener('keydown', handleKeyPress);
-    
+
     return () => {
       window.removeEventListener('keydown', handleKeyPress);
-    };  
+    };
   }, [toggleOpen])
-  
+
   return (
     <html lang="en" className={GeistSans.variable} suppressHydrationWarning>
       <body>
@@ -63,7 +63,7 @@ export default function AuthenticatedLayout({
                         "flex-1 transition-all duration-300 ease-in-out"
                       )}
                     >
-                      <ResizablePanel defaultSize={80} minSize={30}>
+                      <ResizablePanel className="px-5" defaultSize={80} minSize={30}>
                         <Navbar />
 
                         <main className='p-5 h-full'>
@@ -72,8 +72,8 @@ export default function AuthenticatedLayout({
                       </ResizablePanel>
 
                       <ResizableHandle />
-                      
-                      {isOpen &&   (
+
+                      {isOpen && (
                         <ResizablePanel minSize={20}>
                           <ChatSection />
                         </ResizablePanel>

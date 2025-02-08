@@ -9,6 +9,12 @@ export interface ButtonProps extends BaseProps {
   onClick: () => void;
 }
 
+export const GuestUser = {
+  id: "guest-user",
+  name: "Guest",
+  email: "Guest",
+}
+
 // FILE SYSTEM
 export interface FolderCardProps {
   title: string

@@ -32,6 +32,7 @@ export function SuggestedSection({ title, type, files = [], folders = [], worksp
                 key={workspace.id}
                 id={workspace.id}
                 name={workspace.name}
+                date={workspace.createdAt.toDateString()}
               />
             ))
           ) : (
