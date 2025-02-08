@@ -14,7 +14,7 @@ export interface DashboardStore {
 
 export const useDashboardStore = create<DashboardStore>((set) => ({
   itemsHistory: [],
-  history: [], // Initialize history with the root item
+  history: [],
 
   addItemsHistory: (item) => set((state) => {
     // Check if the item already exists in the history
@@ -27,8 +27,6 @@ export const useDashboardStore = create<DashboardStore>((set) => ({
   }),
 
   resetHistory: () => {
-    console.log("RESETING THE HISTORY")
     set({ history: [] })
-    console.log(history.length)
   },
 }));

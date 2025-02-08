@@ -42,7 +42,7 @@ export default function FolderPage() {
               ...history.map((item, index) => ({
                 id: item.id,
                 label: item.label,
-                href: `/folder/${item.id}`,
+                href: 'workspaceId' in item ? `/folder/${item.id}` : `/workspace/${item.id}`,
                 current: index === history.length - 1
               })),
             ]}

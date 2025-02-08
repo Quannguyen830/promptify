@@ -37,7 +37,6 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
   });
 
   useEffect(() => {
-    console.log("Workspaces updated:", workspaces);
     setWorkspaceOrFolderList(workspaces ?? []);
     if (workspaces) {
       setAllFolders(workspaces.flatMap(workspace => workspace.folders));

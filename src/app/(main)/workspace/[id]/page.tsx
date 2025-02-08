@@ -5,11 +5,13 @@ import { FolderBreadcrumb } from "~/components/dashboard/folder-breadcrumb"
 import { useParams } from 'next/navigation'
 import { api } from '~/trpc/react'
 import { useDashboardStore } from "~/components/dashboard/dashboard-store"
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import { type Folder } from "@prisma/client"
 
 export default function WorkspacePage() {
   const { id } = useParams<{ id: string }>();
   const { addItemsHistory, history } = useDashboardStore();
+  const [fetchedFolders, setFetchedFolders] = useState<Folder[]>();
 
   const { data: fetchedWorkspace, isLoading: isLoading, error: error } = api.workspace.getWorkspaceByWorkspaceId.useQuery(
     { workspaceId: id }
@@ -17,6 +19,9 @@ export default function WorkspacePage() {
 
   useEffect(() => {
     if (fetchedWorkspace) {
+      const folders = fetchedWorkspace.folders.filter(folder => folder.parentFolderId == null)
+      setFetchedFolders(folders);
+
       addItemsHistory({
         id: fetchedWorkspace.id,
         label: fetchedWorkspace.name,
@@ -28,8 +33,6 @@ export default function WorkspacePage() {
   if (!id || Array.isArray(id)) {
     return <div>Error: Invalid workspace ID</div>;
   }
-
-  const fetchedFolders = fetchedWorkspace?.folders.filter(folder => folder.parentFolderId == null)
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;

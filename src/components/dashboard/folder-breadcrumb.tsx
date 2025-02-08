@@ -21,12 +21,18 @@ interface FolderBreadcrumbProps {
 }
 
 export function FolderBreadcrumb({ items }: FolderBreadcrumbProps) {
-  const { addItemsHistory } = useDashboardStore()
+  const { addItemsHistory, resetHistory, history } = useDashboardStore()
 
   const handleClick = (href: string) => {
     const clickedItem = items.find(item => item.href === href)
     if (clickedItem) {
-      addItemsHistory(clickedItem);
+      // Slice the history to the clicked item
+      const index = history.findIndex(item => item.href === clickedItem.href);
+      if (index !== -1) {
+        const newHistory = history.slice(0, index + 1);
+        resetHistory();
+        newHistory.forEach(item => addItemsHistory(item));
+      }
     }
   }
 
