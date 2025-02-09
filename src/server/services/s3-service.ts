@@ -1,4 +1,4 @@
-import { ListObjectsV2Command, PutObjectCommand } from "@aws-sdk/client-s3";
+import { GetObjectCommand, ListObjectsV2Command, PutObjectCommand } from "@aws-sdk/client-s3";
 import { s3Client } from "~/config/S3-client";
 
 const bucketName = process.env.AWS_BUCKET_NAME
@@ -35,6 +35,13 @@ export async function listFileFromS3(userId: string) {
   return response.Contents;
 }
 
-export function extractFileId(fileName: string) {
-  return fileName.split("/").pop();
+export async function getFileFromS3(fileId: string) {
+  const param = {
+    Bucket: bucketName,
+    Key: fileId
+  }
+
+  const response = await s3Client.send(new GetObjectCommand(param));
+
+  return response;
 }

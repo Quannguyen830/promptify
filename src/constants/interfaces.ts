@@ -42,6 +42,11 @@ export const MyDrive = {
   name: "My Drive"
 }
 
+export interface ApiResponse {
+  message: string
+  body: string
+}
+
 // CHAT SECTION
 export interface ChatInputForm {
   message: string
