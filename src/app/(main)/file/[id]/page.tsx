@@ -6,14 +6,16 @@ import { Button } from "~/components/ui/button"
 import { Input } from "~/components/ui/input"
 import { Slider } from "~/components/ui/slider"
 import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, RotateCw, Download, Printer, Share2 } from "lucide-react"
-import { ApiResponse } from "~/constants/interfaces"
+import { type ApiResponse } from "~/constants/interfaces"
+import { paginateContent } from "~/app/service/pagination-service"
 
 export default function PDFViewer() {
   const { id } = useParams<{ id: string }>();
   const [currentPage, setCurrentPage] = useState(1)
-  const [totalPages, setTotalPages] = useState(1) // This would be set when the PDF is loaded
+  const [totalPages, setTotalPages] = useState(1)
   const [zoom, setZoom] = useState(100)
-  const [content, setContent] = useState("PDF Content")
+  const [pages, setPages] = useState<string[]>([])
+  const [currentPageContent, setCurrentPageContent] = useState<string>("PDF Content")
 
   // These functions would be implemented to interact with a PDF rendering library
   const goToNextPage = () => setCurrentPage((prev) => Math.min(prev + 1, totalPages))
@@ -32,7 +34,11 @@ export default function PDFViewer() {
         if (response.ok) {
           const data = await response.json() as ApiResponse;
           console.log("Data: ", data.body);
-          setContent(data.body);
+
+          const paginatedContent = paginateContent(data.body);
+          setPages(paginatedContent);
+          setTotalPages(paginatedContent.length);
+          setCurrentPageContent(paginatedContent[0] ?? "");
         } else {
           console.error("Failed to fetch file:", response.statusText);
         }
@@ -45,10 +51,14 @@ export default function PDFViewer() {
       })
   }, [id])
 
+  useEffect(() => {
+    setCurrentPageContent(pages[currentPage - 1] ?? "");
+  }, [currentPage, pages])
+
   return (
     <div className="flex flex-col h-screen">
       {/* Toolbar */}
-      <div className="flex items-center justify-between px-4 pb-4 border-b">
+      <div className="flex items-center justify-between py-4 border-b">
         <div className="flex items-center space-x-2">
           <Button variant="ghost" size="icon" onClick={goToPrevPage} disabled={currentPage === 1}>
             <ChevronLeft className="h-4 w-4" />
@@ -109,7 +119,7 @@ export default function PDFViewer() {
           }}
         >
           <div className="w-full h-full p-5 flex items-center justify-center text-gray-400 overflow-auto">
-            <div className="whitespace-pre-wrap max-h-full overflow-auto">{content}</div>
+            <div className="whitespace-pre-wrap max-h-full w-full overflow-auto">{currentPageContent}</div>
           </div>
         </div>
       </div>

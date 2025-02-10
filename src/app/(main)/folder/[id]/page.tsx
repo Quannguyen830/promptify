@@ -6,6 +6,8 @@ import { useParams } from 'next/navigation'
 import { api } from '~/trpc/react'
 import { useDashboardStore } from "~/components/dashboard/dashboard-store"
 import { useEffect } from 'react'
+import { Navbar } from "~/components/dashboard/navbar"
+import Loading from "~/components/share/loading-spinner"
 
 export default function FolderPage() {
   const { id } = useParams<{ id: string }>();
@@ -29,12 +31,14 @@ export default function FolderPage() {
     return <div>Error: Invalid folder ID</div>;
   }
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <Loading />;
   if (error) return <div>Error: {error.message}</div>;
 
   return (
     <div className="min-h-screen bg-background">
-      <main className="container mx-auto space-y-6">
+      <Navbar />
+
+      <main className="container mx-auto space-y-6 mt-5">
         <div className="flex items-center justify-between">
           <FolderBreadcrumb
             items={[

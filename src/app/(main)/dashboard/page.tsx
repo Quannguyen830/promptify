@@ -6,6 +6,8 @@ import { api } from "~/trpc/react"
 import { useEffect, useState } from 'react'
 import { GuestUser } from "~/constants/interfaces"
 import { useDashboardStore } from "~/components/dashboard/dashboard-store"
+import { Navbar } from "~/components/dashboard/navbar"
+import Loading from "~/components/share/loading-spinner"
 
 export default function Page() {
   const { data: session } = useSession();
@@ -41,12 +43,14 @@ export default function Page() {
     }
   }, [loadingFiles, loadingFolders, loadingWorkspaces, errorFiles, errorFolders, errorWorkspaces]);
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <Loading />;
   if (error) return <div>Error: {error}</div>;
 
   return (
     <div>
-      <div className="flex items-center justify-between">
+      <Navbar />
+
+      <div className="flex items-center justify-between mt-5">
         <h1 className="text-2xl font-semibold mb-5">Welcome to Promptify Dashboard</h1>
       </div>
 

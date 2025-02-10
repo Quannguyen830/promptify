@@ -57,9 +57,9 @@ export default function AuthenticatedLayout({
                       )}
                     >
                       <ResizablePanel className="px-5" defaultSize={80} minSize={30}>
-                        <Navbar />
+                        {/* <Navbar /> */}
 
-                        <main className='p-5 h-full'>
+                        <main className='pb-5 h-full'>
                           {children}
                         </main>
                       </ResizablePanel>

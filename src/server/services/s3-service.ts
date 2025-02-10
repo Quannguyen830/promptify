@@ -1,7 +1,7 @@
 import { GetObjectCommand, ListObjectsV2Command, PutObjectCommand } from "@aws-sdk/client-s3";
 import { s3Client } from "~/config/S3-client";
 
-const bucketName = process.env.AWS_BUCKET_NAME
+const bucketName = process.env.NEXT_PUBLIC_AWS_BUCKET_NAME ?? "promptify-first-bucket"
 
 export function uploadFileToS3(fileBuffer: Buffer, fileName: string) {
   const uploadParams = {

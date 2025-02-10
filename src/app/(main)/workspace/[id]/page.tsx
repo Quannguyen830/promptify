@@ -7,6 +7,8 @@ import { api } from '~/trpc/react'
 import { useDashboardStore } from "~/components/dashboard/dashboard-store"
 import { useEffect, useState } from 'react'
 import { type Folder } from "@prisma/client"
+import { Navbar } from "~/components/dashboard/navbar"
+import Loading from "~/components/share/loading-spinner"
 
 export default function WorkspacePage() {
   const { id } = useParams<{ id: string }>();
@@ -34,12 +36,14 @@ export default function WorkspacePage() {
     return <div>Error: Invalid workspace ID</div>;
   }
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <Loading />;
   if (error) return <div>Error: {error.message}</div>;
 
   return (
     <div className="min-h-screen bg-background">
-      <main className="container mx-auto space-y-6">
+      <Navbar />
+
+      <main className="container mx-auto space-y-6 mt-5">
         <div className="flex items-center justify-between">
           <FolderBreadcrumb
             items={[
