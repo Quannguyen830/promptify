@@ -6,8 +6,8 @@ import {
 
 export enum ChatSectionState {
   SESSION_LISTING, // default state: displaying all existing sessions
-  NEW_SESSION, // when user chat directly without opening existing chat session
-  SESSION_SELECTED // when user select an existing chat session
+  SESSION_SELECTED, // when user select an existing chat session
+  IS_LOADING
 }
 
 // CHAT STORE - Handle chat section states
@@ -24,7 +24,7 @@ export interface ChatStore {
   setChatSessions: (sessions: ClientChatSession[]) => void;
 }
 export const useChatStore = create<ChatStore>((set) => ({
-  currentChatState: ChatSectionState.SESSION_LISTING,
+  currentChatState: ChatSectionState.IS_LOADING,
   setChatState: (state: ChatSectionState) => set(() => ({
     currentChatState: state
   })),

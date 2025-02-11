@@ -1,10 +1,11 @@
-import { GEMINI_VERSION, geminiCacheManager, geminiModel, googleGenAIClient } from "~/config/google-ai-client";
+import { geminiCacheManager, geminiModel, googleGenAIClient } from "~/config/google-ai-client";
 import { type ClientMessage } from "~/constants/types";
 
 export const DEFAULT_GEMINI_CACHE_TTL=300;
-export const DEFAULT_GEMINI_INSTRUCTION=""
+export const DEFAULT_GEMINI_INSTRUCTION="Answer the question shortly, 5 sentences in average. Answer in text only."
 
-export const getResponse = async (message: string): Promise<string> => {  
+
+export const sendInitialMessage = async (message: string): Promise<string> => {  
   const result = await geminiModel.generateContent(message);
   return result.response.text();
 }

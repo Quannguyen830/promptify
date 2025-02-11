@@ -7,22 +7,25 @@ import { ChatSectionState, useChatStore } from "./chat-store";
 import ChatSessionCard from "./chat-session-card";
 import ChatBubble from "./chat-bubble";
 import ChatInput from "./chat-input";
+import Loading from "../share/loading-spinner";
 
 export function ChatSection() {
   const {
     currentChatSession,
     currentChatState,
+    chatSessions,
     setChatSessions,
-    chatSessions
+    setChatState,
   } = useChatStore();
 
   const { data: fetchedChatSessions } = api.chat.getAllChatSessions.useQuery();
   
   useEffect(() => {
     if (fetchedChatSessions) {
+      setChatState(ChatSectionState.SESSION_LISTING);
       setChatSessions(fetchedChatSessions)
-    }
-  }, [fetchedChatSessions, setChatSessions])
+    } 
+  }, [fetchedChatSessions, setChatSessions, setChatState])
 
   return (
     <div className="flex flex-col h-full bg-sidebar">
@@ -48,6 +51,10 @@ export function ChatSection() {
             </ChatBubble>
           ))}
         </div>
+      )}
+
+      {currentChatState === ChatSectionState.IS_LOADING && (
+        <Loading/>
       )}
 
       <ChatInput />
