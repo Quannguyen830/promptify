@@ -1,6 +1,5 @@
 import { create } from "zustand";
 import { 
-  ChatSession,
   type ClientChatSession,
   type ClientMessage
 } from "~/constants/types";
@@ -22,7 +21,8 @@ export interface ChatStore {
   currentChatSession: ClientChatSession | null;
   setChatSession: (session: ClientChatSession) => void; 
 
-  chatSessions: ChatSession[];
+  chatSessions: ClientChatSession[];
+  setChatSessions: (sessions: ClientChatSession[]) => void;
 }
 export const useChatStore = create<ChatStore>((set) => ({
   currentChatState: ChatSectionState.SESSION_LISTING,
@@ -39,12 +39,16 @@ export const useChatStore = create<ChatStore>((set) => ({
 
   currentChatSession: null,
   setChatSession: (session: ClientChatSession) => set(() => ({
-    // currentChatState: ChatSectionState.SESSION_SELECTED,
     messages: session.messages,
     currentChatSession: session,
   })),
 
-  chatSessions: []
+  chatSessions: [],
+  setChatSessions(sessions) {
+    set(() => ({
+      chatSessions: sessions
+    }));
+  },
 }));
 
 

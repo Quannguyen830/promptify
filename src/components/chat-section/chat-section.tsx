@@ -6,14 +6,23 @@ import ChatBubble from "./chat-bubble";
 import ChatInput from "./chat-input";
 import { ChatSectionState, useChatStore } from "./chat-store";
 import ChatSessionCard from "./chat-session-card";
+import { useEffect } from "react";
 
 export function ChatSection() {
   const {
     messages,
     currentChatState,
+    setChatSessions,
+    chatSessions
   } = useChatStore();
 
-  const { data: chatSessions } = api.chat.getAllChatSessions.useQuery();
+  const { data: fetchedChatSessions } = api.chat.getAllChatSessions.useQuery();
+  
+  useEffect(() => {
+    if (fetchedChatSessions) {
+      setChatSessions(fetchedChatSessions)
+    }
+  }, [fetchedChatSessions, setChatSessions])
 
   return (
     <div className="flex flex-col h-full bg-sidebar">
