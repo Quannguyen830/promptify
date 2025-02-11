@@ -89,6 +89,7 @@ const ChatInput = () => {
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col p-4 gap-2">
       <Textarea 
         {...register("message")} 
+        placeholder="Cmd + L"
         onKeyDown={handleKeyDown}
         className="relative z-0 resize-none overflow-hidden focus-visible:ring-0 w-full"
       />

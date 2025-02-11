@@ -11,6 +11,8 @@ import { GuestUser } from "~/constants/interfaces"
 
 export default function Page() {
   const { data: session } = useSession();
+  
+ 
   const { data: fetchedFiles, isLoading: loadingFiles, error: errorFiles } = api.file.listFileByUserId.useQuery(
     { userId: session?.user.id ?? GuestUser.id }
   );
