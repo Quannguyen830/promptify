@@ -1,16 +1,13 @@
 'use client'
 
 import { SuggestedSection } from "~/components/dashboard/suggested-section"
-import { useSession } from "next-auth/react"
 import { api } from "~/trpc/react"
 import { useEffect, useState } from 'react'
-import { GuestUser } from "~/constants/interfaces"
 import { useDashboardStore } from "~/components/dashboard/dashboard-store"
 import { Navbar } from "~/components/dashboard/navbar"
 import Loading from "~/components/share/loading-spinner"
 
 export default function Page() {
-  const { data: session } = useSession();
   const { resetHistory } = useDashboardStore();
 
   const { data: fetchedFiles, isLoading: loadingFiles, error: errorFiles } = api.file.listFileByUserId.useQuery();

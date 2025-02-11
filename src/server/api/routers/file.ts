@@ -2,6 +2,7 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { uploadFileToS3 } from "~/server/services/s3-service";
 import { type File } from "@prisma/client";
+import { GuestUser } from "~/constants/interfaces";
 
 export const fileRouter = createTRPCRouter({
   uploadFile: protectedProcedure
@@ -41,7 +42,7 @@ export const fileRouter = createTRPCRouter({
       const files = await ctx.db.file.findMany({
         where: {
           Workspace: {
-            userId: ctx.session.user.id
+            userId: ctx.session.user.id ?? GuestUser.id
           },
         },
       });

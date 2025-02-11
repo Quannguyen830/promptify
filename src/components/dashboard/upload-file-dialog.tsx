@@ -32,9 +32,7 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
   const { data: session } = useSession();
   console.log("Session data:", session);
 
-  const { data: workspaces } = api.workspace.listWorkspaceByUserId.useQuery({
-    userId: session?.user.id ?? ""
-  });
+  const { data: workspaces } = api.workspace.listWorkspaceByUserId.useQuery();
 
   useEffect(() => {
     setWorkspaceOrFolderList(workspaces ?? []);

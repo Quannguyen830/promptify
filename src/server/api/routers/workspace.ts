@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
+import { GuestUser } from "~/constants/interfaces";
 
 export const workspaceRouter = createTRPCRouter({
   createNewWorkspace: protectedProcedure
@@ -24,7 +25,7 @@ export const workspaceRouter = createTRPCRouter({
     .query(async ({ ctx }) => {
       const workspaces = await ctx.db.workspace.findMany({
         where: {
-          userId: ctx.session.user.id
+          userId: ctx.session.user.id ?? GuestUser.id
         },
         include: {
           files: true,  
