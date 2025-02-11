@@ -2,14 +2,11 @@
 
 import { Input } from "~/components/ui/input"
 import { SidebarTrigger } from "~/components/ui/sidebar"
-import { Avatar, AvatarFallback } from "~/components/ui/avatar"
-import { Search } from "lucide-react"
-import { useSession } from "next-auth/react"
+import { Plus, Search } from "lucide-react"
+import { NewItemDialog } from "./new-item-diaplog"
+import { Button } from "../ui/button"
 
 export function Navbar() {
-  const { data: session } = useSession();
-  const firstLetter = session?.user?.email?.[0]?.toUpperCase() ?? '';
-
   return (
     <header className="flex items-center justify-between g-backbground border-b h-16 px-3">
       <SidebarTrigger className="mr-3" />
@@ -24,9 +21,12 @@ export function Navbar() {
       </div>
 
       <div className="flex ml-3 items-center justify-center">
-        <Avatar className="h-8 w-8">
-          <AvatarFallback>{firstLetter}</AvatarFallback>
-        </Avatar>
+        <NewItemDialog>
+          <Button variant="outline" className="gap-2 rounded-full">
+            <Plus className="h-4 w-4" />
+            New
+          </Button>
+        </NewItemDialog>
       </div>
     </header>
   )

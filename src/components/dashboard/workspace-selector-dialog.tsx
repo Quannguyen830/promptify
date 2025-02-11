@@ -4,7 +4,6 @@ import { Input } from "~/components/ui/input"
 import { Search, Briefcase, ChevronRight } from "lucide-react"
 import { Fragment, useEffect, useState } from "react"
 import { api } from "~/trpc/react"
-import { useSession } from "next-auth/react"
 import { type Folder, type Workspace } from "@prisma/client"
 import { MyDrive, type FolderHistoryItem } from "~/constants/interfaces"
 
@@ -14,16 +13,13 @@ interface WorkspaceSelectorProps {
 
 export function WorkspaceSelector({ onSelect }: WorkspaceSelectorProps) {
   const [searchQuery, setSearchQuery] = useState("");
-  const { data: session } = useSession();
   const [folderHistory, setFolderHistory] = useState<FolderHistoryItem[]>([MyDrive]);
   const [workspaceOrFolderList, setWorkspaceOrFolderList] = useState<Workspace[] | Folder[]>([]);
   const [allFolders, setAllFolders] = useState<Folder[]>([])
   const [rootFolders, setRootFolders] = useState<Folder[]>();
   const [childFolders, setChildFolders] = useState<Folder[]>();
 
-  const { data: workspaces } = api.workspace.listWorkspaceByUserId.useQuery({
-    userId: session?.user.id ?? ""
-  });
+  const { data: workspaces } = api.workspace.listWorkspaceByUserId.useQuery();
 
   useEffect(() => {
     setWorkspaceOrFolderList(workspaces ?? []);
