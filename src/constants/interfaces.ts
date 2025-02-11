@@ -54,5 +54,5 @@ export interface ChatModel {
 
 export interface ChatSessionCardProps extends BaseProps {
   id: string,
-  title: string // TODO: consider rename to id
+  title?: string // TODO: consider rename to id
 }

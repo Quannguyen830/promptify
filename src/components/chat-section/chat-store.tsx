@@ -15,11 +15,10 @@ export interface ChatStore {
   currentChatState: ChatSectionState;
   setChatState: (state: ChatSectionState) => void;
 
-  messages: ClientMessage[];
-  addMessage: (message: ClientMessage) => void;
   
   currentChatSession: ClientChatSession | null;
-  setChatSession: (session: ClientChatSession) => void; 
+  addMessage: (message: ClientMessage) => void; // Add message to current chat session
+  setCurrentChatSession: (id: string) => void;
 
   chatSessions: ClientChatSession[];
   setChatSessions: (sessions: ClientChatSession[]) => void;
@@ -32,15 +31,20 @@ export const useChatStore = create<ChatStore>((set) => ({
   
   messages: [],
   addMessage: (message) => {
-    set((state) => ({
-      messages: [...state.messages, message]
-    }));
+    set((state) => {
+      if (!state.currentChatSession) return state;
+      return {
+        currentChatSession: {
+          ...state.currentChatSession,
+          messages: [...state.currentChatSession.messages, message]
+        }
+      };
+    });
   },
 
   currentChatSession: null,
-  setChatSession: (session: ClientChatSession) => set(() => ({
-    messages: session.messages,
-    currentChatSession: session,
+  setCurrentChatSession: (id: string) => set((state) => ({
+    currentChatSession: state.chatSessions.find(session => session.id === id)
   })),
 
   chatSessions: [],

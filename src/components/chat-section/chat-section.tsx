@@ -10,7 +10,7 @@ import { useEffect } from "react";
 
 export function ChatSection() {
   const {
-    messages,
+    currentChatSession,
     currentChatState,
     setChatSessions,
     chatSessions
@@ -33,7 +33,7 @@ export function ChatSection() {
       {currentChatState === ChatSectionState.SESSION_LISTING && (
         <div className="overflow-y-auto h-full flex flex-col gap-2 p-4 bg">
           {chatSessions?.map((session, index) => (
-            <ChatSessionCard key={index} title={session.id}>
+            <ChatSessionCard key={index} id={session.id}>
               {session.id}
             </ChatSessionCard>
           ))}
@@ -42,7 +42,7 @@ export function ChatSection() {
 
       {currentChatState === ChatSectionState.SESSION_SELECTED && (
         <div className="overflow-y-auto h-full flex flex-col gap-2 p-4">
-          {messages.map((message, index) => (
+          {currentChatSession?.messages.map((message, index) => (
             <ChatBubble key={index} variant={message.sender}>
               {message.content}
             </ChatBubble>

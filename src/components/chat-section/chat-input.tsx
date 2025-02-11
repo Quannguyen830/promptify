@@ -21,7 +21,6 @@ const CHAT_MODELS: ChatModel[] = [
 
 const ChatInput = () => {
   const {
-    messages,
     currentChatSession,
     addMessage,
   } = useChatStore()
@@ -40,17 +39,19 @@ const ChatInput = () => {
  
   const onSubmit: SubmitHandler<ChatInputForm> = async (data) => { 
     if (!currentChatSession) return;
+
+    const inputMessage = data.message;
+    reset();
     
-    if (messages.length === 0) {
+    if (currentChatSession.messages.length === 0) {
       const reply = await createSessionWithMessage.mutateAsync({
-        content: data.message,
+        content: inputMessage,
         sender: "USER"
       });
       addMessage({
-        content: data.message,
+        content: inputMessage,
         sender: "USER"
       });
-      reset();
       addMessage({
         content: reply,
         sender: "AGENT"
@@ -58,14 +59,13 @@ const ChatInput = () => {
     } else {
       const reply = await saveMessage.mutateAsync({
         chatSessionId: currentChatSession.id,
-        content: data.message,
+        content: inputMessage,
         sender: "USER"
       });
       addMessage({
-        content: data.message,
+        content: inputMessage,
         sender: "USER"
       });
-      reset();
       addMessage({
         content: reply.content,
         sender: "AGENT"
