@@ -21,10 +21,8 @@ const CHAT_MODELS: ChatModel[] = [
 
 const ChatInput = () => {
   const {
-    messages,
     currentChatSession,
     addMessage,
-    addAgentResponse
   } = useChatStore()
 
   const {
@@ -33,43 +31,46 @@ const ChatInput = () => {
     reset
   } = useForm<ChatInputForm>()
 
-  const saveInitialMessage = api.chat.createChatSessionWithMessage.useMutation();
-  const saveMessage = api.chat.addMessage.useMutation();
+  const createSessionWithMessage = api.chat.createChatSessionWithMessage.useMutation();
+  const saveMessage = api.chat.createMessageAndGetResponse.useMutation();
 
   const userId = useSession().data?.user?.id;
   if (!userId) return;
  
   const onSubmit: SubmitHandler<ChatInputForm> = async (data) => { 
     if (!currentChatSession) return;
+
+    const inputMessage = data.message;
+    reset();
     
-    if (messages.length === 0) {
-      saveInitialMessage.mutate({
-        content: data.message,
+    if (currentChatSession.messages.length === 0) {
+      const reply = await createSessionWithMessage.mutateAsync({
+        content: inputMessage,
         sender: "USER"
       });
-    } else {
-      saveMessage.mutate({
-        chatSessionId: currentChatSession.id,
-        content: data.message,
+      addMessage({
+        content: inputMessage,
         sender: "USER"
+      });
+      addMessage({
+        content: reply,
+        sender: "AGENT"
+      })
+    } else {
+      const reply = await saveMessage.mutateAsync({
+        chatSessionId: currentChatSession.id,
+        content: inputMessage,
+        sender: "USER"
+      });
+      addMessage({
+        content: inputMessage,
+        sender: "USER"
+      });
+      addMessage({
+        content: reply.content,
+        sender: "AGENT"
       });
     }
-    addMessage({
-      content: data.message,
-      sender: "USER"
-    });
-    reset();
-
-    // handle agent reply state and saving
-    const reply = await addAgentResponse({
-      content: data.message,
-      sender: "AGENT"
-    });
-    saveMessage.mutate({
-      chatSessionId: currentChatSession.id,
-      content: reply,
-      sender: "AGENT"
-    })
   }
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -88,6 +89,7 @@ const ChatInput = () => {
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col p-4 gap-2">
       <Textarea 
         {...register("message")} 
+        placeholder="Cmd + L"
         onKeyDown={handleKeyDown}
         className="relative z-0 resize-none overflow-hidden focus-visible:ring-0 w-full"
       />

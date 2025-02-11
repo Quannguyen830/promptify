@@ -1,25 +1,17 @@
 import { type ChatSessionCardProps } from "~/constants/interfaces";
 import { Button } from "../ui/button";
-import { useChatStore } from "./chat-store";
-import { api } from "~/trpc/react";
-import { useState } from "react";
+import { ChatSectionState, useChatStore } from "./chat-store";
 
-export const ChatSessionCard = ({children, title} : ChatSessionCardProps) => {
-  const [sessionSelected, setSessionSelected] = useState<boolean>(false);
-  const { data: selectedChatSession } = api.chat.getChatSessionById.useQuery({
-    id: title
-  },
-  {
-    // enabled: sessionSelected
-  });
-
+export const ChatSessionCard = ({children, id} : ChatSessionCardProps) => {
   const {
-    setChatSession
+    setCurrentChatSession: setCurrentChatSessionId,
+    setChatState,
   } = useChatStore();
 
+
   const handleClick = () => {
-    setSessionSelected(true);
-    if (selectedChatSession) setChatSession(selectedChatSession);
+    setChatState(ChatSectionState.SESSION_SELECTED);
+    setCurrentChatSessionId(id);
   };
   
   return (
