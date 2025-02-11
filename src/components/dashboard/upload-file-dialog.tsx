@@ -30,7 +30,6 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
   const [folderHistory, setFolderHistory] = useState<FolderHistoryItem[]>([MyDrive]);
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { data: session } = useSession();
-  console.log("Session data:", session);
 
   const { data: workspaces } = api.workspace.listWorkspaceByUserId.useQuery();
 
@@ -43,14 +42,12 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
 
   useEffect(() => {
     if (rootFolders && rootFolders.length > 0) {
-      console.log("Root folders updated:", rootFolders);
       setWorkspaceOrFolderList(rootFolders);
     }
   }, [rootFolders]);
 
   useEffect(() => {
     if (childFolders && childFolders.length > 0) {
-      console.log("Child folders updated:", childFolders);
       setWorkspaceOrFolderList(childFolders);
     }
   }, [childFolders])
@@ -67,7 +64,6 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
   }
 
   const handleFolderClick = async (workspaceOrFolder: Workspace | Folder) => {
-    console.log("Folder clicked:", workspaceOrFolder);
     setSelectedFolder(workspaceOrFolder);
 
     // This is a folder

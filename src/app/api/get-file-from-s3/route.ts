@@ -25,6 +25,9 @@ export async function GET(request: NextRequest) {
     // Handle different file types differently
     if (fileType == "application/pdf") {
       const buffer = await result.Body.transformToByteArray(); 
+      const base64String = Buffer.from(buffer);
+
+      console.log("string: ", base64String);
 
       return NextResponse.json({ 
         message: "Get successful", 

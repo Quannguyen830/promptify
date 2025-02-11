@@ -42,7 +42,7 @@ export default function PDFViewer() {
           const data = await response.json() as S3FileResponse;
           console.log("Type: ", data.type);
 
-          const pdfDataUrl = `data:application/pdf;base64,${data.body}`;
+          const pdfDataUrl = `${data.body}`;
           setPdfUrl(pdfDataUrl);
 
           const paginatedContent = paginateContent(data.body);
@@ -126,16 +126,16 @@ export default function PDFViewer() {
       {/* PDF Viewer */}
       <div className="flex-1 overflow-auto bg-gray-100 flex items-center justify-center rounded-xl my-5">
         <div
-          className="bg-white shadow-lg flex flex-col rounded-2xl"
+          className="bg-white w-full h-full border border-gray-300 shadow-lg flex flex-col rounded-2xl"
           style={{
-            width: `${8.5 * zoom}px`,
-            height: `${11 * zoom}px`,
+            // width: `${100 * zoom / 100}vw`,  // Full width based on zoom
+            // height: `${100 * zoom / 100}vh`,
             transition: "width 0.1s, height 0.1s",
-            maxHeight: '80vh',
+            // maxHeight: '80vh',
             overflow: 'hidden',
           }}
         >
-          <div className="w-full h-full p-5 flex items-center justify-center text-gray-400 overflow-auto">
+          <div className="w-full h-full p-5 flex justify-center text-gray-400 overflow-auto">
             {fetchedFile?.type == "application/pdf" ? (
               <object
                 data={pdfUrl ?? null}

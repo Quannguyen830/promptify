@@ -1,6 +1,6 @@
 // Constants for pagination
 const CHARS_PER_PAGE = 3000; // Adjust based on your needs
-const MIN_LINES_PER_PAGE = 50; // Minimum number of lines per page
+const MIN_LINES_PER_PAGE = 100; // Minimum number of lines per page
 
 // Utility function to split content into pages
 export function paginateContent(content: string): string[] {
