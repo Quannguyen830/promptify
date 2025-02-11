@@ -13,16 +13,19 @@ import {
 } from '~/components/ui/sidebar'
 import { PromptifyLogo } from './promptify-logo'
 import Link from 'next/link'
+import { useSession } from 'next-auth/react'
+import { Avatar, AvatarFallback } from '../ui/avatar'
 
 const navigation = [
   { name: 'Home', icon: Home, href: 'dashboard' },
   { name: 'Sign In', icon: Archive, href: 'sign-in' },
   { name: 'Setting', icon: Settings, href: 'settings' },
-  // { name: 'Team', icon: Users, href: '#' },
-  // { name: 'Settings', icon: Settings, href: '#' },
 ]
 
 export function Sidebar() {
+  const session = useSession();
+  const firstLetter = session?.data?.user?.name?.charAt(0) ?? 'G';
+
   return (
     <SidebarCn defaultValue={25}>
       <SidebarHeader className='p-5 h-16'>
@@ -47,6 +50,13 @@ export function Sidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+
+      <div className="flex items-center p-4 mb-10">
+        <Avatar className="h-8 w-8">
+          <AvatarFallback>{firstLetter}</AvatarFallback>
+        </Avatar>
+        <span className="ml-2 text-sm truncate">{session?.data?.user?.email}</span>
+      </div>
     </SidebarCn>
   )
 }

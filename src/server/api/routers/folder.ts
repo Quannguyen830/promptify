@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
+import { GuestUser } from "~/constants/interfaces";
 
 export const folderRouter = createTRPCRouter({
   createNewFolder: protectedProcedure
@@ -49,14 +50,11 @@ export const folderRouter = createTRPCRouter({
     }),
 
   listFolderByUserId: protectedProcedure
-    .input(z.object({
-      userId: z.string()
-    }))
-    .query(async ({ input, ctx }) => {
+    .query(async ({ ctx }) => {
       const folders = await ctx.db.folder.findMany({
         where: {
           Workspace: {
-            userId: input.userId
+            userId: ctx.session.user.id ?? GuestUser.id
           }
         }
       })

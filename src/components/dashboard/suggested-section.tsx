@@ -1,9 +1,11 @@
-import { ChevronDown, Folder as FolderIcon, AlertTriangle } from 'lucide-react'
+import { ChevronDown, Folder as FolderIcon, AlertTriangle, ChevronUp } from 'lucide-react'
 import { Button } from "~/components/ui/button"
 import { FolderCard } from "./folder-card"
 import { FileCard } from "./file-card"
 import { type Folder, type File, type Workspace } from '@prisma/client'
 import { WorkspaceCard } from "./workspace-card"
+import { useState } from 'react'
+import { cn } from '~/lib/utils'
 
 interface SuggestedSectionProps {
   title: string
@@ -14,17 +16,36 @@ interface SuggestedSectionProps {
 }
 
 export function SuggestedSection({ title, type, files = [], folders = [], workspaces = [] }: SuggestedSectionProps) {
+  const [isExpanded, setIsExpanded] = useState(true)
+
+  const toggleExpand = () => {
+    setIsExpanded(!isExpanded)
+  }
+
   return (
     <section className="space-y-4 mt-3">
       <div className="flex items-center">
-        <Button variant="ghost" className="px-2">
-          <ChevronDown className="h-4 w-4 mr-2" />
+        <Button
+          variant="ghost"
+          className="px-2"
+          onClick={toggleExpand}
+          aria-expanded={isExpanded}
+          aria-controls={`${title.toLowerCase().replace(/\s+/g, "-")}-content`}
+        >
+          {isExpanded ? (
+            <ChevronDown className="h-4 w-4 mr-2 transition-transform duration-200" />
+          ) : (
+            <ChevronUp className="h-4 w-4 mr-2 transition-transform duration-200" />
+          )}
           <h3 className='text-lg'>
             {title}
           </h3>
         </Button>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className={cn(
+        "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 transition-all duration-300 ease-in-out origin-top",
+        isExpanded ? "opacity-100 max-h-[1000px]" : "opacity-0 max-h-0 overflow-hidden",
+      )}>
         {type === "workspaces" ? (
           workspaces.length > 0 ? (
             workspaces.map((workspace) => (

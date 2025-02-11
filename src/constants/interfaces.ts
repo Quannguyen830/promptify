@@ -42,6 +42,12 @@ export const MyDrive = {
   name: "My Drive"
 }
 
+export interface S3FileResponse {
+  message: string
+  body: string
+  type: string
+}
+
 // CHAT SECTION
 export interface ChatInputForm {
   message: string

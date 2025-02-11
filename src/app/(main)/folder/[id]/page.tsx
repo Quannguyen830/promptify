@@ -1,43 +1,56 @@
 'use client'
 
-import { Plus } from 'lucide-react'
 import { SuggestedSection } from "~/components/dashboard/suggested-section"
-import { Button } from "~/components/ui/button"
-import { NewItemDialog } from "~/components/dashboard/new-item-diaplog"
 import { FolderBreadcrumb } from "~/components/dashboard/folder-breadcrumb"
 import { useParams } from 'next/navigation'
 import { api } from '~/trpc/react'
+import { useDashboardStore } from "~/components/dashboard/dashboard-store"
+import { useEffect } from 'react'
+import { Navbar } from "~/components/dashboard/navbar"
+import Loading from "~/components/share/loading-spinner"
 
 export default function FolderPage() {
   const { id } = useParams<{ id: string }>();
+  const { addItemsHistory, history } = useDashboardStore();
 
-  const { data: fetchFolder, isLoading: isLoading, error: error } = api.folder.getFolderContentByFolderId.useQuery(
+  const { data: fetchFolder, isLoading, error } = api.folder.getFolderContentByFolderId.useQuery(
     { folderId: id }
   );
+
+  useEffect(() => {
+    if (fetchFolder) {
+      addItemsHistory({
+        id: fetchFolder.id,
+        label: fetchFolder.name,
+        href: `/folder/${fetchFolder.id}`,
+      });
+    }
+  }, [fetchFolder, addItemsHistory]);
 
   if (!id || Array.isArray(id)) {
     return <div>Error: Invalid folder ID</div>;
   }
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <Loading />;
   if (error) return <div>Error: {error.message}</div>;
 
   return (
     <div className="min-h-screen bg-background">
-      <main className="container mx-auto p-6 space-y-6">
+      <Navbar />
+
+      <main className="container mx-auto space-y-6 mt-5">
         <div className="flex items-center justify-between">
           <FolderBreadcrumb
             items={[
-              { label: "My Drive", href: "/dashboard" },
-              { label: fetchFolder?.name ?? id, href: `/folder/${id}`, current: true }
+              { id: "MyDrive", label: "MyDrive", href: "/dashboard", current: false },
+              ...history.map((item, index) => ({
+                id: item.id,
+                label: item.label,
+                href: 'workspaceId' in item ? `/folder/${item.id}` : `/workspace/${item.id}`,
+                current: index === history.length - 1
+              })),
             ]}
           />
-          <NewItemDialog>
-            <Button variant="outline" className="gap-2 rounded-full">
-              <Plus className="h-4 w-4" />
-              New
-            </Button>
-          </NewItemDialog>
         </div>
         <SuggestedSection title="Folder contents" type="folders" folders={fetchFolder?.subfolders ?? []} />
         <SuggestedSection title="File contents" type="files" files={fetchFolder?.files ?? []} />
