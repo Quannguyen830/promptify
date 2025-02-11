@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { MessageSenderSchema } from "~/constants/types";
-import { getResponse, sendMessageWithContext } from "~/server/services/gemini-service";
+import { getResponse, sendMessageWithCache, sendMessageWithContext } from "~/server/services/gemini-service";
 
 export const ChatRouter = createTRPCRouter({
   createChatSessionWithMessage: protectedProcedure
