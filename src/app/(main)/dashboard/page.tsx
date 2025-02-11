@@ -13,15 +13,9 @@ export default function Page() {
   const { data: session } = useSession();
   const { resetHistory } = useDashboardStore();
 
-  const { data: fetchedFiles, isLoading: loadingFiles, error: errorFiles } = api.file.listFileByUserId.useQuery(
-    { userId: session?.user.id ?? GuestUser.id }
-  );
-  const { data: fetchedFolders, isLoading: loadingFolders, error: errorFolders } = api.folder.listFolderByUserId.useQuery(
-    { userId: session?.user.id ?? GuestUser.id }
-  );
-  const { data: fetchedWorkspaces, isLoading: loadingWorkspaces, error: errorWorkspaces } = api.workspace.listWorkspaceByUserId.useQuery(
-    { userId: session?.user.id ?? GuestUser.id }
-  );
+  const { data: fetchedFiles, isLoading: loadingFiles, error: errorFiles } = api.file.listFileByUserId.useQuery();
+  const { data: fetchedFolders, isLoading: loadingFolders, error: errorFolders } = api.folder.listFolderByUserId.useQuery();
+  const { data: fetchedWorkspaces, isLoading: loadingWorkspaces, error: errorWorkspaces } = api.workspace.listWorkspaceByUserId.useQuery();
 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

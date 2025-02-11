@@ -49,14 +49,11 @@ export const folderRouter = createTRPCRouter({
     }),
 
   listFolderByUserId: protectedProcedure
-    .input(z.object({
-      userId: z.string()
-    }))
-    .query(async ({ input, ctx }) => {
+    .query(async ({ ctx }) => {
       const folders = await ctx.db.folder.findMany({
         where: {
           Workspace: {
-            userId: input.userId
+            userId: ctx.session.user.id
           }
         }
       })

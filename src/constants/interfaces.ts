@@ -42,9 +42,10 @@ export const MyDrive = {
   name: "My Drive"
 }
 
-export interface ApiResponse {
+export interface S3FileResponse {
   message: string
   body: string
+  type: string
 }
 
 // CHAT SECTION

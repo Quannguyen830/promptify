@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { uploadFileToS3 } from "~/server/services/s3-service";
+import { type File } from "@prisma/client";
 
 export const fileRouter = createTRPCRouter({
   uploadFile: protectedProcedure
@@ -36,12 +37,11 @@ export const fileRouter = createTRPCRouter({
     }),
 
   listFileByUserId: protectedProcedure
-    .input(z.object({ userId: z.string() }))
-    .query(async ({ input, ctx }) => {
+    .query(async ({ ctx }) => {
       const files = await ctx.db.file.findMany({
         where: {
           Workspace: {
-            userId: input.userId
+            userId: ctx.session.user.id
           },
         },
       });
@@ -59,5 +59,17 @@ export const fileRouter = createTRPCRouter({
       })
 
       return removedFile.name;
+    }),
+
+  getFileByFileId: protectedProcedure
+    .input(z.object({ fileId: z.string() }))
+    .query(async ({ input, ctx }) => {
+      const file = await ctx.db.file.findUnique({
+        where: {
+          id: input.fileId
+        }
+      })
+
+      return file;
     })
 })

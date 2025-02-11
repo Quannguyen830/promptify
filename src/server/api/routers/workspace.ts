@@ -21,16 +21,13 @@ export const workspaceRouter = createTRPCRouter({
     }),
 
   listWorkspaceByUserId: protectedProcedure
-    .input(z.object({
-      userId: z.string()
-    }))
-    .query(async ({ input, ctx }) => {
+    .query(async ({ ctx }) => {
       const workspaces = await ctx.db.workspace.findMany({
         where: {
-          userId: input.userId
+          userId: ctx.session.user.id
         },
         include: {
-          files: true,
+          files: true,  
           folders: true
         }
       })
