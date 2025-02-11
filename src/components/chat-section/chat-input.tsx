@@ -60,6 +60,7 @@ const ChatInput = () => {
       const reply = await saveMessage.mutateAsync({
         chatSessionId: currentChatSession.id,
         content: inputMessage,
+        context: currentChatSession.messages.slice(-10),
         sender: "USER"
       });
       addMessage({
