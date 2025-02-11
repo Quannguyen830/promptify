@@ -1,12 +1,12 @@
 "use client"
 
 import { api } from "~/trpc/react";
+import { useEffect } from "react";
 
-import ChatBubble from "./chat-bubble";
-import ChatInput from "./chat-input";
 import { ChatSectionState, useChatStore } from "./chat-store";
 import ChatSessionCard from "./chat-session-card";
-import { useEffect } from "react";
+import ChatBubble from "./chat-bubble";
+import ChatInput from "./chat-input";
 
 export function ChatSection() {
   const {
