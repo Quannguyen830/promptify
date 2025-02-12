@@ -25,9 +25,12 @@ export interface ChatStore {
 }
 export const useChatStore = create<ChatStore>((set) => ({
   currentChatState: ChatSectionState.IS_LOADING,
-  setChatState: (state: ChatSectionState) => set(() => ({
-    currentChatState: state
-  })),
+  setChatState(state: ChatSectionState) {
+    if (state === ChatSectionState.SESSION_LISTING) {
+      set(() => ({ currentChatSession: null }));
+    }
+    set(() => ({ currentChatState: state }));
+  },
   
   addMessage: (message) => {
     set((state) => {

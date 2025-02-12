@@ -87,6 +87,7 @@ export const ChatRouter = createTRPCRouter({
       const response = await ctx.db.chatSession.findMany({
         select: {
           id: true,
+          name: true,
           messages: {
             select: {
               content: true,

@@ -2,29 +2,11 @@ import { geminiCacheManager, geminiModel, googleGenAIClient } from "~/config/goo
 import { type ClientMessage } from "~/constants/types";
 
 export const DEFAULT_GEMINI_CACHE_TTL=300;
-export const DEFAULT_GEMINI_INSTRUCTION="Answer the question shortly, 5 sentences in average. Answer in text only."
-export const GENERATE_TITLE_INSTRUCTION="Generate a concise, one-sentence title that summarizes the key topic of the following conversation between a user and an AI assistant";
+export const DEFAULT_GEMINI_INSTRUCTION="Answer the question shortly, 5 sentences in average based on the context provided. Answer in text only."
+export const GENERATE_TITLE_INSTRUCTION="Generate a concise, one-sentence title that summarizes the key topic of the following question: ";
 
 
-export const sendMessage = async (message: string): Promise<string> => {  
-  const result = await geminiModel.generateContent(message);
-  return result.response.text();
-}
-
-export const generateChatTitle = async (content: string) : Promise<string> => {
-  const result = await geminiModel.generateContent(GENERATE_TITLE_INSTRUCTION + content);
-
-  return result.response.text()
-}
-
-export const sendMessageWithContext = async (message: string, context: ClientMessage[]) => {
-  const contextString = JSON.stringify(context);
-  const promptWithContext = `Previous conversation context:\n${contextString}\n\nCurrent message: ${message}`;
-  
-  const result = await geminiModel.generateContent(promptWithContext);
-  return result.response.text();
-}
-
+// Helper func 1
 const clientMessageToGeminiCacheContent = (context: ClientMessage[]) => {
   return context.map(message => ({
     role: message.sender === 'AGENT' ? 'model' : 'user',
@@ -35,6 +17,38 @@ const clientMessageToGeminiCacheContent = (context: ClientMessage[]) => {
     ]
   }));
 }
+
+// Basic send and get msg with default instruction
+export const sendMessage = async (message: string): Promise<string> => {  
+  const result = await geminiModel.generateContent(DEFAULT_GEMINI_INSTRUCTION + message);
+  return result.response.text();
+}
+
+// Get chat title based on initial user message
+export const generateChatTitle = async (content: string) : Promise<string> => {
+  const result = await geminiModel.generateContent(GENERATE_TITLE_INSTRUCTION + content);
+
+  return result.response.text()
+}
+
+// Send and get msg with context
+export const sendMessageWithContext = async (message: string, context: ClientMessage[]) => {
+  const contextString = JSON.stringify(context);
+  const promptWithContext = `Previous conversation context:\n${contextString}\n\nCurrent message: ${message}`;
+  
+  const result = await geminiModel.generateContent(DEFAULT_GEMINI_INSTRUCTION + promptWithContext);
+  return result.response.text();
+}
+
+// Send and get msg with context but can stream
+export const sendMessageWithContextStreaming = async (message: string, context: ClientMessage[]) => {
+  const contextString = JSON.stringify(context);
+  const promptWithContext = `Previous conversation context:\n${contextString}\n\nCurrent message: ${message}`;
+  
+  const result = await geminiModel.generateContentStream(DEFAULT_GEMINI_INSTRUCTION + promptWithContext);
+  return result.stream;
+}
+
 
 // DONT USE THIS UNTIL GEMINI FIX CONTEXT CACHE 403 ON .get
 export const sendMessageWithCache = async (chatSessionId: string, message: string, context: ClientMessage[]) => {

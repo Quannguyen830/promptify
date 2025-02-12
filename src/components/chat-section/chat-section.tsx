@@ -46,7 +46,7 @@ export function ChatSection() {
         <div className="overflow-y-auto h-full flex flex-col gap-2 p-4">
           {chatSessions?.map((session, index) => (
             <ChatSessionCard key={index} id={session.id}>
-              {session.id}
+              {session.name}
             </ChatSessionCard>
           ))}
         </div>
