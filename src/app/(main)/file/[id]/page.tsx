@@ -2,51 +2,59 @@
 
 import { useEffect, useState } from "react"
 import { useParams } from "next/navigation"
-import { Button } from "~/components/ui/button"
-import { Input } from "~/components/ui/input"
-import { Slider } from "~/components/ui/slider"
-import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, RotateCw, Download, Printer, Share2 } from "lucide-react"
+import { type S3FileResponse } from "~/constants/interfaces"
 import { paginateContent } from "~/app/helpers/file-pagination-helper"
 import { api } from "~/trpc/react"
 import Loading from "~/components/share/loading-spinner"
-import { Document, Page } from 'react-pdf';
+import { Textarea } from "~/components/ui/textarea"
+import { Switch } from "~/components/ui/switch"
+import { Label } from "~/components/ui/label"
+import { Badge } from "~/components/ui/badge"
+import { EditToolbar } from "~/components/file-editor/text-editor-toolbox"
+import { PDFToolbar } from "~/components/file-editor/pdf-toolbox"
 
-import { pdfjs } from 'react-pdf';
-pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-  'pdfjs-dist/build/pdf.worker.min.mjs',
-  import.meta.url,
-).toString();
-
-export default function PDFViewer() {
+export default function FilePage() {
   const { id } = useParams<{ id: string }>();
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [zoom, setZoom] = useState(100)
+  const [isEditable, setIsEditable] = useState(false)
   const [pages, setPages] = useState<string[]>([])
   const [currentPageContent, setCurrentPageContent] = useState<string>("PDF Content")
-  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
-  const [body, setBody] = useState<string>();
+  const [pdfUrl, setPdfUrl] = useState<string>("");
 
   const { data: fetchedFile, isLoading, error } = api.file.getFileByFileId.useQuery({
     fileId: id
   });
 
-  // These functions would be implemented to interact with a PDF rendering library
-  const goToNextPage = () => setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-  const goToPrevPage = () => setCurrentPage((prev) => Math.max(prev - 1, 1))
-  const handleZoomIn = () => setZoom((prev) => Math.min(prev + 10, 200))
-  const handleZoomOut = () => setZoom((prev) => Math.max(prev - 10, 50))
-  const handleRotate = () => console.log("Rotate PDF")
-  const handleDownload = () => console.log("Download PDF")
-  const handlePrint = () => console.log("Print PDF")
-  const handleShare = () => console.log("Share PDF")
+  const { mutate: updateFile } = api.file.updateFileByFileId.useMutation();
 
   useEffect(() => {
-    const paginatedContent = paginateContent(fetchedFile?.body ?? "No file content");
-    setPages(paginatedContent);
-    setTotalPages(paginatedContent.length);
-    setCurrentPageContent(paginatedContent[0] ?? "");
-  }, [fetchedFile?.body])
+    const fetchFile = async () => {
+      if (id) {
+        const response = await fetch(`/api/get-file-from-s3?id=${id}&fileType=${fetchedFile?.type}`);
+        if (response.ok) {
+          const data = await response.json() as S3FileResponse;
+          console.log("Type: ", data.type);
+
+          const pdfDataUrl = `data:application/pdf;base64,${data.body}`;
+          setPdfUrl(pdfDataUrl);
+
+          const paginatedContent = paginateContent(data.body);
+          setPages(paginatedContent);
+          setTotalPages(paginatedContent.length);
+          setCurrentPageContent(paginatedContent[0] ?? "");
+        } else {
+          console.error("Failed to fetch file:", response.statusText);
+        }
+      }
+    };
+
+    fetchFile()
+      .catch((e) => {
+        console.log(e);
+      })
+  }, [id, fetchedFile?.type])
 
   useEffect(() => {
     console.log("Pdf url: ", pdfUrl);
@@ -56,62 +64,54 @@ export default function PDFViewer() {
     setCurrentPageContent(pages[currentPage - 1] ?? "");
   }, [currentPage, pages])
 
+  // useEffect(() => {
+  //   if (!isEditable && currentPageContent) {
+  //     const encoder = new TextEncoder();
+  //     const fileBuffer = encoder.encode(currentPageContent);
+  //     updateFile({ fileId: id, fileBuffer });
+  //   }
+  // }, [isEditable, currentPageContent, id, updateFile]);
+
   if (isLoading) return <Loading />;
   if (error) return <div>Error: {error.message}</div>;
 
   return (
     <div className="flex flex-col h-screen">
-      {/* Toolbar */}
-      <div className="flex items-center justify-between py-4 border-b">
-        <div className="flex items-center space-x-2">
-          <Button variant="ghost" size="icon" onClick={goToPrevPage} disabled={currentPage === 1}>
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <div className="flex items-center">
-            <Input
-              type="number"
-              value={currentPage}
-              onChange={(e) => setCurrentPage(Number(e.target.value))}
-              className="w-16 text-center"
-            />
-            <span className="mx-2">of {totalPages}</span>
+      <div className="flex items-center justify-between p-4 border-b">
+        <h1 className="text-2xl font-semibold">PDF Viewer</h1>
+        <div className="flex items-center gap-4">
+          {isEditable && (
+            <Badge variant="default" className="bg-yellow-500">
+              Editing Mode
+            </Badge>
+          )}
+          <div className="flex items-center space-x-2">
+            <Switch id="edit-mode" checked={isEditable} onCheckedChange={setIsEditable} />
+            <Label htmlFor="edit-mode">Edit Mode</Label>
           </div>
-          <Button variant="ghost" size="icon" onClick={goToNextPage} disabled={currentPage === totalPages}>
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-        </div>
-        <div className="flex items-center space-x-2">
-          <Button variant="ghost" size="icon" onClick={handleZoomOut}>
-            <ZoomOut className="h-4 w-4" />
-          </Button>
-          <Slider
-            value={[zoom]}
-            // onValueChange={(value) => setZoom(value[0])}
-            min={50}
-            max={200}
-            step={10}
-            className="w-32"
-          />
-          <Button variant="ghost" size="icon" onClick={handleZoomIn}>
-            <ZoomIn className="h-4 w-4" />
-          </Button>
-          <Button variant="ghost" size="icon" onClick={handleRotate}>
-            <RotateCw className="h-4 w-4" />
-          </Button>
-          <Button variant="ghost" size="icon" onClick={handleDownload}>
-            <Download className="h-4 w-4" />
-          </Button>
-          <Button variant="ghost" size="icon" onClick={handlePrint}>
-            <Printer className="h-4 w-4" />
-          </Button>
-          <Button variant="ghost" size="icon" onClick={handleShare}>
-            <Share2 className="h-4 w-4" />
-          </Button>
         </div>
       </div>
 
+      {isEditable ? (
+        <EditToolbar />
+      ) : (
+        <PDFToolbar
+          currentPage={currentPage}
+          totalPages={totalPages}
+          zoom={zoom}
+          onPageChange={setCurrentPage}
+          onZoomChange={(value) => setZoom(value[0] ?? 1)}
+          onZoomIn={() => setZoom((prev) => Math.min(prev + 10, 200))}
+          onZoomOut={() => setZoom((prev) => Math.max(prev - 10, 50))}
+          onRotate={() => console.log("Rotate PDF")}
+          onDownload={() => console.log("Download PDF")}
+          onPrint={() => console.log("Print PDF")}
+          onShare={() => console.log("Share PDF")}
+        />
+      )}
+
       {/* PDF Viewer */}
-      <div className="flex-1 overflow-auto bg-gray-100 flex items-center justify-center rounded-xl my-5">
+      <div className="flex-1 flex items-center justify-center rounded-xl my-1">
         <div
           className="bg-white shadow-lg flex flex-col rounded-2xl"
           style={{
@@ -122,13 +122,14 @@ export default function PDFViewer() {
             overflow: 'hidden',
           }}
         >
-          <div className="w-full h-full flex justify-center overflow-auto">
-            {fetchedFile?.type == "application/pdf" ? (
-              <Document
-                file={fetchedFile.signedUrl}
-              >
-                <Page pageNumber={totalPages} />
-              </Document>
+          <div className="w-full h-full py-5 px-4 flex items-center border border-5 justify-center overflow-auto rounded-2xl">
+            {isEditable ? (
+              <Textarea
+                value={currentPageContent}
+                onChange={(e) => setCurrentPageContent(e.target.value)}
+                className="w-full h-full resize-none border-none focus-visible:ring-0 p-0"
+                style={{ fontSize: `${zoom}%` }}
+              />
             ) : (
               <div className="whitespace-pre-wrap max-h-full w-full overflow-auto">
                 {currentPageContent}

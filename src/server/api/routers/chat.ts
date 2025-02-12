@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { MessageSenderSchema } from "~/constants/types";
-import { sendInitialMessage, sendMessageWithContext } from "~/server/services/gemini-service";
+import { getResponse } from "~/server/services/gemini-service";
 
 export const ChatRouter = createTRPCRouter({
   createChatSessionWithMessage: protectedProcedure
@@ -12,12 +12,15 @@ export const ChatRouter = createTRPCRouter({
     .mutation(async ({ input, ctx }) => {
       const { content, sender } = input;
       
-      const agentReply = await sendInitialMessage(content);
+      const agentReply = await getResponse(content);
       const response = await ctx.db.chatSession.create({
         data: {
-          name: agentReply,
           userId: ctx.session.user.id,
           messages: {
+            // create: {
+            //   content: content,
+            //   sender: sender,
+            // },
             create: [
               {
                 content: content,
@@ -36,10 +39,16 @@ export const ChatRouter = createTRPCRouter({
       });
 
       console.log("createChatSessionWithMessage", response);
-      return {
-        id: response.id,
-        response: agentReply,
-      };
+      return agentReply;
+
+      // const reply = await getResponse(content);
+      // return await ctx.db.message.create({
+      //   data: {
+      //     chatSessionId: response.id,
+      //     content: reply,
+      //     sender: MessageSenderSchema.enum.AGENT
+      //   }
+      // })
     }),
 
   // save user message, get reply and save agent message. Use with existing ChatSession
@@ -48,13 +57,9 @@ export const ChatRouter = createTRPCRouter({
       chatSessionId: z.string(),
       content: z.string(),
       sender: MessageSenderSchema,
-      context: z.array(z.object({
-        content: z.string(),
-        sender: MessageSenderSchema
-      }))
     }))
     .mutation(async ({ input, ctx }) => {
-      const { chatSessionId, content, sender, context } = input;
+      const { chatSessionId, content, sender } = input;
       
       // save user message to db
       await ctx.db.message.create({
@@ -66,7 +71,7 @@ export const ChatRouter = createTRPCRouter({
       });
 
       // get reply from agent
-      const reply = await sendMessageWithContext(content, context);
+      const reply = await getResponse(content);
       
       // save and return reply to client
       return await ctx.db.message.create({

@@ -5,7 +5,7 @@ import {
 import { Paperclip, Send } from "lucide-react";
 import { api } from "~/trpc/react";
 
-import { ChatSectionState, useChatStore } from "./chat-store";
+import { useChatStore } from "./chat-store";
 import { type ChatInputForm, type ChatModel } from "~/constants/interfaces";
 
 import { Textarea } from "../ui/textarea";
@@ -23,8 +23,6 @@ const ChatInput = () => {
   const {
     currentChatSession,
     addMessage,
-    setChatState,
-    setCurrentChatSession
   } = useChatStore()
 
   const {
@@ -40,31 +38,28 @@ const ChatInput = () => {
   if (!userId) return;
  
   const onSubmit: SubmitHandler<ChatInputForm> = async (data) => { 
+    if (!currentChatSession) return;
+
     const inputMessage = data.message;
     reset();
     
-    if (!currentChatSession) {
-      setChatState(ChatSectionState.SESSION_SELECTED);
-
-      addMessage({
-        content: inputMessage,
-        sender: "USER"
-      });
+    if (currentChatSession.messages.length === 0) {
       const reply = await createSessionWithMessage.mutateAsync({
         content: inputMessage,
         sender: "USER"
       });
       addMessage({
-        content: reply.response,
+        content: inputMessage,
+        sender: "USER"
+      });
+      addMessage({
+        content: reply,
         sender: "AGENT"
       })
-
-      setCurrentChatSession(reply.id);
     } else {
       const reply = await saveMessage.mutateAsync({
         chatSessionId: currentChatSession.id,
         content: inputMessage,
-        context: currentChatSession.messages.slice(-10),
         sender: "USER"
       });
       addMessage({
