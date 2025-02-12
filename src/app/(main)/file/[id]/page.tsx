@@ -11,6 +11,12 @@ import { api } from "~/trpc/react"
 import Loading from "~/components/share/loading-spinner"
 import { Document, Page } from 'react-pdf';
 
+import { pdfjs } from 'react-pdf';
+pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+  'pdfjs-dist/build/pdf.worker.min.mjs',
+  import.meta.url,
+).toString();
+
 export default function PDFViewer() {
   const { id } = useParams<{ id: string }>();
   const [currentPage, setCurrentPage] = useState(1)
@@ -116,10 +122,10 @@ export default function PDFViewer() {
             overflow: 'hidden',
           }}
         >
-          <div className="w-full h-full p-5 flex items-center justify-center text-gray-400 overflow-auto">
+          <div className="w-full h-full flex justify-center overflow-auto">
             {fetchedFile?.type == "application/pdf" ? (
               <Document
-                file={currentPageContent}
+                file={fetchedFile.signedUrl}
               >
                 <Page pageNumber={totalPages} />
               </Document>

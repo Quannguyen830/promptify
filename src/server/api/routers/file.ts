@@ -78,21 +78,14 @@ export const fileRouter = createTRPCRouter({
         Key: input.fileId
       };
 
-      const result = await s3Client.send(new GetObjectCommand(getParam));
-
-      const contentType = result.ContentType?.toLowerCase();
-
-      const signedUrl = await getSignedUrl(s3Client, new GetObjectCommand(getParam), 
-      { expiresIn: 3600 });
+      const result = await s3Client.send(new GetObjectCommand(getParam));    
+      const signedUrl = await getSignedUrl(s3Client, new GetObjectCommand(getParam), { expiresIn: 3600 });
 
       if (result.Body) {
         // Handle different file types differently
         if (file?.type == "application/pdf") {
-          const buffer = await result.Body.transformToByteArray(); 
-
           return { 
             message: "Get successful", 
-            body: buffer.toString(),
             type: 'application/pdf',
             signedUrl: signedUrl
           };
@@ -102,7 +95,7 @@ export const fileRouter = createTRPCRouter({
           return { 
             message: "Get successful", 
             body: bodyContents,
-            type: contentType
+            type: "text/plain"
           };
         }
       }
