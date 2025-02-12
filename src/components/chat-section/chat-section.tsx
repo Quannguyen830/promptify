@@ -8,6 +8,9 @@ import ChatSessionCard from "./chat-session-card";
 import ChatBubble from "./chat-bubble";
 import ChatInput from "./chat-input";
 import Loading from "../share/loading-spinner";
+import { Button } from "../ui/button";
+
+import { ArrowLeft } from "lucide-react";
 
 export function ChatSection() {
   const {
@@ -29,12 +32,18 @@ export function ChatSection() {
 
   return (
     <div className="flex flex-col h-full bg-sidebar">
-      <div className="h-16 p-4 border-b">
-        <h2 className="font-semibold text-2xl">Assistant</h2>
+      <div className="h-16 p-4 ">
+        {currentChatState === ChatSectionState.SESSION_SELECTED ? (
+          <Button onClick={() => setChatState(ChatSectionState.SESSION_LISTING)}>
+            <ArrowLeft/>
+          </Button>
+        ) : (
+          <h2 className="font-semibold text-2xl">Assistant</h2>
+        )}
       </div>
 
       {currentChatState === ChatSectionState.SESSION_LISTING && (
-        <div className="overflow-y-auto h-full flex flex-col gap-2 p-4 bg">
+        <div className="overflow-y-auto h-full flex flex-col gap-2 p-4">
           {chatSessions?.map((session, index) => (
             <ChatSessionCard key={index} id={session.id}>
               {session.id}

@@ -1,7 +1,9 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { MessageSenderSchema } from "~/constants/types";
-import { sendInitialMessage, sendMessageWithContext } from "~/server/services/gemini-service";
+
+import { generateChatTitle, sendMessage, sendMessageWithContext } from "~/server/services/gemini-service";
+
 
 export const ChatRouter = createTRPCRouter({
   createChatSessionWithMessage: protectedProcedure
@@ -12,10 +14,12 @@ export const ChatRouter = createTRPCRouter({
     .mutation(async ({ input, ctx }) => {
       const { content, sender } = input;
       
-      const agentReply = await sendInitialMessage(content);
+      const agentReply = await sendMessage(content);
+      const chatName = await generateChatTitle(content);
+
       const response = await ctx.db.chatSession.create({
         data: {
-          name: agentReply,
+          name: chatName,
           userId: ctx.session.user.id,
           messages: {
             create: [

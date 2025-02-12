@@ -29,7 +29,6 @@ export const useChatStore = create<ChatStore>((set) => ({
     currentChatState: state
   })),
   
-  messages: [],
   addMessage: (message) => {
     set((state) => {
       if (!state.currentChatSession) return state;

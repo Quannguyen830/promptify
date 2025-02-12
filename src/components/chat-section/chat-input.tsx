@@ -22,6 +22,7 @@ const CHAT_MODELS: ChatModel[] = [
 const ChatInput = () => {
   const {
     currentChatSession,
+    currentChatState,
     addMessage,
     setChatState,
     setCurrentChatSession
@@ -45,6 +46,7 @@ const ChatInput = () => {
     
     if (!currentChatSession) {
       setChatState(ChatSectionState.SESSION_SELECTED);
+      console.log("current session", currentChatState);
 
       addMessage({
         content: inputMessage,
