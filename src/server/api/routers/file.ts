@@ -1,7 +1,6 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { uploadFileToS3 } from "~/server/services/s3-service";
-import { type File } from "@prisma/client";
 import { GuestUser } from "~/constants/interfaces";
 
 export const fileRouter = createTRPCRouter({
@@ -72,5 +71,23 @@ export const fileRouter = createTRPCRouter({
       })
 
       return file;
-    })
+    }),
+
+  updateFileByFileId: protectedProcedure
+    .input(z.object({
+      fileId: z.string(),
+      fileBuffer: z.instanceof(Uint8Array),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const { fileId, fileBuffer } = input;
+      const buffer = Buffer.from(fileBuffer);
+
+      const file = await ctx.db.file.findUnique({
+        where: {
+          id: fileId
+        }
+      })
+
+
+    }), 
 })
