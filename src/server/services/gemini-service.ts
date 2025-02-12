@@ -51,29 +51,29 @@ export const sendMessageWithContextStreaming = async (message: string, context: 
 
 
 // DONT USE THIS UNTIL GEMINI FIX CONTEXT CACHE 403 ON .get
-export const sendMessageWithCache = async (chatSessionId: string, message: string, context: ClientMessage[]) => {
-  let contextCache;
+// export const sendMessageWithCache = async (chatSessionId: string, message: string, context: ClientMessage[]) => {
+//   let contextCache;
   
-  try {
-    // Attempt to retrieve existing chat session cache
-    contextCache = await geminiCacheManager.get(chatSessionId);
-  } catch (error) {
-    // If there's an error retrieving the cache, treat it as if no cache exists
-    contextCache = null;
-    console.log("Error running sendMessageWithCache", error);
-  }
+//   try {
+//     // Attempt to retrieve existing chat session cache
+//     contextCache = await geminiCacheManager.get(chatSessionId);
+//   } catch (error) {
+//     // If there's an error retrieving the cache, treat it as if no cache exists
+//     contextCache = null;
+//     console.log("Error running sendMessageWithCache", error);
+//   }
 
-  // if no cache found, create a new cache and new model based on the new cache
-  if (!contextCache) {
-    contextCache = await geminiCacheManager.create({
-      model: "models/gemini-1.5-flash-001",
-      displayName: chatSessionId,
-      contents: clientMessageToGeminiCacheContent(context),
-      ttlSeconds: DEFAULT_GEMINI_CACHE_TTL
-    });
-  }
-  const cachedGeminiModel = googleGenAIClient.getGenerativeModelFromCachedContent(contextCache);
-  const result = await cachedGeminiModel.generateContent(message);
+//   // if no cache found, create a new cache and new model based on the new cache
+//   if (!contextCache) {
+//     contextCache = await geminiCacheManager.create({
+//       model: "models/gemini-1.5-flash-001",
+//       displayName: chatSessionId,
+//       contents: clientMessageToGeminiCacheContent(context),
+//       ttlSeconds: DEFAULT_GEMINI_CACHE_TTL
+//     });
+//   }
+//   const cachedGeminiModel = googleGenAIClient.getGenerativeModelFromCachedContent(contextCache);
+//   const result = await cachedGeminiModel.generateContent(message);
 
-  return result.response.text();
-}
+//   return result.response.text();
+// }
