@@ -46,6 +46,7 @@ export interface S3FileResponse {
   message: string
   body: string
   type: string
+  signedUrl?: string
 }
 
 // CHAT SECTION

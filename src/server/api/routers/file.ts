@@ -2,13 +2,16 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { uploadFileToS3 } from "~/server/services/s3-service";
 import { GuestUser } from "~/constants/interfaces";
+import { s3Bucket, s3Client } from "~/config/S3-client";
+import { GetObjectCommand } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 export const fileRouter = createTRPCRouter({
   uploadFile: protectedProcedure
     .input(z.object({ 
       fileName: z.string(),
       fileSize: z.string(),
-      fileType: z.string(),
+      fileType: z.string(), 
       fileBuffer: z.instanceof(Uint8Array),
       workspaceId: z.string(),
       folderId: z.string().optional(),
@@ -70,7 +73,40 @@ export const fileRouter = createTRPCRouter({
         }
       })
 
-      return file;
+      const getParam = {
+        Bucket: s3Bucket,
+        Key: input.fileId
+      };
+
+      const result = await s3Client.send(new GetObjectCommand(getParam));    
+      const signedUrl = await getSignedUrl(s3Client, new GetObjectCommand(getParam), { expiresIn: 3600 });
+
+      if (result.Body) {
+        // Handle different file types differently
+        if (file?.type == "application/pdf") {
+          const buffer = await result.Body.transformToByteArray(); 
+
+          return { 
+            message: "Get successful", 
+            body: buffer.toString(),
+            type: 'application/pdf',
+            signedUrl: signedUrl
+          };
+        } else {
+          // For text files, continue with the current approach
+          const bodyContents = await result.Body.transformToString();
+          return { 
+            message: "Get successful", 
+            body: bodyContents,
+            type: "text/plain"
+          };
+        }
+      }
+
+      return { 
+        message: "No content found", 
+        body: "No content found" 
+      };
     }),
 
   updateFileByFileId: protectedProcedure

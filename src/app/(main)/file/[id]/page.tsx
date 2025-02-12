@@ -12,6 +12,13 @@ import { Label } from "~/components/ui/label"
 import { Badge } from "~/components/ui/badge"
 import { EditToolbar } from "~/components/file-editor/text-editor-toolbox"
 import { PDFToolbar } from "~/components/file-editor/pdf-toolbox"
+import { Document, Page, pdfjs } from 'react-pdf';
+
+
+pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+  'pdfjs-dist/build/pdf.worker.min.mjs',
+  import.meta.url,
+).toString();
 
 export default function FilePage() {
   const { id } = useParams<{ id: string }>();
@@ -123,7 +130,11 @@ export default function FilePage() {
           }}
         >
           <div className="w-full h-full py-5 px-4 flex items-center border border-5 justify-center overflow-auto rounded-2xl">
-            {isEditable ? (
+            {fetchedFile?.type === "application/pdf" ? (
+              <Document file={fetchedFile.signedUrl}>
+                <Page pageNumber={totalPages} />
+              </Document>
+            ) : isEditable ? (
               <Textarea
                 value={currentPageContent}
                 onChange={(e) => setCurrentPageContent(e.target.value)}
