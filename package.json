@@ -23,7 +23,8 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.33.1",
     "@auth/prisma-adapter": "^2.7.2",
-    "@aws-sdk/client-s3": "^3.717.0",
+    "@aws-sdk/client-s3": "^3.744.0",
+    "@aws-sdk/s3-request-presigner": "^3.744.0",
     "@google/generative-ai": "^0.21.0",
     "@prisma/client": "^5.14.0",
     "@radix-ui/react-avatar": "^1.1.2",
@@ -57,6 +58,7 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.54.2",
+    "react-pdf": "^9.2.1",
     "react-resizable-panels": "^2.1.7",
     "server-only": "^0.0.1",
     "superjson": "^2.2.1",

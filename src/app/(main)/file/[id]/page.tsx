@@ -6,10 +6,10 @@ import { Button } from "~/components/ui/button"
 import { Input } from "~/components/ui/input"
 import { Slider } from "~/components/ui/slider"
 import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, RotateCw, Download, Printer, Share2 } from "lucide-react"
-import { type S3FileResponse } from "~/constants/interfaces"
 import { paginateContent } from "~/app/helpers/file-pagination-helper"
 import { api } from "~/trpc/react"
 import Loading from "~/components/share/loading-spinner"
+import { Document, Page } from 'react-pdf';
 
 export default function PDFViewer() {
   const { id } = useParams<{ id: string }>();
@@ -18,7 +18,8 @@ export default function PDFViewer() {
   const [zoom, setZoom] = useState(100)
   const [pages, setPages] = useState<string[]>([])
   const [currentPageContent, setCurrentPageContent] = useState<string>("PDF Content")
-  const [pdfUrl, setPdfUrl] = useState<string>("");
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const [body, setBody] = useState<string>();
 
   const { data: fetchedFile, isLoading, error } = api.file.getFileByFileId.useQuery({
     fileId: id
@@ -35,31 +36,11 @@ export default function PDFViewer() {
   const handleShare = () => console.log("Share PDF")
 
   useEffect(() => {
-    const fetchFile = async () => {
-      if (id) {
-        const response = await fetch(`/api/get-file-from-s3?id=${id}&fileType=${fetchedFile?.type}`);
-        if (response.ok) {
-          const data = await response.json() as S3FileResponse;
-          console.log("Type: ", data.type);
-
-          const pdfDataUrl = `data:application/pdf;base64,${data.body}`;
-          setPdfUrl(pdfDataUrl);
-
-          const paginatedContent = paginateContent(data.body);
-          setPages(paginatedContent);
-          setTotalPages(paginatedContent.length);
-          setCurrentPageContent(paginatedContent[0] ?? "");
-        } else {
-          console.error("Failed to fetch file:", response.statusText);
-        }
-      }
-    };
-
-    fetchFile()
-      .catch((e) => {
-        console.log(e);
-      })
-  }, [id, fetchedFile?.type])
+    const paginatedContent = paginateContent(fetchedFile?.body ?? "No file content");
+    setPages(paginatedContent);
+    setTotalPages(paginatedContent.length);
+    setCurrentPageContent(paginatedContent[0] ?? "");
+  }, [fetchedFile?.body])
 
   useEffect(() => {
     console.log("Pdf url: ", pdfUrl);
@@ -137,12 +118,11 @@ export default function PDFViewer() {
         >
           <div className="w-full h-full p-5 flex items-center justify-center text-gray-400 overflow-auto">
             {fetchedFile?.type == "application/pdf" ? (
-              <object
-                data={pdfUrl ?? null}
-                type="application/pdf"
-                width="100%"
-                height="100%"
-              />
+              <Document
+                file={currentPageContent}
+              >
+                <Page pageNumber={totalPages} />
+              </Document>
             ) : (
               <div className="whitespace-pre-wrap max-h-full w-full overflow-auto">
                 {currentPageContent}
