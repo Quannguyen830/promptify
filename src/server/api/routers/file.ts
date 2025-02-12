@@ -88,6 +88,12 @@ export const fileRouter = createTRPCRouter({
         }
       })
 
+      if(file) {
+        const s3Response = await uploadFileToS3(buffer, file.id)
 
+        return s3Response;
+      }
+
+      return null;
     }), 
 })

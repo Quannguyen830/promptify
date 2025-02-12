@@ -23,6 +23,7 @@ export default function FolderPage() {
         id: fetchFolder.id,
         label: fetchFolder.name,
         href: `/folder/${fetchFolder.id}`,
+        isFolder: true
       });
     }
   }, [fetchFolder, addItemsHistory]);
@@ -42,12 +43,13 @@ export default function FolderPage() {
         <div className="flex items-center justify-between">
           <FolderBreadcrumb
             items={[
-              { id: "MyDrive", label: "MyDrive", href: "/dashboard", current: false },
+              { id: "MyDrive", label: "MyDrive", href: "/dashboard", current: false, isFolder: false },
               ...history.map((item, index) => ({
                 id: item.id,
                 label: item.label,
-                href: 'workspaceId' in item ? `/folder/${item.id}` : `/workspace/${item.id}`,
-                current: index === history.length - 1
+                href: item.isFolder ? `/folder/${item.id}` : `/workspace/${item.id}`,
+                current: index === history.length - 1,
+                isFolder: true
               })),
             ]}
           />

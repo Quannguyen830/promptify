@@ -14,6 +14,7 @@ export interface BreadcrumbItem {
   label: string
   href: string
   current?: boolean
+  isFolder: boolean
 }
 
 interface FolderBreadcrumbProps {

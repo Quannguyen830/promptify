@@ -27,6 +27,8 @@ export default function FilePage() {
     fileId: id
   });
 
+  const { mutate: updateFile } = api.file.updateFileByFileId.useMutation();
+
   useEffect(() => {
     const fetchFile = async () => {
       if (id) {
@@ -61,6 +63,14 @@ export default function FilePage() {
   useEffect(() => {
     setCurrentPageContent(pages[currentPage - 1] ?? "");
   }, [currentPage, pages])
+
+  // useEffect(() => {
+  //   if (!isEditable && currentPageContent) {
+  //     const encoder = new TextEncoder();
+  //     const fileBuffer = encoder.encode(currentPageContent);
+  //     updateFile({ fileId: id, fileBuffer });
+  //   }
+  // }, [isEditable, currentPageContent, id, updateFile]);
 
   if (isLoading) return <Loading />;
   if (error) return <div>Error: {error.message}</div>;
@@ -101,7 +111,7 @@ export default function FilePage() {
       )}
 
       {/* PDF Viewer */}
-      <div className="flex-1 p-3 bg-gray-100 flex items-center justify-center rounded-xl my-1">
+      <div className="flex-1 flex items-center justify-center rounded-xl my-1">
         <div
           className="bg-white shadow-lg flex flex-col rounded-2xl"
           style={{
@@ -112,7 +122,7 @@ export default function FilePage() {
             overflow: 'hidden',
           }}
         >
-          <div className="w-full h-full py-5 px-4 flex items-center justify-center text-gray-400 overflow-auto">
+          <div className="w-full h-full py-5 px-4 flex items-center border border-5 justify-center overflow-auto rounded-2xl">
             {isEditable ? (
               <Textarea
                 value={currentPageContent}

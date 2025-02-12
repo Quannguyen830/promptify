@@ -28,6 +28,7 @@ export default function WorkspacePage() {
         id: fetchedWorkspace.id,
         label: fetchedWorkspace.name,
         href: `/workspace/${fetchedWorkspace.id}`,
+        isFolder: false
       });
     }
   }, [fetchedWorkspace, addItemsHistory]);
@@ -47,12 +48,13 @@ export default function WorkspacePage() {
         <div className="flex items-center justify-between">
           <FolderBreadcrumb
             items={[
-              { id: "MyDrive", label: "MyDrive", href: "/dashboard", current: false },
+              { id: "MyDrive", label: "MyDrive", href: "/dashboard", current: false, isFolder: false },
               ...history.map((item, index) => ({
                 id: item.id,
                 label: item.label,
                 href: `/workspace/${item.id}`,
-                current: index === history.length - 1
+                current: index === history.length - 1,
+                isFolder: false
               })),
             ]}
           />
