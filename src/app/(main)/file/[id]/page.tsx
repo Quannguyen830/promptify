@@ -13,6 +13,8 @@ import { Badge } from "~/components/ui/badge"
 import { EditToolbar } from "~/components/file-editor/text-editor-toolbox"
 import { PDFToolbar } from "~/components/file-editor/pdf-toolbox"
 import { Document, Page, pdfjs } from 'react-pdf';
+import 'react-pdf/dist/Page/AnnotationLayer.css';
+import 'react-pdf/dist/Page/TextLayer.css';
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   'pdfjs-dist/build/pdf.worker.min.mjs',
@@ -130,8 +132,16 @@ export default function FilePage() {
         >
           <div className="w-full h-full py-5 px-4 flex items-center border border-5 justify-center overflow-auto rounded-2xl">
             {fetchedFile?.type === "application/pdf" ? (
-              <Document file={fetchedFile.signedUrl}>
-                <Page pageNumber={totalPages} />
+              <Document
+                file={fetchedFile.signedUrl}
+                onLoadError={(error) => console.error("Error loading PDF:", error)}
+                loading={<Loading />}
+              >
+                <Page
+                  pageNumber={currentPage}
+                  scale={zoom / 100}
+                  loading={<Loading />}
+                />
               </Document>
             ) : isEditable ? (
               <Textarea
