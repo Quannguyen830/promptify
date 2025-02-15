@@ -1,5 +1,6 @@
 import { Button } from "~/components/ui/button"
-import { Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight } from "lucide-react"
+import { Input } from "~/components/ui/input"
+import { Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, ChevronLeft, ChevronRight } from "lucide-react"
 
 interface EditToolbarProps {
   onBold?: () => void
@@ -8,6 +9,9 @@ interface EditToolbarProps {
   onAlignLeft?: () => void
   onAlignCenter?: () => void
   onAlignRight?: () => void
+  currentPage?: number
+  totalPages?: number
+  onPageChange?: (page: number) => void
 }
 
 export function EditToolbar({
@@ -17,9 +21,12 @@ export function EditToolbar({
   onAlignLeft,
   onAlignCenter,
   onAlignRight,
+  currentPage = 1,
+  totalPages = 1,
+  onPageChange,
 }: EditToolbarProps) {
   return (
-    <div className="flex items-center justify-between p-4">
+    <div className="flex items-center justify-between p-4 border-b">
       <div className="flex items-center space-x-2">
         <Button variant="ghost" size="icon" onClick={onBold}>
           <Bold className="h-4 w-4" />
@@ -29,6 +36,33 @@ export function EditToolbar({
         </Button>
         <Button variant="ghost" size="icon" onClick={onUnderline}>
           <Underline className="h-4 w-4" />
+        </Button>
+      </div>
+      <div className="flex items-center space-x-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => onPageChange?.(Math.max(1, currentPage - 1))}
+          disabled={currentPage === 1}
+        >
+          <ChevronLeft className="h-4 w-4" />
+        </Button>
+        <div className="flex items-center">
+          <Input
+            type="number"
+            value={currentPage}
+            onChange={(e) => onPageChange?.(Number(e.target.value))}
+            className="w-16 text-center"
+          />
+          <span className="mx-2">of {totalPages}</span>
+        </div>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => onPageChange?.(Math.min(totalPages, currentPage + 1))}
+          disabled={currentPage === totalPages}
+        >
+          <ChevronRight className="h-4 w-4" />
         </Button>
       </div>
       <div className="flex items-center space-x-2">
