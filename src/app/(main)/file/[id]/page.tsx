@@ -14,7 +14,6 @@ import { EditToolbar } from "~/components/file-editor/text-editor-toolbox"
 import { PDFToolbar } from "~/components/file-editor/pdf-toolbox"
 import { Document, Page, pdfjs } from 'react-pdf';
 
-
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   'pdfjs-dist/build/pdf.worker.min.mjs',
   import.meta.url,
