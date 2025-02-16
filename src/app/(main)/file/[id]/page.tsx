@@ -11,7 +11,6 @@ import { PDFToolbar } from "~/components/file-editor/pdf-toolbox"
 import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
-import mammoth from 'mammoth';
 import { paginateContent } from "~/app/helpers/file-pagination-helper"
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
@@ -145,7 +144,7 @@ export default function FilePage() {
       {/* Document Viewer */}
       <div className="flex-1 flex items-center justify-center p-4">
         <div
-          className="bg-white shadow-lg flex border rounded-2xl"
+          className="bg-white shadow-lg flex border rounded-2xl p-4"
           style={{
             width: `${8.5 * zoom}px`,
             height: `${11 * zoom}px`,
@@ -154,11 +153,7 @@ export default function FilePage() {
             maxHeight: 'calc(100vh - 140px)',
           }}
         >
-          <div
-            className="w-full h-full flex items-center justify-center overflow-auto rounded-2xl"
-          >
-            {renderContent()}
-          </div>
+          {renderContent()}
         </div>
       </div>
     </div>
