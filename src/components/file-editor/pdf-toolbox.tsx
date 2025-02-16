@@ -18,8 +18,8 @@ interface PDFToolbarProps {
 }
 
 export function PDFToolbar({
-  currentPage,
-  totalPages,
+  currentPage = 1,
+  totalPages = 1,
   zoom,
   onPageChange,
   onZoomChange,
@@ -31,7 +31,7 @@ export function PDFToolbar({
   onShare,
 }: PDFToolbarProps) {
   return (
-    <div className="flex items-center justify-between p-4">
+    <div className="flex items-center justify-between p-4 border-b">
       <div className="flex items-center space-x-2">
         <Button
           variant="ghost"

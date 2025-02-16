@@ -42,12 +42,10 @@ export function WorkspaceSelector({ onSelect }: WorkspaceSelectorProps) {
   }, [childFolders])
 
   const handleItemClick = (item: Workspace | Folder) => {
-    setFolderHistory((prev) => [...prev, item])
+    onSelect(item)
+  }
 
-    if (!item.hasSubfolders) {
-      onSelect(item)
-    }
-
+  const handleNextButtonClick = (item: Workspace | Folder) => {
     // This is a folder
     if ('workspaceId' in item) {
       const subfolders = allFolders.filter(folder => folder.parentFolderId === item.id);
@@ -60,6 +58,7 @@ export function WorkspaceSelector({ onSelect }: WorkspaceSelectorProps) {
       setRootFolders(filteredRootFolders);
     }
 
+    setFolderHistory((prev) => [...prev, item])
   }
 
   const handleBreadcrumbClick = (index: number) => {
@@ -121,7 +120,14 @@ export function WorkspaceSelector({ onSelect }: WorkspaceSelectorProps) {
             >
               <Briefcase className="h-4 w-4" />
               <span className="flex-1">{item.name}</span>
-              {item.hasSubfolders && <ChevronRight className="h-4 w-4" />}
+              {item.hasSubfolders &&
+                <ChevronRight
+                  className="h-4 w-4"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleNextButtonClick(item)
+                  }}
+                />}
             </button>
           ))}
         </div>
