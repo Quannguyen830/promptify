@@ -38,16 +38,18 @@ export default function Page() {
   if (error) return <div>Error: {error}</div>;
 
   return (
-    <div>
+    <div className="h-screen flex flex-col">
       <Navbar />
 
-      <div className="flex items-center justify-between mt-5">
-        <h1 className="text-2xl font-semibold mb-5">Welcome to Promptify Dashboard</h1>
-      </div>
+      <div className="flex-1 overflow-y-auto p-4">
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-semibold mb-5">Welcome to Promptify Dashboard</h1>
+        </div>
 
-      <SuggestedSection title="Suggested workspaces" type="workspaces" workspaces={fetchedWorkspaces} />
-      <SuggestedSection title="Suggested folders" type="folders" folders={fetchedFolders} />
-      <SuggestedSection title="Suggested files" type="files" files={fetchedFiles} />
+        <SuggestedSection title="Suggested workspaces" type="workspaces" workspaces={fetchedWorkspaces} />
+        <SuggestedSection title="Suggested folders" type="folders" folders={fetchedFolders} />
+        <SuggestedSection title="Suggested files" type="files" files={fetchedFiles} />
+      </div>
     </div>
   )
 }

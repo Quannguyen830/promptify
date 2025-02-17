@@ -82,7 +82,6 @@ export const fileRouter = createTRPCRouter({
       const signedUrl = await getSignedUrl(s3Client, new GetObjectCommand(getParam), { expiresIn: 3600 });
 
       if (result.Body) {
-        // Handle different file types differently
         if (file?.type == "application/pdf") {
           const buffer = await result.Body.transformToByteArray(); 
 
@@ -92,14 +91,22 @@ export const fileRouter = createTRPCRouter({
             type: 'application/pdf',
             signedUrl: signedUrl
           };
-        } else {
-          // For text files, continue with the current approach
+        } else if(file?.type == "text/plain") {
           const bodyContents = await result.Body.transformToString();
           return { 
             message: "Get successful", 
             body: bodyContents,
             type: "text/plain"
-          };
+          } 
+        } else if(file?.type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
+          const buffer = await result.Body.transformToByteArray();
+
+          return {
+            message: "Get successful",
+            body: buffer,
+            type: "application/docx",
+            signedUrl: signedUrl
+          }
         }
       }
 

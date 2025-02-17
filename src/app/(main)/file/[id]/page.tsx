@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useParams } from "next/navigation"
+import mammoth from "mammoth"
 
 import { api } from "~/trpc/react"
 import Loading from "~/components/share/loading-spinner"
@@ -23,9 +24,9 @@ export default function FilePage() {
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [zoom, setZoom] = useState(100)
-  const [isEditable, setIsEditable] = useState(false)
   const [pages, setPages] = useState<string[]>([])
   const [currentPageContent, setCurrentPageContent] = useState<string>("PDF Content")
+  const [wordContent, setWordContent] = useState<string>("")
 
   const { data: fetchedFile, isLoading, error } = api.file.getFileByFileId.useQuery({
     fileId: id
@@ -48,11 +49,24 @@ export default function FilePage() {
 
   useEffect(() => {
     if (fetchedFile?.type === "text/plain") {
-      const paginatedContent = paginateContent(fetchedFile?.body ?? "No file content");
-      setPages(paginatedContent);
-      setTotalPages(paginatedContent.length);
-      setCurrentPageContent(paginatedContent[0] ?? "");
-      setCurrentPage(1);
+      if (typeof (fetchedFile.body) == "string") {
+        const paginatedContent = paginateContent(fetchedFile?.body ?? "No file content");
+        setPages(paginatedContent);
+        setTotalPages(paginatedContent.length);
+        setCurrentPageContent(paginatedContent[0] ?? "");
+        setCurrentPage(1);
+      }
+    } else if (fetchedFile?.type == "application/docx") {
+      if (typeof (fetchedFile.body) != "string") {
+        console.log("Converting Word document to HTML...");
+        mammoth.convertToHtml({ arrayBuffer: fetchedFile.body })
+          .then((result) => {
+            setWordContent(result.value);
+          })
+          .catch((error) => {
+            console.error("Error converting Word document:", error);
+          });
+      }
     }
   }, [fetchedFile?.body, fetchedFile?.type])
 
@@ -103,25 +117,15 @@ export default function FilePage() {
         );
 
       case "application/msword":
-      case "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
-        return isEditable ? (
+      case "application/docx":
+        return (
           <div
             className="w-full h-full p-4 overflow-auto"
-            contentEditable
-            onBlur={(e) => {
-              const newContent = e.currentTarget.innerHTML;
-              setCurrentPageContent(newContent);
-            }}
+            dangerouslySetInnerHTML={{ __html: wordContent }}
             style={{ fontSize: `${zoom}%` }}
           />
-        ) : (
-          <div
-            className="w-full h-full p-4 overflow-auto"
-            style={{ fontSize: `${zoom}%` }}
-          />
-        );
+        )
 
-      // For txt files and default case
       default:
         return (
           <Textarea
