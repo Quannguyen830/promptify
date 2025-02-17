@@ -6,36 +6,28 @@ import { useEffect, useState } from 'react'
 import { useDashboardStore } from "~/components/dashboard/dashboard-store"
 import { Navbar } from "~/components/dashboard/navbar"
 import Loading from "~/components/share/loading-spinner"
+import { type File, type Folder } from "@prisma/client"
 
 export default function Page() {
   const { resetHistory } = useDashboardStore();
+  const [fetchedFolders, setFetchedFolders] = useState<Folder[]>([]);
+  const [fetchedFiles, setFetchedFiles] = useState<File[]>([]);
 
-  const { data: fetchedFiles, isLoading: loadingFiles, error: errorFiles } = api.file.listFileByUserId.useQuery();
-  const { data: fetchedFolders, isLoading: loadingFolders, error: errorFolders } = api.folder.listFolderByUserId.useQuery();
-  const { data: fetchedWorkspaces, isLoading: loadingWorkspaces, error: errorWorkspaces } = api.workspace.listWorkspaceByUserId.useQuery();
-
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data: fetchedWorkspaces, isLoading, error } = api.workspace.listWorkspaceByUserId.useQuery();
 
   useEffect(() => {
     resetHistory();
-  }, [resetHistory])
 
-  useEffect(() => {
-    if (loadingFiles || loadingFolders || loadingWorkspaces) {
-      setIsLoading(true);
-    } else {
-      setIsLoading(false);
-      if (errorFiles || errorFolders || errorWorkspaces) {
-        setError(errorFiles?.message ?? errorFolders?.message ?? errorWorkspaces?.message ?? null);
-      } else {
-        setError(null);
-      }
-    }
-  }, [loadingFiles, loadingFolders, loadingWorkspaces, errorFiles, errorFolders, errorWorkspaces]);
+    if (!fetchedWorkspaces) return;
+    const folders = fetchedWorkspaces.flatMap(workspace => workspace.folders);
+    const files = fetchedWorkspaces.flatMap(workspace => workspace.files);
+
+    setFetchedFolders(folders);
+    setFetchedFiles(files);
+  }, [resetHistory, fetchedWorkspaces])
 
   if (isLoading) return <Loading />;
-  if (error) return <div>Error: {error}</div>;
+  if (error) return <div>Error: {error.message}</div>;
 
   return (
     <div className="h-screen flex flex-col">
