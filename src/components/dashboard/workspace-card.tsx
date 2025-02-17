@@ -53,7 +53,10 @@ export function WorkspaceCard({ id, name, date }: WorkspaceCardProps) {
           <DropdownMenuContent align="end">
             <DropdownMenuItem>Share</DropdownMenuItem>
             <DropdownMenuItem>Get link</DropdownMenuItem>
-            <DropdownMenuItem onClick={handleRemove}>Remove</DropdownMenuItem>
+            <DropdownMenuItem className='text-red-500' onClick={(e) => {
+              e.stopPropagation();
+              handleRemove();
+            }}>Remove</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

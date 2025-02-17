@@ -11,16 +11,11 @@ import Image from "next/image"
 import { type FileCardProps } from '~/constants/interfaces'
 import { api } from '~/trpc/react'
 import Link from 'next/link'
-import { useState } from 'react'
-import { DeleteWarningDialog } from './delete-warning-dialog'
 
 export function FileCard({ id, title, date, imageUrl, subtitle }: FileCardProps) {
-  const [isDeleteWarningOpen, setIsDeleteWarningOpen] = useState(false)
   const { mutate: removeFile } = api.file.deleteFileByFileId.useMutation();
 
   const handleRemove = () => {
-    setIsDeleteWarningOpen(false);
-
     removeFile({ fileId: id }, {
       onSuccess: () => {
         console.log(`File with ID ${id} removed successfully.`);
@@ -62,9 +57,10 @@ export function FileCard({ id, title, date, imageUrl, subtitle }: FileCardProps)
                   <DropdownMenuItem>Share</DropdownMenuItem>
                   <DropdownMenuItem>Get link</DropdownMenuItem>
                   <DropdownMenuItem
+                    className='text-red-500'
                     onClick={(e) => {
                       e.stopPropagation();
-                      setIsDeleteWarningOpen(true);
+                      handleRemove();
                     }}>
                     Remove</DropdownMenuItem>
                 </DropdownMenuContent>
@@ -73,14 +69,6 @@ export function FileCard({ id, title, date, imageUrl, subtitle }: FileCardProps)
           </CardContent>
         </Link>
       </Card>
-
-      <DeleteWarningDialog
-        isOpen={isDeleteWarningOpen}
-        onClose={() => setIsDeleteWarningOpen(false)}
-        onConfirm={handleRemove}
-        itemType="file"
-        itemName={title}
-      />
     </>
   )
 }

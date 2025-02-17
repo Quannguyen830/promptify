@@ -106,7 +106,6 @@ export default function FilePage() {
           <Document
             file={fetchedFile.signedUrl}
             onLoadError={(error) => console.error("Error loading PDF:", error)}
-            loading={<Loading />}
           >
             <Page
               pageNumber={currentPage}
