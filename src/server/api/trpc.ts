@@ -37,6 +37,8 @@ export const createTRPCContext = async (opts: { headers: Headers } | CreateWSSCo
   };
 };
 export const createWSContext = async (opts: CreateWSSContextFnOptions) => {
+  // const session = await auth();
+  
   const headers = new Headers();
   Object.entries(opts.req.headers).forEach(([key, value]) => {
     if (value) headers.set(key, Array.isArray(value) ? value.join(', ') : value);
@@ -45,7 +47,7 @@ export const createWSContext = async (opts: CreateWSSContextFnOptions) => {
   return {
     db,
     headers,
-    session: null, // Add session logic if needed
+    session: null, 
     ...opts,
   };
 };

@@ -1,7 +1,7 @@
 "use client"
 
 import { api } from "~/trpc/react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import { ChatSectionState, useChatStore } from "./chat-store";
 import ChatSessionCard from "./chat-session-card";
@@ -23,11 +23,13 @@ export function ChatSection() {
 
   const { data: fetchedChatSessions } = api.chat.getAllChatSessions.useQuery();
 
+  const [tmp, setTmp] = useState<string>("");
   api.chat.testStreaming.useSubscription(
     { msg: "Test message" }, 
     {
       onData: (data) => {
         console.log(data);
+        setTmp(tmp + data);
       },
     }
   );
@@ -49,7 +51,7 @@ export function ChatSection() {
           </Button>
         ) : (
           <div className="flex items-center gap-2">
-            <h2 className="font-semibold text-2xl">Assistant</h2>
+            <h2 className="font-semibold text-2xl">{tmp}</h2>
             {/* Display the streaming result here */}
           </div>
         )}

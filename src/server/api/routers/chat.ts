@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { createTRPCRouter, protectedProcedure } from "../trpc";
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import { MessageSenderSchema } from "~/constants/types";
 
 import { generateChatTitle, sendMessage, sendMessageWithContext } from "~/server/services/gemini-service";
@@ -126,7 +126,7 @@ export const ChatRouter = createTRPCRouter({
     }
   ),
 
-  testStreaming: protectedProcedure
+  testStreaming: publicProcedure
   .input(z.object({
     msg: z.string(),
   }))
