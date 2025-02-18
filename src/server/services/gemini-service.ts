@@ -34,12 +34,10 @@ export const sendMessageWithContextStreaming = async (message: string, context: 
   const promptWithContext = `Previous conversation context:\n${contextString}\n\nCurrent message: ${message}`;
   
   const result = await geminiModel.generateContentStream(DEFAULT_GEMINI_INSTRUCTION + promptWithContext);
-  return result.stream;
+  return result;
 }
 
-
-
-export const streamChatTitle = async (content: string) => {
+export const streamMessage = async (content: string) => {
   const result = await geminiModel.generateContentStream(GENERATE_TITLE_INSTRUCTION + content);
   console.log(result);
   return result.stream;

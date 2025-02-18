@@ -34,8 +34,8 @@ const ChatInput = () => {
     reset
   } = useForm<ChatInputForm>()
 
-  const createSessionWithMessage = api.chat.createChatSessionWithMessage.useMutation();
-  const saveMessage = api.chat.createMessageAndGetResponse.useMutation();
+  const createSession = api.chat.createChatSession.useMutation();
+  const createMessage = api.chat.createMessage.useMutation();
 
   const userId = useSession().data?.user?.id;
   if (!userId) return;
@@ -48,31 +48,37 @@ const ChatInput = () => {
       setChatState(ChatSectionState.SESSION_SELECTED);
       console.log("current session", currentChatState);
 
+      // create and save chat session
       addMessage({
         content: inputMessage,
         sender: "USER"
       });
-      const reply = await createSessionWithMessage.mutateAsync({
-        content: inputMessage,
+      const reply = await createSession.mutateAsync({
+        firstMessageContent: inputMessage,
         sender: "USER"
       });
-      addMessage({
-        content: reply.response,
-        sender: "AGENT"
-      })
+
+      // create and stream agent response
+      // addMessage({
+      //   content: reply.response,
+      //   sender: "AGENT" 
+      // });
 
       setCurrentChatSession(reply.id);
     } else {
-      const reply = await saveMessage.mutateAsync({
-        chatSessionId: currentChatSession.id,
-        content: inputMessage,
-        context: currentChatSession.messages.slice(-10),
-        sender: "USER"
-      });
+      // update UI state, save user message
       addMessage({
         content: inputMessage,
         sender: "USER"
       });
+      const reply = await createMessage.mutateAsync({
+        chatSessionId: currentChatSession.id,
+        content: inputMessage,
+        // context: currentChatSession.messages.slice(-10),
+        sender: "USER"
+      });
+
+      // stream agent response
       addMessage({
         content: reply.content,
         sender: "AGENT"
