@@ -18,10 +18,6 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   'pdfjs-dist/build/pdf.worker.min.mjs',
   import.meta.url,
 ).toString();
-import { Document, Page, pdfjs } from 'react-pdf';
-import 'react-pdf/dist/Page/AnnotationLayer.css';
-import 'react-pdf/dist/Page/TextLayer.css';
-import { paginateContent } from "~/app/helpers/file-pagination-helper"
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   'pdfjs-dist/build/pdf.worker.min.mjs',
@@ -86,9 +82,6 @@ export default function FilePage() {
           currentPage={currentPage}
           totalPages={totalPages}
           zoom={zoom}
-          onPageChange={handlePageChange}
-          onZoomChange={(value) => setZoom(value[0] ?? 75)}
-          onZoomIn={() => setZoom((prev) => Math.min(prev + 10, 150))}
           onPageChange={handlePageChange}
           onZoomChange={(value) => setZoom(value[0] ?? 75)}
           onZoomIn={() => setZoom((prev) => Math.min(prev + 10, 150))}
@@ -160,19 +153,12 @@ export default function FilePage() {
       <div className="flex-1 flex items-center justify-center p-4">
         <div
           className="bg-white shadow-lg flex border rounded-2xl p-4"
-          className="bg-white shadow-lg flex border rounded-2xl p-4"
           style={{
             width: `${8.5 * zoom}px`,
             height: `${11 * zoom}px`,
             transition: "width 0.2s, height 0.2s",
             maxWidth: '95%',
             maxHeight: 'calc(100vh - 140px)',
-          }}
-        >
-          {renderContent()}
-          transition: "width 0.2s, height 0.2s",
-          maxWidth: '95%',
-          maxHeight: 'calc(100vh - 140px)',
           }}
         >
           {renderContent()}

@@ -5,17 +5,13 @@ import { GuestUser } from "~/constants/interfaces";
 import { s3Bucket, s3Client } from "~/config/S3-client";
 import { GetObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { s3Bucket, s3Client } from "~/config/S3-client";
-import { GetObjectCommand } from "@aws-sdk/client-s3";
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 export const fileRouter = createTRPCRouter({
   uploadFile: protectedProcedure
     .input(z.object({ 
       fileName: z.string(),
       fileSize: z.string(),
-      fileType: z.string(), 
-      fileType: z.string(), 
+      fileType: z.string(),  
       fileBuffer: z.instanceof(Uint8Array),
       workspaceId: z.string(),
       folderId: z.string().optional(),
