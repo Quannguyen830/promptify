@@ -3,7 +3,7 @@ import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { MessageSenderSchema } from "~/constants/types";
 
 import { generateChatTitle, sendMessage, sendMessageWithContext } from "~/server/services/gemini-service";
-
+import { observable } from "@trpc/server/observable";
 
 export const ChatRouter = createTRPCRouter({
   createChatSessionWithMessage: protectedProcedure
@@ -125,5 +125,19 @@ export const ChatRouter = createTRPCRouter({
       return response;
     }
   ),
-  
+
+  testStreaming: protectedProcedure
+  .input(z.object({
+    msg: z.string(),
+  }))
+  .subscription(async ({input}) => {
+    return observable<number>((emit) => {
+      const int = setInterval(() => {
+        emit.next(Math.random());
+      }, 500);
+      return () => {
+        clearInterval(int);
+      };
+    });
+  }),
 });

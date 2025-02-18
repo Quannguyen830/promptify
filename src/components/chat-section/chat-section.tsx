@@ -22,13 +22,23 @@ export function ChatSection() {
   } = useChatStore();
 
   const { data: fetchedChatSessions } = api.chat.getAllChatSessions.useQuery();
-  
+
+  api.chat.testStreaming.useSubscription(
+    { msg: "Test message" }, 
+    {
+      onData: (data) => {
+        console.log(data);
+      },
+    }
+  );
+
   useEffect(() => {
     if (fetchedChatSessions) {
       setChatState(ChatSectionState.SESSION_LISTING);
       setChatSessions(fetchedChatSessions)
     } 
   }, [fetchedChatSessions, setChatSessions, setChatState])
+
 
   return (
     <div className="flex flex-col h-full bg-sidebar">
@@ -38,7 +48,10 @@ export function ChatSection() {
             <ArrowLeft/>
           </Button>
         ) : (
-          <h2 className="font-semibold text-2xl">Assistant</h2>
+          <div className="flex items-center gap-2">
+            <h2 className="font-semibold text-2xl">Assistant</h2>
+            {/* Display the streaming result here */}
+          </div>
         )}
       </div>
 

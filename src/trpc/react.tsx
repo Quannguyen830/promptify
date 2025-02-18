@@ -1,7 +1,7 @@
 "use client";
 
 import { QueryClientProvider, type QueryClient } from "@tanstack/react-query";
-import { loggerLink, unstable_httpBatchStreamLink } from "@trpc/client";
+import { createWSClient, loggerLink, splitLink, unstable_httpBatchStreamLink, wsLink } from "@trpc/client";
 import { createTRPCReact } from "@trpc/react-query";
 import { type inferRouterInputs, type inferRouterOutputs } from "@trpc/server";
 import { useState } from "react";
@@ -36,8 +36,13 @@ export type RouterInputs = inferRouterInputs<AppRouter>;
  */
 export type RouterOutputs = inferRouterOutputs<AppRouter>;
 
+
 export function TRPCReactProvider(props: { children: React.ReactNode }) {
   const queryClient = getQueryClient();
+  const wsUrl = getWsUrl();
+  const wsClient = createWSClient({
+    url: wsUrl,
+  });
 
   const [trpcClient] = useState(() =>
     api.createClient({
@@ -47,14 +52,25 @@ export function TRPCReactProvider(props: { children: React.ReactNode }) {
             process.env.NODE_ENV === "development" ||
             (op.direction === "down" && op.result instanceof Error),
         }),
-        unstable_httpBatchStreamLink({
-          transformer: SuperJSON,
-          url: getBaseUrl() + "/api/trpc",
-          headers: () => {
-            const headers = new Headers();
-            headers.set("x-trpc-source", "nextjs-react");
-            return headers;
-          },
+        // wsLink<AppRouter>({ 
+        //   transformer: SuperJSON
+        //   client: wsClient 
+        // })
+        splitLink({
+          condition: (op) => op.type === "subscription",
+          true: wsLink({
+            transformer: SuperJSON,
+            client: wsClient,
+          }),
+          false: unstable_httpBatchStreamLink({
+            transformer: SuperJSON,
+            url: getBaseUrl() + "/api/trpc",
+            headers: () => {
+              const headers = new Headers();
+              headers.set("x-trpc-source", "nextjs-react");
+              return headers;
+            },
+          }),
         }),
       ],
     })
@@ -74,3 +90,9 @@ function getBaseUrl() {
   if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
   return `http://localhost:${process.env.PORT ?? 3000}`;
 }
+const getWsUrl = () => {
+  if (typeof window === "undefined") return "";
+  if (process.env.NODE_ENV === "development") return "ws://localhost:3001";
+  return process.env.NEXT_PUBLIC_WS_URL ?? "ws://localhost:3001";
+};
+
