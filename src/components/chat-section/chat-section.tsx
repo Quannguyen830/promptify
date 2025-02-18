@@ -1,24 +1,24 @@
 "use client"
 
 import { api } from "~/trpc/react";
-import { useEffect } from "react";
 
-import { ChatSectionState, useChatStore } from "./chat-store";
-import ChatSessionCard from "./chat-session-card";
 import ChatBubble from "./chat-bubble";
 import ChatInput from "./chat-input";
 import Loading from "../share/loading-spinner";
 import { Button } from "../ui/button";
 
 import { ArrowLeft } from "lucide-react";
+import { ChatSectionState, useChatStore } from "./chat-store";
+import ChatSessionCard from "./chat-session-card";
+import { useEffect } from "react";
 
 export function ChatSection() {
   const {
     currentChatSession,
     currentChatState,
-    chatSessions,
     setChatSessions,
     setChatState,
+    chatSessions
   } = useChatStore();
 
   const { data: fetchedChatSessions } = api.chat.getAllChatSessions.useQuery();
@@ -34,10 +34,9 @@ export function ChatSection() {
 
   useEffect(() => {
     if (fetchedChatSessions) {
-      setChatState(ChatSectionState.SESSION_LISTING);
       setChatSessions(fetchedChatSessions)
-    } 
-  }, [fetchedChatSessions, setChatSessions, setChatState])
+    }
+  }, [fetchedChatSessions, setChatSessions])
 
 
   return (
@@ -73,10 +72,6 @@ export function ChatSection() {
             </ChatBubble>
           ))}
         </div>
-      )}
-
-      {currentChatState === ChatSectionState.IS_LOADING && (
-        <Loading/>
       )}
 
       <ChatInput />

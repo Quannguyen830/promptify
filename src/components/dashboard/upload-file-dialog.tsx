@@ -30,7 +30,6 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
   const [folderHistory, setFolderHistory] = useState<FolderHistoryItem[]>([MyDrive]);
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { data: session } = useSession();
-  console.log("Session data:", session);
 
   const { data: workspaces } = api.workspace.listWorkspaceByUserId.useQuery();
 
@@ -43,14 +42,12 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
 
   useEffect(() => {
     if (rootFolders && rootFolders.length > 0) {
-      console.log("Root folders updated:", rootFolders);
       setWorkspaceOrFolderList(rootFolders);
     }
   }, [rootFolders]);
 
   useEffect(() => {
     if (childFolders && childFolders.length > 0) {
-      console.log("Child folders updated:", childFolders);
       setWorkspaceOrFolderList(childFolders);
     }
   }, [childFolders])
@@ -67,9 +64,10 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
   }
 
   const handleFolderClick = async (workspaceOrFolder: Workspace | Folder) => {
-    console.log("Folder clicked:", workspaceOrFolder);
     setSelectedFolder(workspaceOrFolder);
+  };
 
+  const handleNextButtonClick = (workspaceOrFolder: Workspace | Folder) => {
     // This is a folder
     if ('workspaceId' in workspaceOrFolder) {
       const subfolders = allFolders.filter(folder => folder.parentFolderId === workspaceOrFolder.id);
@@ -83,10 +81,9 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
     }
 
     setFolderHistory((prev) => [...prev, workspaceOrFolder]);
-  };
+  }
 
   const handleUpload = async () => {
-    console.log("Upload initiated with file:", selectedFile, "and folder:", selectedFolder);
     if (selectedFile && selectedFolder) {
       try {
         if (session !== null) {
@@ -137,7 +134,6 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
   }
 
   const handleBreadcrumbClick = (index: number) => {
-    console.log("Breadcrumb clicked at index:", index);
     if (index === 0) {
       setWorkspaceOrFolderList(workspaces ?? []);
       setFolderHistory([MyDrive]);
@@ -241,7 +237,14 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
                   >
                     <FolderIcon className="h-4 w-4" />
                     <span className="flex-1">{workspaceOrFolder.name}</span>
-                    {workspaceOrFolder.hasSubfolders && <ChevronRight className="h-4 w-4" />}
+                    {workspaceOrFolder.hasSubfolders &&
+                      <ChevronRight
+                        className="h-4 w-4"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleNextButtonClick(workspaceOrFolder);
+                        }}
+                      />}
                   </button>
                 ))}
               </div>

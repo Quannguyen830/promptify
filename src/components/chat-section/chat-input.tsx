@@ -24,14 +24,13 @@ const ChatInput = () => {
     currentChatSession,
     currentChatState,
     addMessage,
-    setChatState,
-    setCurrentChatSession
+    setChatState
   } = useChatStore()
 
   const {
     register,
     handleSubmit,
-    reset
+    reset,
   } = useForm<ChatInputForm>()
 
   const createSessionWithMessage = api.chat.createChatSessionWithMessage.useMutation();
@@ -41,6 +40,8 @@ const ChatInput = () => {
   if (!userId) return;
  
   const onSubmit: SubmitHandler<ChatInputForm> = async (data) => { 
+    if (!currentChatSession) return;
+
     const inputMessage = data.message;
     reset();
     
@@ -57,16 +58,17 @@ const ChatInput = () => {
         sender: "USER"
       });
       addMessage({
-        content: reply.response,
+        content: inputMessage,
+        sender: "USER"
+      });
+      addMessage({
+        content: reply,
         sender: "AGENT"
       })
-
-      setCurrentChatSession(reply.id);
     } else {
       const reply = await saveMessage.mutateAsync({
         chatSessionId: currentChatSession.id,
         content: inputMessage,
-        context: currentChatSession.messages.slice(-10),
         sender: "USER"
       });
       addMessage({

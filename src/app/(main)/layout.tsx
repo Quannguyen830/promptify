@@ -11,7 +11,6 @@ import { cn } from "~/lib/utils";
 import { ChatSection } from "~/components/chat-section/chat-section";
 import { Sidebar } from "~/components/share/sidebar";
 import { SessionProvider } from "next-auth/react";
-import { Navbar } from "~/components/dashboard/navbar";
 import { useEffect } from "react";
 import { useChatProvider } from "~/components/chat-section/chat-store";
 
@@ -67,7 +66,7 @@ export default function AuthenticatedLayout({
                       <ResizableHandle />
 
                       {isOpen && (
-                        <ResizablePanel minSize={20}>
+                        <ResizablePanel minSize={25}>
                           <ChatSection />
                         </ResizablePanel>
                       )}

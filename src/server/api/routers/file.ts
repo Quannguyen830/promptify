@@ -11,7 +11,7 @@ export const fileRouter = createTRPCRouter({
     .input(z.object({ 
       fileName: z.string(),
       fileSize: z.string(),
-      fileType: z.string(),
+      fileType: z.string(),  
       fileBuffer: z.instanceof(Uint8Array),
       workspaceId: z.string(),
       folderId: z.string().optional(),
@@ -82,21 +82,31 @@ export const fileRouter = createTRPCRouter({
       const signedUrl = await getSignedUrl(s3Client, new GetObjectCommand(getParam), { expiresIn: 3600 });
 
       if (result.Body) {
-        // Handle different file types differently
         if (file?.type == "application/pdf") {
+          const buffer = await result.Body.transformToByteArray(); 
+
           return { 
             message: "Get successful", 
+            body: buffer.toString(),
             type: 'application/pdf',
             signedUrl: signedUrl
           };
-        } else {
-          // For text files, continue with the current approach
+        } else if(file?.type == "text/plain") {
           const bodyContents = await result.Body.transformToString();
           return { 
             message: "Get successful", 
             body: bodyContents,
             type: "text/plain"
-          };
+          } 
+        } else if(file?.type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
+          const buffer = await result.Body.transformToByteArray();
+
+          return {
+            message: "Get successful",
+            body: buffer,
+            type: "application/docx",
+            signedUrl: signedUrl
+          }
         }
       }
 
@@ -104,5 +114,29 @@ export const fileRouter = createTRPCRouter({
         message: "No content found", 
         body: "No content found" 
       };
-    })
+    }),
+
+  updateFileByFileId: protectedProcedure
+    .input(z.object({
+      fileId: z.string(),
+      fileBuffer: z.instanceof(Uint8Array),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const { fileId, fileBuffer } = input;
+      const buffer = Buffer.from(fileBuffer);
+
+      const file = await ctx.db.file.findUnique({
+        where: {
+          id: fileId
+        }
+      })
+
+      if(file) {
+        const s3Response = await uploadFileToS3(buffer, file.id)
+
+        return s3Response;
+      }
+
+      return null;
+    }), 
 })

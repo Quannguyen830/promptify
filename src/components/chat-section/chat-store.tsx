@@ -6,8 +6,8 @@ import {
 
 export enum ChatSectionState {
   SESSION_LISTING, // default state: displaying all existing sessions
-  SESSION_SELECTED, // when user select an existing chat session
-  IS_LOADING
+  NEW_SESSION, // when user chat directly without opening existing chat session
+  SESSION_SELECTED // when user select an existing chat session
 }
 
 // CHAT STORE - Handle chat section states
