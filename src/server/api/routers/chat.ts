@@ -22,10 +22,6 @@ export const ChatRouter = createTRPCRouter({
           name: chatName,
           userId: ctx.session.user.id,
           messages: {
-            // create: {
-            //   content: content,
-            //   sender: sender,
-            // },
             create: [
               {
                 content: content,
@@ -44,16 +40,10 @@ export const ChatRouter = createTRPCRouter({
       });
 
       console.log("createChatSessionWithMessage", response);
-      return agentReply;
-
-      // const reply = await getResponse(content);
-      // return await ctx.db.message.create({
-      //   data: {
-      //     chatSessionId: response.id,
-      //     content: reply,
-      //     sender: MessageSenderSchema.enum.AGENT
-      //   }
-      // })
+      return {
+        id: response.id,
+        response: agentReply,
+      };
     }),
 
   // save user message, get reply and save agent message. Use with existing ChatSession
@@ -62,9 +52,13 @@ export const ChatRouter = createTRPCRouter({
       chatSessionId: z.string(),
       content: z.string(),
       sender: MessageSenderSchema,
+      context: z.array(z.object({
+        content: z.string(),
+        sender: MessageSenderSchema
+      }))
     }))
     .mutation(async ({ input, ctx }) => {
-      const { chatSessionId, content, sender } = input;
+      const { chatSessionId, content, sender, context } = input;
       
       // save user message to db
       await ctx.db.message.create({
@@ -76,7 +70,7 @@ export const ChatRouter = createTRPCRouter({
       });
 
       // get reply from agent
-      const reply = await getResponse(content);
+      const reply = await sendMessageWithContext(content, context);
       
       // save and return reply to client
       return await ctx.db.message.create({
