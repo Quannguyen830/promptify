@@ -43,10 +43,11 @@ export const MyDrive = {
 }
 
 export interface S3FileResponse {
+  name: string
   message: string
   body: string
   type: string
-  signedUrl?: string
+  signedUrl: string
 }
 
 // CHAT SECTION

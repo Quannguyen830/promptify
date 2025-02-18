@@ -17,14 +17,17 @@ export default function Page() {
 
   useEffect(() => {
     resetHistory();
+  }, [resetHistory])
 
+  useEffect(() => {
     if (!fetchedWorkspaces) return;
     const folders = fetchedWorkspaces.flatMap(workspace => workspace.folders);
     const files = fetchedWorkspaces.flatMap(workspace => workspace.files);
 
     setFetchedFolders(folders);
     setFetchedFiles(files);
-  }, [resetHistory, fetchedWorkspaces])
+  }, [fetchedWorkspaces])
+
 
   if (isLoading) return <Loading />;
   if (error) return <div>Error: {error.message}</div>;

@@ -79,7 +79,7 @@ export const fileRouter = createTRPCRouter({
       };
 
       const result = await s3Client.send(new GetObjectCommand(getParam));    
-      const signedUrl = await getSignedUrl(s3Client, new GetObjectCommand(getParam), { expiresIn: 3600 });
+      const signedUrl = await getSignedUrl(s3Client, new GetObjectCommand(getParam), { expiresIn: 24 * 60 * 60 });
 
       if (result.Body) {
         if (file?.type == "application/pdf") {
@@ -88,15 +88,18 @@ export const fileRouter = createTRPCRouter({
           return { 
             message: "Get successful", 
             body: buffer.toString(),
-            type: 'application/pdf',
-            signedUrl: signedUrl
+            type: 'pdf',
+            signedUrl: signedUrl,
+            name: file?.name
           };
         } else if(file?.type == "text/plain") {
           const bodyContents = await result.Body.transformToString();
           return { 
             message: "Get successful", 
             body: bodyContents,
-            type: "text/plain"
+            type: "text/plain",
+            signedUrl: signedUrl,
+            name: file?.name
           } 
         } else if(file?.type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
           const buffer = await result.Body.transformToByteArray();
@@ -104,8 +107,9 @@ export const fileRouter = createTRPCRouter({
           return {
             message: "Get successful",
             body: buffer,
-            type: "application/docx",
-            signedUrl: signedUrl
+            type: "docx",
+            signedUrl: signedUrl,
+            name: file?.name
           }
         }
       }

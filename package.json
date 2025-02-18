@@ -25,6 +25,7 @@
     "@auth/prisma-adapter": "^2.7.2",
     "@aws-sdk/client-s3": "^3.744.0",
     "@aws-sdk/s3-request-presigner": "^3.744.0",
+    "@cyntler/react-doc-viewer": "^1.17.0",
     "@google/generative-ai": "^0.21.0",
     "@prisma/client": "^5.14.0",
     "@radix-ui/react-alert-dialog": "^1.1.6",
