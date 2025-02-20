@@ -19,11 +19,6 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   import.meta.url,
 ).toString();
 
-pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-  'pdfjs-dist/build/pdf.worker.min.mjs',
-  import.meta.url,
-).toString();
-
 export default function FilePage() {
   const { id } = useParams<{ id: string }>();
   const [currentPage, setCurrentPage] = useState(1)
@@ -40,8 +35,7 @@ export default function FilePage() {
   const { mutate: updateFile } = api.file.updateFileByFileId.useMutation();
 
   useEffect(() => {
-    if (fetchedFile?.type === "text/plain" ||
-      fetchedFile?.type?.includes('word')) {
+    if (fetchedFile?.type === "text/plain") {
       setCurrentPageContent(pages[currentPage - 1] ?? "");
     }
   }, [currentPage, pages, fetchedFile?.type]);
@@ -61,10 +55,16 @@ export default function FilePage() {
         setCurrentPageContent(paginatedContent[0] ?? "");
         setCurrentPage(1);
       }
-    } else if (fetchedFile?.type == "application/docx") {
+    } else if (fetchedFile?.type == "docx") {
       if (typeof (fetchedFile.body) != "string") {
         console.log("Converting Word document to HTML...");
-        mammoth.convertToHtml({ arrayBuffer: fetchedFile.body })
+        const options = {
+          styleMap: [
+            "p[style-name='Section Title'] => h5:fresh",
+            "p[style-name='Subsection Title'] => h2:fresh"
+          ]
+        };
+        mammoth.convertToHtml({ arrayBuffer: fetchedFile.body }, options)
           .then((result) => {
             setWordContent(result.value);
           })
@@ -121,12 +121,13 @@ export default function FilePage() {
         );
 
       case "application/msword":
-      case "application/docx":
+      case "docx":
         return (
           <div
             className="w-full h-full p-4 overflow-auto"
             dangerouslySetInnerHTML={{ __html: wordContent }}
             style={{ fontSize: `${zoom}%` }}
+            contentEditable="true"
           />
         )
 

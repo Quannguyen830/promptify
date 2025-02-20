@@ -15,7 +15,7 @@ export default function TestPage() {
 
   // console.log("Encoded URL:", encodeURIComponent(data?.signedUrl ?? ""));
 
-  const src = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent("s3://promptify-first-bucket/cm77k2yzh0001l9ja0bm1g1b9")}`
+  const src = `https://docs.google.com/viewer?url=${encodeURIComponent(data?.signedUrl ?? "")}&embedded=true`
 
   console.log("Src:", src);
 
@@ -49,8 +49,7 @@ export default function TestPage() {
           id="msdoc-iframe"
           title="msdoc-iframe"
           src={src}
-          // src="https://docs.google.com/document/d/1HRQiGVWCJMCv1_TW2Q9aZeqqsv6-0JaC/edit?usp=drive_link&ouid=112193145741851079230&rtpof=true&sd=true"
-          className="w-full h-full m-10"
+          className="w-full h-full"
         ></iframe>
       )}
     </div>
