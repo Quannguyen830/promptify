@@ -12,6 +12,7 @@ import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { useSession } from "next-auth/react";
+import { useState } from "react";
 
 const CHAT_MODELS: ChatModel[] = [
   { value: "gemini", name: "Gemini" },
@@ -22,10 +23,16 @@ const CHAT_MODELS: ChatModel[] = [
 const ChatInput = () => {
   const {
     currentChatSession,
+    setCurrentChatSession,
+
     currentChatState,
-    addMessage,
     setChatState,
-    setCurrentChatSession
+
+    currentUserMessage,
+    addMessage,
+
+    // currentAgentMessageStream,
+    setCurrentAgentMessageStream
   } = useChatStore()
 
   const {
@@ -34,8 +41,24 @@ const ChatInput = () => {
     reset
   } = useForm<ChatInputForm>()
 
+  const [isStreaming, setIsStreaming] = useState<boolean>(false);
+
   const createSession = api.chat.createChatSession.useMutation();
   const createMessage = api.chat.createMessage.useMutation();
+  api.chat.streamAgentResponse.useSubscription(
+    {
+      chatSessionId: currentChatSession?.id ?? "",
+      content: currentUserMessage,
+      context: currentChatSession?.messages ?? []
+    },
+    {
+      onData(data) {
+        setCurrentAgentMessageStream(data.content);
+        console.log(data);
+      },
+      enabled: isStreaming // Start with it disabled
+    }
+  );
 
   const userId = useSession().data?.user?.id;
   if (!userId) return;
@@ -53,7 +76,7 @@ const ChatInput = () => {
         content: inputMessage,
         sender: "USER"
       });
-      const reply = await createSession.mutateAsync({
+      const result = await createSession.mutateAsync({
         firstMessageContent: inputMessage,
         sender: "USER"
       });
@@ -64,14 +87,14 @@ const ChatInput = () => {
       //   sender: "AGENT" 
       // });
 
-      setCurrentChatSession(reply.id);
+      setCurrentChatSession(result.id);
     } else {
       // update UI state, save user message
       addMessage({
         content: inputMessage,
         sender: "USER"
       });
-      const reply = await createMessage.mutateAsync({
+      const result = await createMessage.mutateAsync({
         chatSessionId: currentChatSession.id,
         content: inputMessage,
         // context: currentChatSession.messages.slice(-10),
@@ -79,11 +102,30 @@ const ChatInput = () => {
       });
 
       // stream agent response
-      addMessage({
-        content: reply.content,
-        sender: "AGENT"
-      });
+      // addMessage({
+      //   content: result.content,
+      //   sender: "AGENT"
+      // });
     }
+    // stream agent response
+    // if (!currentChatSession) return;
+    console.log("streaming agent response");
+    setIsStreaming(true);
+
+    // api.chat.streamAgentResponse.useSubscription(
+    //   {
+    //     chatSessionId: currentChatSession.id,
+    //     content: inputMessage,
+    //     context: currentChatSession.messages 
+    //   },
+    //   {
+    //     onData(data) {
+    //       console.log(data);
+    //     },
+    //     enabled: !!(inputMessage && currentChatSession.id)
+    //   }
+    // )
+
   }
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {

@@ -19,7 +19,8 @@ export function ChatSection() {
     chatSessions,
     setChatSessions,
     setChatState,
-    addMessage
+    addMessage,
+    currentAgentMessageStream
   } = useChatStore();
 
   const { data: fetchedChatSessions } = api.chat.getAllChatSessions.useQuery();
@@ -64,6 +65,9 @@ export function ChatSection() {
               {message.content}
             </ChatBubble>
           ))}
+          <ChatBubble variant="AGENT">
+            {currentAgentMessageStream}
+          </ChatBubble>
         </div>
       )}
 

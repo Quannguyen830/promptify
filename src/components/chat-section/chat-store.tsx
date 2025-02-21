@@ -12,9 +12,14 @@ export enum ChatSectionState {
 
 // CHAT STORE - Handle chat section states
 export interface ChatStore {
+  currentUserMessage: string;
+  setCurrentUserMessage: (message: string) => void;
+
+  currentAgentMessageStream: string;
+  setCurrentAgentMessageStream: (message: string) => void;
+
   currentChatState: ChatSectionState;
   setChatState: (state: ChatSectionState) => void;
-
   
   currentChatSession: ClientChatSession | null;
   addMessage: (message: ClientMessage) => void; // Add message to current chat session
@@ -24,6 +29,19 @@ export interface ChatStore {
   setChatSessions: (sessions: ClientChatSession[]) => void;
 }
 export const useChatStore = create<ChatStore>((set) => ({
+  currentUserMessage: "",
+  setCurrentUserMessage(message: string) {
+    set(() => ({ currentUserMessage: message }))
+  },
+
+  currentAgentMessageStream: "",
+  setCurrentAgentMessageStream(message: string) {
+    set((prev) => ({ 
+      ...prev, 
+      currentAgentMessageStream: prev.currentAgentMessageStream + message 
+    }))
+  },
+
   currentChatState: ChatSectionState.IS_LOADING,
   setChatState(state: ChatSectionState) {
     if (state === ChatSectionState.SESSION_LISTING) {
