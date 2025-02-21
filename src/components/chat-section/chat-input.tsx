@@ -12,27 +12,26 @@ import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { useSession } from "next-auth/react";
-import { useState } from "react";
 
 const CHAT_MODELS: ChatModel[] = [
   { value: "gemini", name: "Gemini" },
-  // { value: "gpt", name: "GPT-4" },
-  // { value: "claude", name: "Super long claude model name" }
+  { value: "gpt", name: "GPT-4" },
+  { value: "claude", name: "Super long claude model name" }
 ]
 
 const ChatInput = () => {
   const {
     currentChatSession,
-    setCurrentChatSession,
-
-    currentChatState,
-    setChatState,
-
     currentUserMessage,
-    addMessage,
+    currentAgentMessageStream,
+    isStreaming,
 
-    // currentAgentMessageStream,
-    setCurrentAgentMessageStream
+    setCurrentChatSession,
+    setChatState,
+    addMessage,
+    setCurrentAgentMessageStream,
+    resetAgentMessageStream,
+    setIsStreaming
   } = useChatStore()
 
   const {
@@ -41,10 +40,9 @@ const ChatInput = () => {
     reset
   } = useForm<ChatInputForm>()
 
-  const [isStreaming, setIsStreaming] = useState<boolean>(false);
-
   const createSession = api.chat.createChatSession.useMutation();
   const createMessage = api.chat.createMessage.useMutation();
+
   api.chat.streamAgentResponse.useSubscription(
     {
       chatSessionId: currentChatSession?.id ?? "",
@@ -53,10 +51,18 @@ const ChatInput = () => {
     },
     {
       onData(data) {
-        setCurrentAgentMessageStream(data.content);
-        console.log(data);
+        if (data.done) {
+          addMessage({
+            content: currentAgentMessageStream,
+            sender: "AGENT"
+          });
+          setIsStreaming(false);
+          resetAgentMessageStream();
+        } else {
+          setCurrentAgentMessageStream(currentAgentMessageStream + data.content);
+        }
       },
-      enabled: isStreaming // Start with it disabled
+      enabled: isStreaming
     }
   );
 
@@ -69,9 +75,8 @@ const ChatInput = () => {
     
     if (!currentChatSession) {
       setChatState(ChatSectionState.SESSION_SELECTED);
-      console.log("current session", currentChatState);
-
-      // create and save chat session
+      
+      // Update UI
       addMessage({
         content: inputMessage,
         sender: "USER"
@@ -80,13 +85,7 @@ const ChatInput = () => {
         firstMessageContent: inputMessage,
         sender: "USER"
       });
-
-      // create and stream agent response
-      // addMessage({
-      //   content: reply.response,
-      //   sender: "AGENT" 
-      // });
-
+      // Set the current chat session after creation
       setCurrentChatSession(result.id);
     } else {
       // update UI state, save user message
@@ -94,38 +93,13 @@ const ChatInput = () => {
         content: inputMessage,
         sender: "USER"
       });
-      const result = await createMessage.mutateAsync({
+      await createMessage.mutateAsync({
         chatSessionId: currentChatSession.id,
         content: inputMessage,
-        // context: currentChatSession.messages.slice(-10),
         sender: "USER"
       });
-
-      // stream agent response
-      // addMessage({
-      //   content: result.content,
-      //   sender: "AGENT"
-      // });
     }
-    // stream agent response
-    // if (!currentChatSession) return;
-    console.log("streaming agent response");
-    setIsStreaming(true);
-
-    // api.chat.streamAgentResponse.useSubscription(
-    //   {
-    //     chatSessionId: currentChatSession.id,
-    //     content: inputMessage,
-    //     context: currentChatSession.messages 
-    //   },
-    //   {
-    //     onData(data) {
-    //       console.log(data);
-    //     },
-    //     enabled: !!(inputMessage && currentChatSession.id)
-    //   }
-    // )
-
+    setIsStreaming(true); 
   }
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {

@@ -9,30 +9,28 @@ import ChatBubble from "./chat-bubble";
 import ChatInput from "./chat-input";
 import Loading from "../share/loading-spinner";
 import { Button } from "../ui/button";
-
 import { ArrowLeft } from "lucide-react";
 
 export function ChatSection() {
   const {
     currentChatSession,
     currentChatState,
+    currentAgentMessageStream,
     chatSessions,
+    isStreaming,
+
     setChatSessions,
     setChatState,
-    addMessage,
-    currentAgentMessageStream
   } = useChatStore();
 
   const { data: fetchedChatSessions } = api.chat.getAllChatSessions.useQuery();
   
-
   useEffect(() => {
     if (fetchedChatSessions) {
       setChatState(ChatSectionState.SESSION_LISTING);
       setChatSessions(fetchedChatSessions)
     } 
   }, [fetchedChatSessions, setChatSessions, setChatState])
-
 
   return (
     <div className="flex flex-col h-full bg-sidebar">
@@ -65,11 +63,14 @@ export function ChatSection() {
               {message.content}
             </ChatBubble>
           ))}
-          <ChatBubble variant="AGENT">
-            {currentAgentMessageStream}
-          </ChatBubble>
+          {isStreaming && (
+            <ChatBubble variant="AGENT">
+              {currentAgentMessageStream}
+            </ChatBubble>
+          )}
         </div>
       )}
+ 
 
       {currentChatState === ChatSectionState.IS_LOADING && (
         <Loading/>

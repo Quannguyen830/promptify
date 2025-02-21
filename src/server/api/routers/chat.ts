@@ -140,18 +140,6 @@ export const ChatRouter = createTRPCRouter({
           sender: sender,
         },
       });
-
-      // get reply from agent
-      // const reply = await sendMessageWithContext(content, context);
-      
-      // save and return reply to client
-      // return await ctx.db.message.create({
-      //   data: {
-      //     chatSessionId: chatSessionId,
-      //     content: reply,
-      //     sender: MessageSenderSchema.enum.AGENT
-      //   }
-      // })
       return result;
     }),
     
@@ -199,19 +187,4 @@ export const ChatRouter = createTRPCRouter({
       return response;
     }
   ),
-
-  testStreaming: publicProcedure
-  .input(z.object({
-    msg: z.string(),
-  }))
-  .subscription(async ({input}) => {
-    return observable<number>((emit) => {
-      const int = setInterval(() => {
-        emit.next(Math.random());
-      }, 500);
-      return () => {
-        clearInterval(int);
-      };
-    });
-  }),
 });
