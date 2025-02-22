@@ -87,39 +87,25 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
     if (selectedFile && selectedFolder) {
       try {
         if (session !== null) {
-          console.log("File: ", selectedFile)
           if (selectedFile) {
             const arrayBuffer = await selectedFile.arrayBuffer();
             const uint8Array = new Uint8Array(arrayBuffer);
 
             // Determine the workspaceId based on the type of selectedFolder
             const workspaceId = 'workspaceId' in selectedFolder ? selectedFolder.workspaceId : selectedFolder.id;
-            const workspaceName = 'workspaceId' in selectedFolder ? selectedFolder.workspaceName : selectedFolder.name
+            const workspaceName = 'workspaceId' in selectedFolder ? selectedFolder.workspaceName : selectedFolder.name;
             const folderName = 'workspaceId' in selectedFolder ? selectedFolder.name : undefined;
 
-            const uploadPayload: {
-              fileName: string;
-              fileSize: string;
-              fileType: string;
-              fileBuffer: Uint8Array;
-              workspaceId: string;
-              folderId?: string;
-              workspaceName: string;
-              folderName?: string
-            } = {
+            const uploadPayload = {
               fileName: selectedFile.name,
               fileSize: selectedFile.size.toString(),
               fileType: selectedFile.type,
               fileBuffer: uint8Array,
               workspaceId: workspaceId,
+              folderId: selectedFolder.itemType === "folder" ? selectedFolder.id : undefined,
               workspaceName: workspaceName,
-              folderName: folderName
+              folderName: folderName,
             };
-
-            // This is a folder
-            if ('workspaceId' in selectedFolder) {
-              uploadPayload.folderId = selectedFolder.id;
-            }
 
             const result = await uploadFileMutation.mutateAsync(uploadPayload);
 
@@ -131,7 +117,7 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
         console.error("File upload failed:", error);
       }
     }
-  }
+  };
 
   const handleBreadcrumbClick = (index: number) => {
     if (index === 0) {
@@ -192,8 +178,17 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
           <div className="space-y-2">
             <Label>Choose files</Label>
             <div className="flex gap-2">
-              <Input ref={fileInputRef} type="file" multiple onChange={handleFileChange} className="cursor-pointer" />
+              <Input
+                ref={fileInputRef}
+                type="file"
+                multiple
+                onChange={handleFileChange}
+                className="cursor-pointer"
+                accept=".pdf, .docx"
+              />
             </div>
+            {/* Add a helper text for file type guidance */}
+            <p className="text-sm text-muted-foreground">Allowed file types: PDF, DOCX</p>
           </div>
 
           <div className="space-y-2">
