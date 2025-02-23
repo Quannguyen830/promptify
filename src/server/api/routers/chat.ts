@@ -35,7 +35,6 @@ export const ChatRouter = createTRPCRouter({
         },
       });
 
-      console.log("createChatSessionWithMessage", response);
       return response;
     }),
 

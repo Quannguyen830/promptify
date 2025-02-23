@@ -1,12 +1,9 @@
 import { type ChatSessionCardProps } from "~/constants/interfaces";
 import { Button } from "../ui/button";
 import { ChatSectionState, useChatStore } from "./chat-store";
-import { useState } from "react";
 import { Ellipsis } from "lucide-react";
 
-export const ChatSessionCard = ({children, id} : ChatSessionCardProps) => {
-  const [sessionName, setSessionName] = useState<string>(id);
-  
+export const ChatSessionCard = ({children, id} : ChatSessionCardProps) => {  
   const {
     setCurrentChatSession: setCurrentChatSessionId,
     setChatState,
@@ -15,7 +12,7 @@ export const ChatSessionCard = ({children, id} : ChatSessionCardProps) => {
 
   const handleClick = () => {
     setChatState(ChatSectionState.SESSION_SELECTED);
-    setCurrentChatSessionId(id);
+    setCurrentChatSessionId(id, false);
   };
   
   return (
