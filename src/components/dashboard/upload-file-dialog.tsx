@@ -30,6 +30,7 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
   const [folderHistory, setFolderHistory] = useState<FolderHistoryItem[]>([MyDrive]);
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { data: session } = useSession();
+  const utils = api.useUtils();
 
   const { data: workspaces } = api.workspace.listWorkspaceByUserId.useQuery();
 
@@ -52,7 +53,46 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
     }
   }, [childFolders])
 
-  const uploadFileMutation = api.file.uploadFile.useMutation();
+  const uploadFileMutation = api.file.uploadFile.useMutation({
+    onMutate: () => {
+      void utils.workspace.listWorkspaceByUserId.cancel();
+
+      const previousWorkspaces = utils.workspace.listWorkspaceByUserId.getData();
+
+      void utils.workspace.listWorkspaceByUserId.setData(undefined, (prev) => {
+        if (!prev) return prev;
+
+        return prev.map(workspace => {
+          if (workspace.id === selectedFolder?.id) {
+            return {
+              ...workspace, files: [...workspace.files, {
+                id: "new-file",
+                name: selectedFile?.name ?? "",
+                size: selectedFile?.size ?? 0,
+                type: selectedFile?.type ?? "",
+                createdAt: new Date(),
+                updatedAt: new Date(),
+                itemType: "file",
+                workspaceId: workspace.id,
+                workspaceName: workspace.name,
+                folderId: selectedFolder?.id,
+                folderName: selectedFolder?.name
+              }]
+            };
+          }
+          return workspace;
+        });
+      });
+
+      return { previousWorkspaces };
+    },
+    onSuccess: () => {
+      void utils.workspace.listWorkspaceByUserId.invalidate();
+    },
+    onError: (error, variables, context) => {
+      utils.workspace.listWorkspaceByUserId.setData(undefined, context?.previousWorkspaces);
+    }
+  });
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -88,6 +128,8 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
       try {
         if (session !== null) {
           if (selectedFile) {
+            handleClose();
+
             const arrayBuffer = await selectedFile.arrayBuffer();
             const uint8Array = new Uint8Array(arrayBuffer);
 
@@ -110,7 +152,6 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
             const result = await uploadFileMutation.mutateAsync(uploadPayload);
 
             console.log("File uploaded successfully:", result);
-            handleClose();
           }
         }
       } catch (error) {
