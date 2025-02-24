@@ -13,17 +13,39 @@ import { api } from '~/trpc/react'
 import Link from 'next/link'
 
 export function FileCard({ id, title, date, imageUrl, subtitle }: FileCardProps) {
-  const { mutate: removeFile } = api.file.deleteFileByFileId.useMutation();
+  const utils = api.useUtils();
 
-  const handleRemove = () => {
-    removeFile({ fileId: id }, {
-      onSuccess: () => {
-        console.log(`File with ID ${id} removed successfully.`);
+  const { mutate: removeFile } = api.file.deleteFileByFileId.useMutation(
+    {
+      onMutate: () => {
+        void utils.workspace.listWorkspaceByUserId.cancel();
+
+        const previousWorkspaces = utils.workspace.listWorkspaceByUserId.getData();
+
+        utils.workspace.listWorkspaceByUserId.setData(undefined, (prev) => {
+          if (!prev) return prev;
+
+          return prev.map(workspace => {
+            return {
+              ...workspace,
+              files: workspace.files.filter(file => file.id !== id)
+            }
+          })
+        });
+
+        return { previousWorkspaces };
       },
-      onError: (error) => {
+      onSuccess: () => {
+        void utils.workspace.listWorkspaceByUserId.invalidate();
+      },
+      onError: (error, variables, context) => {
+        utils.workspace.listWorkspaceByUserId.setData(undefined, context?.previousWorkspaces);
         console.error("Error removing file:", error);
       }
-    });
+    }
+  );
+  const handleRemove = () => {
+    removeFile({ fileId: id });
   }
 
   return (

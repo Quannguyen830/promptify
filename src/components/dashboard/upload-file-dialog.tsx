@@ -12,6 +12,7 @@ import { useSession } from "next-auth/react"
 import { api } from "~/trpc/react"
 import { type Folder, type Workspace } from "@prisma/client"
 import { type FolderHistoryItem, MyDrive } from "~/constants/interfaces"
+import { useRouter } from "next/navigation";
 
 interface UploadFileDialogProps {
   open: boolean
@@ -31,6 +32,7 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { data: session } = useSession();
   const utils = api.useUtils();
+  const router = useRouter();
 
   const { data: workspaces } = api.workspace.listWorkspaceByUserId.useQuery();
 
@@ -149,9 +151,9 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
               folderName: folderName,
             };
 
-            const result = await uploadFileMutation.mutateAsync(uploadPayload);
+            const fileId = await uploadFileMutation.mutateAsync(uploadPayload);
 
-            console.log("File uploaded successfully:", result);
+            router.push(`/file/${fileId}`);
           }
         }
       } catch (error) {

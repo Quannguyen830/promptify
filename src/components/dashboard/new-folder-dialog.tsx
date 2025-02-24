@@ -10,6 +10,7 @@ import { FolderPlus, ArrowLeft } from "lucide-react"
 import { useEffect, useRef, useState, type ChangeEvent } from "react"
 import { type Folder, type Workspace } from "@prisma/client"
 import { api } from "~/trpc/react"
+import { useRouter } from "next/navigation";
 
 interface NewFolderDialogProps {
   open: boolean
@@ -25,6 +26,7 @@ export function NewFolderDialog({ open, onOpenChange, onClose }: NewFolderDialog
   const [folderName, setFolderName] = useState("")
   const inputRef = useRef<HTMLInputElement>(null)
   const utils = api.useUtils();
+  const router = useRouter();
 
   const createFolderMutation = api.folder.createNewFolder.useMutation({
     onMutate: () => {
@@ -92,7 +94,7 @@ export function NewFolderDialog({ open, onOpenChange, onClose }: NewFolderDialog
     setStep("folder")
   }
 
-  const handleCreate = () => {
+  const handleCreate = async () => {
     if (selectedParent && folderName.trim()) {
       onClose();
 
@@ -116,9 +118,9 @@ export function NewFolderDialog({ open, onOpenChange, onClose }: NewFolderDialog
         uploadPayload.parentsFolderId = selectedParent.id;
       }
 
-      const newFolderId = createFolderMutation.mutateAsync(uploadPayload);
+      const newFolderId = await createFolderMutation.mutateAsync(uploadPayload);
 
-      console.log("Creating folder:", newFolderId, "in workspace:", selectedParent.name)
+      router.push(`/folder/${newFolderId}`);
     }
   }
 

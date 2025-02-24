@@ -1,7 +1,6 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { uploadFileToS3 } from "~/server/services/s3-service";
-import { GuestUser } from "~/constants/interfaces";
 import { s3Bucket, s3Client } from "~/config/S3-client";
 import { GetObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
@@ -34,23 +33,11 @@ export const fileRouter = createTRPCRouter({
         }
       })
 
-      const s3Response = await uploadFileToS3(buffer, newFile.id)
+      await uploadFileToS3(buffer, newFile.id)
 
-      return s3Response;
+      return newFile.id;
     }),
 
-  listFileByUserId: protectedProcedure
-    .query(async ({ ctx }) => {
-      const files = await ctx.db.file.findMany({
-        where: {
-          Workspace: {
-            userId: ctx.session.user.id ?? GuestUser.id
-          },
-        },
-      });
-
-      return files;
-    }),
 
   deleteFileByFileId: protectedProcedure
     .input(z.object({ fileId: z.string() }))
