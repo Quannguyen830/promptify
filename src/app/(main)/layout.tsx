@@ -13,6 +13,9 @@ import { Sidebar } from "~/components/share/sidebar";
 import { SessionProvider } from "next-auth/react";
 import { useEffect } from "react";
 import { useChatProvider } from "~/components/chat-section/chat-store";
+import { registerLicense } from '@syncfusion/ej2-base';
+
+registerLicense(process.env.NEXT_PUBLIC_SYNCFUSION_KEY ?? "");
 
 export default function AuthenticatedLayout({
   children,
@@ -58,7 +61,7 @@ export default function AuthenticatedLayout({
                       <ResizablePanel className="px-5" defaultSize={80} minSize={30}>
                         {/* <Navbar /> */}
 
-                        <main className='pb-5 h-full'>
+                        <main className='h-full'>
                           {children}
                         </main>
                       </ResizablePanel>

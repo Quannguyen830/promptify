@@ -1,63 +1,61 @@
 'use client'
 
-import DocViewer, { DocViewerRenderers } from "@cyntler/react-doc-viewer";
-import "@cyntler/react-doc-viewer/dist/index.css";
-import Loading from "~/components/share/loading-spinner";
-import { api } from "~/trpc/react";
+import { DocumentEditorContainerComponent, Toolbar } from '@syncfusion/ej2-react-documenteditor';
+import { useQuery } from '@tanstack/react-query';
+import Loading from '~/components/share/loading-spinner';
+import { api } from '~/trpc/react';
+import { useRef } from 'react';
+import { Button } from '~/components/ui/button';
 
-export default function TestPage() {
-  const { data, isLoading, error } = api.file.getFileByFileId.useQuery({
-    fileId: "cm77k2yzh0001l9ja0bm1g1b9"
-  });
+DocumentEditorContainerComponent.Inject(Toolbar);
 
-  if (isLoading) return <Loading />;
-  if (error) return <div>Error: {error.message}</div>;
-
-  // console.log("Encoded URL:", encodeURIComponent(data?.signedUrl ?? ""));
-
-  const src = `https://docs.google.com/viewer?url=${encodeURIComponent(data?.signedUrl ?? "")}&embedded=true`
-
-  console.log("Src:", src);
-
-  const docsParam = data?.signedUrl ? {
-    uri: data.signedUrl,
-    fileType: data.type,
-    fileName: data?.name,
-  } : {
-    uri: "https://mozilla.github.io/pdf.js/web/compressed.tracemonkey-pldi-09.pdf",
-    fileType: "pdf",
-    fileName: "compressed.tracemonkey-pldi-09.pdf",
-  };
-
-  console.log("Docs Param:", docsParam);
-
-  const docs = [docsParam];
-
-  return (
-    <div className="h-screen overflow-y-auto">
-      {data?.type === "pdf" ? (
-        <DocViewer
-          documents={docs}
-          pluginRenderers={DocViewerRenderers}
-          style={{
-            height: "1000",
-            width: "100%"
-          }}
-        />
-      ) : (
-        <iframe
-          id="msdoc-iframe"
-          title="msdoc-iframe"
-          src={src}
-          className="w-full h-full"
-        ></iframe>
-      )}
-    </div>
-  );
+interface DocumentResponse {
+  // Add specific type definition based on your API response
+  content: string;
+  // other properties...
 }
 
-// https://promptify-first-bucket.s3.ap-southeast-2.amazonaws.com/cm77k2yzh0001l9ja0bm1g1b9?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIA2S2Y4FDTZZ5247Z6%2F20250218%2Fap-southeast-2%2Fs3%2Faws4_request&X-Amz-Date=20250218T061953Z&X-Amz-Expires=3600&X-Amz-Signature=b29a9479bf89001cbcec5ae6f7a48284223e2b76baf6bbb11f269d6476b0f173&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject
+export default function TestPage() {
+  const containerRef = useRef<DocumentEditorContainerComponent>(null);
+  const { data, isLoading, error } = api.file.getFileByFileId.useQuery({
+    fileId: 'cm77k2yzh0001l9ja0bm1g1b9'
+  });
 
-// https://freetestdata.com/wp-content/uploads/2021/09/1-MB-DOC.doc
+  const handleOpenDocument = async (): Promise<void> => {
+    const response = await fetch('http://localhost:3000/api/ping/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
 
-// https://promptify-first-bucket.s3.ap-southeast-2.amazonaws.com/cm77k2yzh0001l9ja0bm1g1b9
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json() as DocumentResponse;
+
+    if (containerRef.current?.documentEditor) {
+      containerRef.current.documentEditor.open(data.content);
+    } else {
+      throw new Error('Document editor not initialized');
+    }
+  }
+
+  if (isLoading) return <Loading />
+  if (error) return <div>Error: {error.message}</div>
+
+  return (
+    <div className="h-full">
+      <Button onClick={handleOpenDocument}>Open Document From AWS S3 Bucket</Button>
+      <DocumentEditorContainerComponent
+        id="container"
+        height='100%'
+        // serviceUrl="http://localhost:3000/api/ping/"
+        enableToolbar={true}
+        ref={containerRef}
+      />
+    </div>
+  )
+}
+
