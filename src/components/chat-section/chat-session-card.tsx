@@ -5,14 +5,14 @@ import { Ellipsis } from "lucide-react";
 
 export const ChatSessionCard = ({children, id} : ChatSessionCardProps) => {  
   const {
-    setCurrentChatSession: setCurrentChatSessionId,
+    setCurrentChatSession,
     setChatState,
   } = useChatStore();
 
 
   const handleClick = () => {
     setChatState(ChatSectionState.SESSION_SELECTED);
-    setCurrentChatSessionId(id, false);
+    setCurrentChatSession(id, false);
   };
   
   return (

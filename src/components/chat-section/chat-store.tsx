@@ -33,7 +33,6 @@ export interface ChatStore {
   currentChatSession: ClientChatSession | null;
   setCurrentChatSession: (id: string, isNewSession: boolean) => void;
   
-  messages: ClientMessage[];
   addMessage: (message: ClientMessage) => void;
 
   chatSessions: ClientChatSession[];
@@ -66,7 +65,6 @@ export const useChatStore = create<ChatStore>((set) => ({
     set(() => ({ currentChatState: state }));
   },
   
-  messages: [],
   addMessage: (message) => {
     set((state) => {
       if (!state.currentChatSession) return state;
@@ -74,7 +72,16 @@ export const useChatStore = create<ChatStore>((set) => ({
         currentChatSession: {
           ...state.currentChatSession,
           messages: [...state.currentChatSession.messages, message]
-        }
+        },
+        chatSessions: state.chatSessions.map(session => {
+          if (session.id === state.currentChatSession?.id) {
+            return {
+              ...session,
+              messages: [...session.messages, message]
+            };
+          }
+          return session;
+        })
       };
     });
   },
@@ -87,7 +94,6 @@ export const useChatStore = create<ChatStore>((set) => ({
     } else {
       set((state) => ({
         currentChatSession: state.chatSessions.find(session => session.id === id),
-        messages: state.currentChatSession?.messages // Also update the messages list
       }));
     }
   },
