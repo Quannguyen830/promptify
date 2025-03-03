@@ -73,28 +73,34 @@ const ChatInput = () => {
     onMutate(data) {
       void utils.chat.getAllChatSessions.cancel();
 
-      const prevMessages = utils.chat.getChatSessionById.getData({ id: currentChatSession!.id })?.messages;
+      const prevMessages = utils.chat.getAllChatSessions.getData();
 
-      utils.chat.getChatSessionById.setData(
-        { id: currentChatSession!.id },
-        (session) => {
-          if (!session) return undefined;
-          return {
-            ...session, 
-            messages: [
-              ...(session.messages ?? []),
-              {
-                id: crypto.randomUUID(),
-                createdAt: new Date(),
-                updatedAt: new Date(),
-                sender: data.sender,
-                chatSessionId: data.chatSessionId,
-                content: data.content
-              }
-            ]
-          };
-        }
-      );
+      // utils.chat.getAllChatSessions.setData(
+      //   undefined,
+      //   (sessions) => {
+      //     if (!sessions) return sessions;
+
+      //     return sessions.map((session) => {
+      //       if (session.id === data.chatSessionId) {
+      //         return {
+      //           ...session,
+      //           messages: [
+      //             ...(session.messages ?? []), 
+      //             {
+      //               id: crypto.randomUUID(),
+      //               createdAt: new Date(),
+      //               updatedAt: new Date(),
+      //               sender: data.sender,
+      //               chatSessionId: data.chatSessionId,
+      //               content: data.content
+      //             }
+      //           ]
+      //         };
+      //       }
+      //       return session;
+      //     });        
+      //   }
+      // );
       return { prevMessages };
     },
     onSettled() {
@@ -133,22 +139,22 @@ const ChatInput = () => {
 
     reset();
     
-    // addMessage({
-    //   content: inputMessage,
-    //   sender: "USER"
-    // });
-
+    // update user message to state
+    addMessage({
+      content: inputMessage,
+      sender: "USER"
+    });
+    
     if (!currentChatSession) { 
-      // Creating new session     
       setChatState(ChatSectionState.SESSION_SELECTED);
 
       const result = await createSession.mutateAsync({
         firstMessageContent: inputMessage,
         sender: "USER"
       });
-
+      
       if (result) setCurrentChatSession(result.id, true);
-    } else {
+    } else {      
       await createMessage.mutateAsync({
         chatSessionId: currentChatSession.id,
         content: inputMessage,
