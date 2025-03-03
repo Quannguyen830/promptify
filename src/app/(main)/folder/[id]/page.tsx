@@ -11,11 +11,17 @@ import Loading from "~/components/share/loading-spinner"
 
 export default function FolderPage() {
   const { id } = useParams<{ id: string }>();
-  const { addItemsHistory, history } = useDashboardStore();
+  const { addItemsHistory, history, setCurrentParent } = useDashboardStore();
 
   const { data: fetchFolder, isLoading, error } = api.folder.getFolderContentByFolderId.useQuery(
     { folderId: id }
   );
+
+  useEffect(() => {
+    if (fetchFolder) {
+      setCurrentParent(fetchFolder);
+    }
+  }, [fetchFolder]);
 
   useEffect(() => {
     if (fetchFolder) {

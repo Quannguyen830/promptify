@@ -13,17 +13,35 @@ interface WorkspaceCardProps {
 }
 
 export function WorkspaceCard({ id, name, date }: WorkspaceCardProps) {
-  const { mutate: removeWorkspace } = api.workspace.deleteWorkspaceByWorkspaceId.useMutation();
+  const utils = api.useUtils();
+
+  const { mutate: removeWorkspace } = api.workspace.deleteWorkspaceByWorkspaceId.useMutation(
+    {
+      onMutate: () => {
+        void utils.workspace.listWorkspaceByUserId.cancel();
+
+        const previousWorkspaces = utils.workspace.listWorkspaceByUserId.getData();
+
+        utils.workspace.listWorkspaceByUserId.setData(undefined, (prev) => {
+          if (!prev) return prev;
+
+          return prev.filter((workspace) => workspace.id !== id);
+        });
+
+        return { previousWorkspaces };
+      },
+      onSuccess: () => {
+        void utils.workspace.listWorkspaceByUserId.invalidate();
+      },
+      onError: (error, variables, context) => {
+        utils.workspace.listWorkspaceByUserId.setData(undefined, context?.previousWorkspaces);
+        console.error("Error removing workspace:", error);
+      }
+    }
+  );
 
   const handleRemove = () => {
-    removeWorkspace({ workspaceId: id }, {
-      onSuccess: () => {
-        console.log(`File with ID ${id} removed successfully.`);
-      },
-      onError: (error) => {
-        console.error("Error removing file:", error);
-      }
-    });
+    removeWorkspace({ workspaceId: id });
   }
   return (
     <Card className="group relative hover:bg-accent transition-colors">

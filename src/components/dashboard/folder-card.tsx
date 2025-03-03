@@ -18,17 +18,40 @@ interface FolderCardProps {
 }
 
 export function FolderCard({ id, title, subtitle, icon }: FolderCardProps) {
-  const { mutate: removeFolder } = api.folder.deleteFolderByFolderId.useMutation();
+  const utils = api.useUtils();
+
+  const { mutate: removeFolder } = api.folder.deleteFolderByFolderId.useMutation(
+    {
+      onMutate: () => {
+        void utils.workspace.listWorkspaceByUserId.cancel();
+
+        const previousWorkspaces = utils.workspace.listWorkspaceByUserId.getData();
+
+        utils.workspace.listWorkspaceByUserId.setData(undefined, (prev) => {
+          if (!prev) return prev;
+
+          return prev.map(workspace => {
+            return {
+              ...workspace,
+              folders: workspace.folders.filter(folder => folder.id !== id)
+            }
+          })
+        });
+
+        return { previousWorkspaces };
+      },
+      onSuccess: () => {
+        void utils.workspace.listWorkspaceByUserId.invalidate();
+      },
+      onError: (error, variables, context) => {
+        utils.workspace.listWorkspaceByUserId.setData(undefined, context?.previousWorkspaces);
+        console.error("Error removing folder:", error);
+      }
+    }
+  );
 
   const handleRemove = () => {
-    removeFolder({ folderId: id }, {
-      onSuccess: () => {
-        console.log(`File with ID ${id} removed successfully.`);
-      },
-      onError: (error) => {
-        console.error("Error removing file:", error);
-      }
-    });
+    removeFolder({ folderId: id });
   }
 
   return (

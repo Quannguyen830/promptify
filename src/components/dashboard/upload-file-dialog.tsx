@@ -12,6 +12,7 @@ import { useSession } from "next-auth/react"
 import { api } from "~/trpc/react"
 import { type Folder, type Workspace } from "@prisma/client"
 import { type FolderHistoryItem, MyDrive } from "~/constants/interfaces"
+import { useRouter } from "next/navigation";
 
 interface UploadFileDialogProps {
   open: boolean
@@ -30,6 +31,8 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
   const [folderHistory, setFolderHistory] = useState<FolderHistoryItem[]>([MyDrive]);
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { data: session } = useSession();
+  const utils = api.useUtils();
+  const router = useRouter();
 
   const { data: workspaces } = api.workspace.listWorkspaceByUserId.useQuery();
 
@@ -52,7 +55,46 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
     }
   }, [childFolders])
 
-  const uploadFileMutation = api.file.uploadFile.useMutation();
+  const uploadFileMutation = api.file.uploadFile.useMutation({
+    onMutate: () => {
+      void utils.workspace.listWorkspaceByUserId.cancel();
+
+      const previousWorkspaces = utils.workspace.listWorkspaceByUserId.getData();
+
+      void utils.workspace.listWorkspaceByUserId.setData(undefined, (prev) => {
+        if (!prev) return prev;
+
+        return prev.map(workspace => {
+          if (workspace.id === selectedFolder?.id) {
+            return {
+              ...workspace, files: [...workspace.files, {
+                id: "new-file",
+                name: selectedFile?.name ?? "",
+                size: selectedFile?.size ?? 0,
+                type: selectedFile?.type ?? "",
+                createdAt: new Date(),
+                updatedAt: new Date(),
+                itemType: "file",
+                workspaceId: workspace.id,
+                workspaceName: workspace.name,
+                folderId: selectedFolder?.id,
+                folderName: selectedFolder?.name
+              }]
+            };
+          }
+          return workspace;
+        });
+      });
+
+      return { previousWorkspaces };
+    },
+    onSuccess: () => {
+      void utils.workspace.listWorkspaceByUserId.invalidate();
+    },
+    onError: (error, variables, context) => {
+      utils.workspace.listWorkspaceByUserId.setData(undefined, context?.previousWorkspaces);
+    }
+  });
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -87,51 +129,38 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
     if (selectedFile && selectedFolder) {
       try {
         if (session !== null) {
-          console.log("File: ", selectedFile)
           if (selectedFile) {
+            handleClose();
+
             const arrayBuffer = await selectedFile.arrayBuffer();
             const uint8Array = new Uint8Array(arrayBuffer);
 
             // Determine the workspaceId based on the type of selectedFolder
             const workspaceId = 'workspaceId' in selectedFolder ? selectedFolder.workspaceId : selectedFolder.id;
-            const workspaceName = 'workspaceId' in selectedFolder ? selectedFolder.workspaceName : selectedFolder.name
+            const workspaceName = 'workspaceId' in selectedFolder ? selectedFolder.workspaceName : selectedFolder.name;
             const folderName = 'workspaceId' in selectedFolder ? selectedFolder.name : undefined;
 
-            const uploadPayload: {
-              fileName: string;
-              fileSize: string;
-              fileType: string;
-              fileBuffer: Uint8Array;
-              workspaceId: string;
-              folderId?: string;
-              workspaceName: string;
-              folderName?: string
-            } = {
+            const uploadPayload = {
               fileName: selectedFile.name,
               fileSize: selectedFile.size.toString(),
               fileType: selectedFile.type,
               fileBuffer: uint8Array,
               workspaceId: workspaceId,
+              folderId: selectedFolder.itemType === "folder" ? selectedFolder.id : undefined,
               workspaceName: workspaceName,
-              folderName: folderName
+              folderName: folderName,
             };
 
-            // This is a folder
-            if ('workspaceId' in selectedFolder) {
-              uploadPayload.folderId = selectedFolder.id;
-            }
+            const fileId = await uploadFileMutation.mutateAsync(uploadPayload);
 
-            const result = await uploadFileMutation.mutateAsync(uploadPayload);
-
-            console.log("File uploaded successfully:", result);
-            handleClose();
+            router.push(`/file/${fileId}`);
           }
         }
       } catch (error) {
         console.error("File upload failed:", error);
       }
     }
-  }
+  };
 
   const handleBreadcrumbClick = (index: number) => {
     if (index === 0) {
@@ -192,8 +221,17 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
           <div className="space-y-2">
             <Label>Choose files</Label>
             <div className="flex gap-2">
-              <Input ref={fileInputRef} type="file" multiple onChange={handleFileChange} className="cursor-pointer" />
+              <Input
+                ref={fileInputRef}
+                type="file"
+                multiple
+                onChange={handleFileChange}
+                className="cursor-pointer"
+                accept=".pdf, .docx"
+              />
             </div>
+            {/* Add a helper text for file type guidance */}
+            <p className="text-sm text-muted-foreground">Allowed file types: PDF, DOCX</p>
           </div>
 
           <div className="space-y-2">

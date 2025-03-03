@@ -12,6 +12,7 @@ import { Button } from "~/components/ui/button"
 import { useSession } from "next-auth/react"
 import { api } from "~/trpc/react"
 import { useRef, useState, useEffect } from "react"
+import { useRouter } from "next/navigation";
 
 interface NewFolderDialogProps {
   open: boolean
@@ -21,11 +22,43 @@ interface NewFolderDialogProps {
 
 export function NewWorkspaceDialog({ open, onOpenChange, onClose }: NewFolderDialogProps) {
   const { data: session } = useSession();
-
+  const utils = api.useUtils();
   const [workspaceName, setWorkspaceName] = useState("")
   const inputRef = useRef<HTMLInputElement>(null)
+  const router = useRouter();
 
-  const createNewWorkspace = api.workspace.createNewWorkspace.useMutation();
+  const createNewWorkspace = api.workspace.createNewWorkspace.useMutation({
+    onMutate: () => {
+      void utils.workspace.listWorkspaceByUserId.cancel();
+
+      const previousWorkspaces = utils.workspace.listWorkspaceByUserId.getData();
+
+      void utils.workspace.listWorkspaceByUserId.setData(undefined, (prev) => {
+        if (!prev) return prev;
+
+        return [...prev, {
+          id: "new-workspace",
+          name: workspaceName,
+          userId: session?.user.id ?? "",
+          files: [],
+          folders: [],
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          itemType: "workspace",
+          hasSubfolders: false,
+          size: 0
+        }];
+      });
+
+      return { previousWorkspaces };
+    },
+    onSuccess: () => {
+      void utils.workspace.listWorkspaceByUserId.invalidate();
+    },
+    onError: (error, variables, context) => {
+      utils.workspace.listWorkspaceByUserId.setData(undefined, context?.previousWorkspaces);
+    }
+  });
 
   useEffect(() => {
     if (open) {
@@ -39,13 +72,14 @@ export function NewWorkspaceDialog({ open, onOpenChange, onClose }: NewFolderDia
     if (workspaceName.trim()) {
       try {
         if (session != null) {
+          onClose();
+
           const newWorkspaceId = await createNewWorkspace.mutateAsync({
             userId: session.user.id,
             workspaceName: workspaceName
           });
 
-          console.log("New workspace created: ", newWorkspaceId);
-          onClose();
+          router.push(`/workspace/${newWorkspaceId}`);
         }
       } catch (error) {
         console.log("File upload failed:", error)
