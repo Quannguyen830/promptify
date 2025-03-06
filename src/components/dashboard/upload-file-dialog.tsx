@@ -146,7 +146,7 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
               fileType: selectedFile.type,
               fileBuffer: uint8Array,
               workspaceId: workspaceId,
-              folderId: selectedFolder.itemType === "folder" ? selectedFolder.id : undefined,
+              folderId: 'workspaceId' in selectedFolder ? selectedFolder.id : undefined,
               workspaceName: workspaceName,
               folderName: folderName,
             };
