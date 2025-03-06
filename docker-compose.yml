@@ -2,7 +2,7 @@ version: "3.4"
 
 services:
   word-processor-server:
-    image: qthangd/promptify-wps:1.5
+    image: quannguyen830/word-processor-server
     environment:
       SYNCFUSION_LICENSE_KEY: "Ngo9BigBOggjHTQxAR8/V1NMaF5cXmBCf1FpRmJGdld5fUVHYVZUTXxaS00DNHVRdkdmWX1ccHRQRmJeVkRzWEo="
     ports:
