@@ -9,7 +9,7 @@ import Loading from "~/components/share/loading-spinner"
 import { type File, type Folder } from "@prisma/client"
 
 export default function Page() {
-  const { resetHistory } = useDashboardStore();
+  const { resetHistory, addFile, addFolder, resetCurrentParent } = useDashboardStore();
   const [fetchedFolders, setFetchedFolders] = useState<Folder[]>([]);
   const [fetchedFiles, setFetchedFiles] = useState<File[]>([]);
 
@@ -17,17 +17,30 @@ export default function Page() {
 
   useEffect(() => {
     resetHistory();
-  }, [resetHistory])
+    resetCurrentParent();
+  }, [])
 
   useEffect(() => {
-    if (!fetchedWorkspaces) return;
-    const folders = fetchedWorkspaces.flatMap(workspace => workspace.folders);
-    const files = fetchedWorkspaces.flatMap(workspace => workspace.files);
+    if (fetchedWorkspaces) {
+      const folders = fetchedWorkspaces.flatMap(workspace => workspace.folders);
+      const files = fetchedWorkspaces.flatMap(workspace => workspace.files);
 
-    setFetchedFolders(folders);
-    setFetchedFiles(files);
-  }, [fetchedWorkspaces])
+      if (files?.length) {
+        files.forEach(file => {
+          addFile(file);
+        });
+      }
 
+      if (folders?.length) {
+        folders.forEach(folder => {
+          addFolder(folder);
+        });
+      }
+
+      setFetchedFolders(folders);
+      setFetchedFiles(files);
+    }
+  }, [fetchedWorkspaces]);
 
   if (isLoading) return <Loading />;
   if (error) return <div>Error: {error.message}</div>;

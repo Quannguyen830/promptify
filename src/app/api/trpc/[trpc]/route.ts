@@ -4,6 +4,7 @@ import { type NextRequest } from "next/server";
 import { env } from "~/env";
 import { appRouter } from "~/server/api/root";
 import { createTRPCContext } from "~/server/api/trpc";
+import { createWSServer } from "~/server/wss";
 
 /**
  * This wraps the `createTRPCContext` helper and provides the required context for the tRPC API when
@@ -14,6 +15,14 @@ const createContext = async (req: NextRequest) => {
     headers: req.headers,
   });
 };
+
+if (process.env.NODE_ENV !== "production") {
+  console.log("Detected non-production environment, preparing to start WebSocket server...");
+  console.log("✅ Create WSS process started...");
+  const server = createWSServer();
+  console.log("WebSocket server creation completed, server instance:", !!server);
+}
+
 
 const handler = (req: NextRequest) =>
   fetchRequestHandler({

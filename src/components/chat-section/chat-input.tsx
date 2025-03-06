@@ -5,7 +5,7 @@ import {
 import { Paperclip, Send } from "lucide-react";
 import { api } from "~/trpc/react";
 
-import { useChatStore } from "./chat-store";
+import { ChatSectionState, useChatStore } from "./chat-store";
 import { type ChatInputForm, type ChatModel } from "~/constants/interfaces";
 
 import { Textarea } from "../ui/textarea";
@@ -15,14 +15,23 @@ import { useSession } from "next-auth/react";
 
 const CHAT_MODELS: ChatModel[] = [
   { value: "gemini", name: "Gemini" },
-  // { value: "gpt", name: "GPT-4" },
-  // { value: "claude", name: "Super long claude model name" }
+  { value: "gpt", name: "GPT-4" },
+  { value: "claude", name: "Super long claude model name" }
 ]
 
 const ChatInput = () => {
   const {
     currentChatSession,
+    currentUserMessage,
+    currentAgentMessageStream,
+    isStreaming,
+
+    setCurrentChatSession,
+    setChatState,
     addMessage,
+    setCurrentAgentMessageStream,
+    resetAgentMessageStream,
+    setIsStreaming
   } = useChatStore()
 
   const {
@@ -31,46 +40,66 @@ const ChatInput = () => {
     reset
   } = useForm<ChatInputForm>()
 
-  const createSessionWithMessage = api.chat.createChatSessionWithMessage.useMutation();
-  const saveMessage = api.chat.createMessageAndGetResponse.useMutation();
+  const createSession = api.chat.createChatSession.useMutation();
+  const createMessage = api.chat.createMessage.useMutation();
+
+  api.chat.streamAgentResponse.useSubscription(
+    {
+      chatSessionId: currentChatSession?.id ?? "",
+      content: currentUserMessage,
+      context: currentChatSession?.messages ?? []
+    },
+    {
+      onData(data) {
+        if (data.done) {
+          addMessage({
+            content: currentAgentMessageStream,
+            sender: "AGENT"
+          });
+          setIsStreaming(false);
+          resetAgentMessageStream();
+        } else {
+          setCurrentAgentMessageStream(currentAgentMessageStream + data.content);
+        }
+      },
+      enabled: isStreaming
+    }
+  );
 
   const userId = useSession().data?.user?.id;
   if (!userId) return;
  
   const onSubmit: SubmitHandler<ChatInputForm> = async (data) => { 
-    if (!currentChatSession) return;
-
     const inputMessage = data.message;
     reset();
     
-    if (currentChatSession.messages.length === 0) {
-      const reply = await createSessionWithMessage.mutateAsync({
-        content: inputMessage,
-        sender: "USER"
-      });
+    if (!currentChatSession) {
+      setChatState(ChatSectionState.SESSION_SELECTED);
+      
+      // Update UI
       addMessage({
         content: inputMessage,
         sender: "USER"
       });
-      addMessage({
-        content: reply,
-        sender: "AGENT"
-      })
+      const result = await createSession.mutateAsync({
+        firstMessageContent: inputMessage,
+        sender: "USER"
+      });
+      // Set the current chat session after creation
+      setCurrentChatSession(result.id);
     } else {
-      const reply = await saveMessage.mutateAsync({
+      // update UI state, save user message
+      addMessage({
+        content: inputMessage,
+        sender: "USER"
+      });
+      await createMessage.mutateAsync({
         chatSessionId: currentChatSession.id,
         content: inputMessage,
         sender: "USER"
       });
-      addMessage({
-        content: inputMessage,
-        sender: "USER"
-      });
-      addMessage({
-        content: reply.content,
-        sender: "AGENT"
-      });
     }
+    setIsStreaming(true); 
   }
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {

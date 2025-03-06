@@ -32,12 +32,14 @@ const ChatSessionSchema = z.object({
   createdAt: z.string(),
   updatedAt: z.string(),
 
+  name: z.string(),
   messages: z.array(MessageSchema),
 })
 export type ChatSession = z.infer<typeof ChatSessionSchema>;
 
 const ClientChatSessionSchema = ChatSessionSchema.pick({
   id: true,
+  name: true,
 }).and(z.object({
   messages: z.array(ClientMessageSchema)
 }))

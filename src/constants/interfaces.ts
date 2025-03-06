@@ -1,4 +1,4 @@
-import { type Folder, type Workspace } from "@prisma/client";
+import { type File, type Folder, type Workspace } from "@prisma/client";
 
 export interface BaseProps {
   children?: React.ReactNode;
@@ -35,8 +35,6 @@ interface Root {
   name: string,
 }
 
-export type FolderHistoryItem = Workspace | Folder | Root;
-
 export const MyDrive = {
   id: "root",
   name: "My Drive"
@@ -49,6 +47,10 @@ export interface S3FileResponse {
   type: string
   signedUrl: string
 }
+
+export type FolderHistoryItem = Workspace | Folder | Root;
+
+export type Parent = Workspace | Folder;
 
 // CHAT SECTION
 export interface ChatInputForm {

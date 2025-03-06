@@ -66,17 +66,18 @@ model Folder {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
-  name  String
-  size  Float
-  files File[]
+  name     String
+  size     Float
+  files    File[]
+  itemType String @default("folder")
 
   subfolders     Folder[] @relation("ParentChild")
-  parentFolder   Folder?  @relation("ParentChild", fields: [parentFolderId], references: [id])
+  parentFolder   Folder?  @relation("ParentChild", fields: [parentFolderId], references: [id], onDelete: Cascade)
   parentFolderId String?
 
   hasSubfolders Boolean @default(false)
 
-  Workspace     Workspace @relation(fields: [workspaceId], references: [id])
+  Workspace     Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   workspaceId   String
   workspaceName String
 
@@ -89,15 +90,16 @@ model File {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
-  name String
-  size Float
-  type String
+  name     String
+  size     Float
+  type     String
+  itemType String @default("file")
 
-  folder     Folder? @relation(fields: [folderId], references: [id])
+  folder     Folder? @relation(fields: [folderId], references: [id], onDelete: Cascade)
   folderId   String?
   folderName String?
 
-  Workspace     Workspace @relation(fields: [workspaceId], references: [id])
+  Workspace     Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   workspaceId   String
   workspaceName String
 
@@ -111,9 +113,10 @@ model Workspace {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
-  name    String
-  files   File[]
-  folders Folder[]
+  name     String
+  files    File[]
+  folders  Folder[]
+  itemType String   @default("workspace")
 
   hasSubfolders Boolean @default(false)
 
@@ -130,7 +133,7 @@ model ChatSession {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
-  name String @default("")
+  name     String    @default("")
   messages Message[]
 
   user   User   @relation(fields: [userId], references: [id])

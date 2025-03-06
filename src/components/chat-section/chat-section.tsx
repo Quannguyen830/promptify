@@ -1,40 +1,56 @@
 "use client"
 
 import { api } from "~/trpc/react";
+import { useEffect } from "react";
 
-import ChatBubble from "./chat-bubble";
-import ChatInput from "./chat-input";
 import { ChatSectionState, useChatStore } from "./chat-store";
 import ChatSessionCard from "./chat-session-card";
-import { useEffect } from "react";
+import ChatBubble from "./chat-bubble";
+import ChatInput from "./chat-input";
+import Loading from "../share/loading-spinner";
+import { Button } from "../ui/button";
+import { ArrowLeft } from "lucide-react";
 
 export function ChatSection() {
   const {
     currentChatSession,
     currentChatState,
+    currentAgentMessageStream,
+    chatSessions,
+    isStreaming,
+
     setChatSessions,
-    chatSessions
+    setChatState,
   } = useChatStore();
 
   const { data: fetchedChatSessions } = api.chat.getAllChatSessions.useQuery();
   
   useEffect(() => {
     if (fetchedChatSessions) {
+      setChatState(ChatSectionState.SESSION_LISTING);
       setChatSessions(fetchedChatSessions)
-    }
-  }, [fetchedChatSessions, setChatSessions])
+    } 
+  }, [fetchedChatSessions, setChatSessions, setChatState])
 
   return (
     <div className="flex flex-col h-full bg-sidebar">
-      <div className="h-16 p-4 border-b">
-        <h2 className="font-semibold text-2xl">Assistant</h2>
+      <div className="h-16 p-4 ">
+        {currentChatState === ChatSectionState.SESSION_SELECTED ? (
+          <Button onClick={() => setChatState(ChatSectionState.SESSION_LISTING)}>
+            <ArrowLeft/>
+          </Button>
+        ) : (
+          <div className="flex items-center gap-2">
+            <h2 className="font-semibold text-2xl">Assistant</h2>
+          </div>
+        )}
       </div>
 
       {currentChatState === ChatSectionState.SESSION_LISTING && (
-        <div className="overflow-y-auto h-full flex flex-col gap-2 p-4 bg">
+        <div className="overflow-y-auto h-full flex flex-col gap-2 p-4">
           {chatSessions?.map((session, index) => (
             <ChatSessionCard key={index} id={session.id}>
-              {session.id}
+              {session.name}
             </ChatSessionCard>
           ))}
         </div>
@@ -47,11 +63,20 @@ export function ChatSection() {
               {message.content}
             </ChatBubble>
           ))}
+          {isStreaming && (
+            <ChatBubble variant="AGENT">
+              {currentAgentMessageStream}
+            </ChatBubble>
+          )}
         </div>
+      )}
+ 
+
+      {currentChatState === ChatSectionState.IS_LOADING && (
+        <Loading/>
       )}
 
       <ChatInput />
     </div>
   );
 }
-

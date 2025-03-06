@@ -8,6 +8,7 @@
  */
 
 import { initTRPC, TRPCError } from "@trpc/server";
+import { type CreateWSSContextFnOptions } from "@trpc/server/adapters/ws";
 import superjson from "superjson";
 import { ZodError } from "zod";
 
@@ -26,7 +27,7 @@ import { db } from "~/server/db";
  *
  * @see https://trpc.io/docs/server/context
  */
-export const createTRPCContext = async (opts: { headers: Headers }) => {
+export const createTRPCContext = async (opts: { headers: Headers } | CreateWSSContextFnOptions) => {
   const session = await auth();
 
   return {
@@ -35,6 +36,22 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
     ...opts,
   };
 };
+export const createWSContext = async (opts: CreateWSSContextFnOptions) => {
+  // const session = await auth();
+  
+  const headers = new Headers();
+  Object.entries(opts.req.headers).forEach(([key, value]) => {
+    if (value) headers.set(key, Array.isArray(value) ? value.join(', ') : value);
+  });
+
+  return {
+    db,
+    headers,
+    session: null, 
+    ...opts,
+  };
+};
+
 
 /**
  * 2. INITIALIZATION

@@ -12,12 +12,18 @@ import Loading from "~/components/share/loading-spinner"
 
 export default function WorkspacePage() {
   const { id } = useParams<{ id: string }>();
-  const { addItemsHistory, history } = useDashboardStore();
+  const { addItemsHistory, history, setCurrentParent } = useDashboardStore();
   const [fetchedFolders, setFetchedFolders] = useState<Folder[]>();
 
   const { data: fetchedWorkspace, isLoading: isLoading, error: error } = api.workspace.getWorkspaceByWorkspaceId.useQuery(
     { workspaceId: id }
   );
+
+  useEffect(() => {
+    if (fetchedWorkspace) {
+      setCurrentParent(fetchedWorkspace);
+    }
+  }, [fetchedWorkspace]);
 
   useEffect(() => {
     if (fetchedWorkspace) {
