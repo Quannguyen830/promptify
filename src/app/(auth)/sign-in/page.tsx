@@ -1,97 +1,145 @@
-'use client'
+"use client"
 
-import Link from 'next/link'
-import { Button } from '~/components/ui/button'
-import { Input } from '~/components/ui/input'
-import { Github, Facebook, Mail, ArrowLeft } from 'lucide-react'
-import { signIn } from "next-auth/react";
+import Link from "next/link"
+import Image from "next/image"
+import { Input } from "~/components/ui/input"
+import { Button } from "~/components/ui/button"
+import { Checkbox } from "~/components/ui/checkbox"
+import { PromptifyLogo } from "~/components/share/promptify-logo"
+import { signIn } from "next-auth/react"
+import { useRouter } from "next/navigation"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { signInSchema, type SignInInput } from "~/lib/validations/auth"
 
-export default function Page() {
+export default function SignIn() {
+  const router = useRouter()
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<SignInInput>({
+    resolver: zodResolver(signInSchema),
+  })
+
+  const onSubmit = async (data: SignInInput) => {
+    try {
+      const result = await signIn("credentials", {
+        email: data.email,
+        password: data.password,
+        redirect: false,
+      })
+
+      if (result?.error) {
+        throw new Error("Invalid email or password")
+      }
+
+      router.push("/dashboard")
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
   return (
-    <div className="min-h-screen flex flex-col bg-background">
-      <div className="flex-1 flex items-center justify-center px-4 py-12 relative">
-        <Link href="/dashboard">
-          <button className="absolute top-5 left-5 flex items-center hover:text-foreground/80 transition-colors">
-            <ArrowLeft className="mr-2" />
-            Back to Dashboard
-          </button>
-        </Link>
-        <div className="w-full max-w-lg space-y-8">
-          <div className="space-y-4 text-center">
-            <h1 className="text-4xl font-bold tracking-tight">Create an account</h1>
-            <p className="text-lg text-muted-foreground">
-              Enter your email below to create your account
-            </p>
+    <div className="flex min-h-screen flex-col items-center justify-center bg-white p-4">
+      <div className="w-full max-w-xl">
+        <div className="mb-16">
+          <PromptifyLogo />
+        </div>
+
+        <div className="flex flex-col items-center">
+          <h1 className="mb-12 text-3xl font-bold text-center">Sign in to Promtify</h1>
+
+          <Button
+            variant="outline"
+            className="mb-4 w-full flex items-center justify-center gap-2 h-12 border border-gray-300"
+            onClick={() => {
+              void signIn("google", {
+                callbackUrl: "/dashboard",
+              })
+            }}
+          >
+            <Image src="/icon/google.svg" alt="Google" width={20} height={20} />
+            Log in with Google
+          </Button>
+
+          <div className="my-4 flex w-full items-center">
+            <div className="flex-1 border-t border-gray-300"></div>
+            <span className="mx-4 text-sm text-gray-500">or</span>
+            <div className="flex-1 border-t border-gray-300"></div>
           </div>
 
-          <div className="space-y-6">
-            <div className="space-y-3">
+          <form onSubmit={handleSubmit(onSubmit)} className="w-full">
+            <div className="mb-4">
+              <label htmlFor="email" className="block mb-2 text-sm font-medium">
+                Email Address
+              </label>
               <Input
+                id="email"
                 type="email"
-                placeholder="name@example.com"
-                className="h-12 bg-background text-lg"
+                className={`w-full h-12 bg-gray-50 ${errors.email ? "border-red-500" : ""}`}
+                {...register("email")}
               />
+              {errors.email && (
+                <p className="mt-1 text-xs text-red-500">{errors.email.message}</p>
+              )}
             </div>
-            <Button type="submit" className="h-12 w-full text-lg" size="lg">
-              Sign In with Email
+
+            <div className="mb-4">
+              <label htmlFor="password" className="block mb-2 text-sm font-medium">
+                Password
+              </label>
+              <Input
+                id="password"
+                type="password"
+                className={`w-full h-12 bg-gray-50 ${errors.password ? "border-red-500" : ""}`}
+                {...register("password")}
+              />
+              {errors.password && (
+                <p className="mt-1 text-xs text-red-500">{errors.password.message}</p>
+              )}
+            </div>
+
+            <p className="text-xs text-gray-500 mb-4">
+              It must be a combination of minimum 8 letters, numbers, and symbols.
+            </p>
+
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center">
+                <Checkbox
+                  id="remember-me"
+                  checked={false}
+                  onCheckedChange={(checked) => { console.log(checked) }}
+                  className="mr-2 h-4 w-4"
+                />
+                <label htmlFor="remember-me" className="text-sm">
+                  Remember me
+                </label>
+              </div>
+
+              <Link href="/forgot-password" className="text-sm text-blue-600 hover:underline">
+                Forgot Password?
+              </Link>
+            </div>
+
+            <Button
+              type="submit"
+              className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Signing in..." : "Log In"}
             </Button>
+          </form>
 
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t" />
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="bg-background px-4 text-muted-foreground">
-                  or continue with
-                </span>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-3 gap-4">
-              <Button variant="outline" className="h-12" size="lg">
-                <Github className="mr-2 h-5 w-5" />
-                GitHub
-              </Button>
-              <Button variant="outline" className="h-12" size="lg" onClick={() => signIn('google', { callbackUrl: '/dashboard' })}>
-                <Mail className="mr-2 h-5 w-5" />
-                Google
-              </Button>
-              <Button variant="outline" className="h-12" size="lg">
-                <Facebook className="mr-2 h-5 w-5" />
-                Facebook
-              </Button>
-            </div>
-          </div>
-
-          <div className="text-center text-sm text-muted-foreground">
-            Don&apos;t have an account?{' '}
-            <Link
-              href="/sign-up"
-              className="font-medium underline underline-offset-4 hover:text-primary"
-            >
-              Sign up
+          <div className="mt-6 text-center">
+            <span className="text-sm">No account? </span>
+            <Link href="/sign-up" className="text-sm text-blue-600 hover:underline">
+              Sign Up
             </Link>
-          </div>
-
-          <div className="text-center text-sm text-muted-foreground">
-            By clicking continue, you agree to our{' '}
-            <Link
-              href="/terms"
-              className="font-medium underline underline-offset-4 hover:text-primary"
-            >
-              Terms of Service
-            </Link>{' '}
-            and{' '}
-            <Link
-              href="/privacy"
-              className="font-medium underline underline-offset-4 hover:text-primary"
-            >
-              Privacy Policy
-            </Link>
-            .
           </div>
         </div>
       </div>
     </div>
   )
 }
+
