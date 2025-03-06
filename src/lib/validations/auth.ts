@@ -5,6 +5,10 @@ export const signInSchema = z.object({
   password: z.string().min(1, "Password is required"),
 })
 
+export const forgotPasswordSchema = z.object({
+  email: z.string().email("Please enter a valid email address"),
+})
+
 export const signUpSchema = z.object({
   email: z.string().email("Invalid email address"),
   password: z
@@ -22,3 +26,4 @@ export const signUpSchema = z.object({
 
 export type SignInInput = z.infer<typeof signInSchema>
 export type SignUpInput = z.infer<typeof signUpSchema>
+export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>

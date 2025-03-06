@@ -7,16 +7,48 @@ import { useState } from "react"
 import { Input } from "~/components/ui/input"
 import { Button } from "~/components/ui/button"
 import { PromptifyLogo } from "~/components/share/promptify-logo"
+import { forgotPasswordSchema, type ForgotPasswordInput } from "~/lib/validations/auth"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { z } from "zod"
+
 
 export default function ForgotPassword() {
-  const [email, setEmail] = useState("")
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
+  const [email, setEmail] = useState("")
+  const [error, setError] = useState<{ email?: string }>({})
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    // Handle password reset logic here
-    console.log({ email })
-    setIsSubmitted(true)
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<ForgotPasswordInput>({
+    resolver: zodResolver(forgotPasswordSchema),
+  })
+
+  const onSubmit = async (data: ForgotPasswordInput) => {
+    try {
+      setIsSubmitting(true)
+      const response = await fetch("/api/send-forgot-password-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      })
+
+      const result = await response.json() as { message: string | undefined }
+
+      if (result.message) {
+        setError({ email: result.message })
+      }
+
+      setEmail(data.email)
+      setIsSubmitted(true)
+    } catch (error) {
+      setError({ email: "Something went wrong. Please try again." })
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -34,7 +66,7 @@ export default function ForgotPassword() {
           </p>
 
           {!isSubmitted ? (
-            <form onSubmit={handleSubmit} className="w-full">
+            <form onSubmit={handleSubmit(onSubmit)} className="w-full">
               <div className="mb-6">
                 <label htmlFor="email" className="block mb-2 text-sm font-medium">
                   Email Address
@@ -42,16 +74,21 @@ export default function ForgotPassword() {
                 <Input
                   id="email"
                   type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  {...register("email")}
                   className="w-full h-12 bg-gray-50"
                   placeholder="Enter your email"
                   required
                 />
+                {errors.email && (
+                  <p className="text-red-500 text-sm">{errors.email.message}</p>
+                )}
+                {error.email && (
+                  <p className="text-red-500 text-sm">{error.email}</p>
+                )}
               </div>
 
-              <Button type="submit" className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white">
-                Send Reset Instructions
+              <Button type="submit" className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white" disabled={isSubmitting}>
+                {isSubmitting ? "Sending..." : "Send Reset Instructions"}
               </Button>
             </form>
           ) : (

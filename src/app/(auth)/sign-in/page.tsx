@@ -11,9 +11,12 @@ import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { signInSchema, type SignInInput } from "~/lib/validations/auth"
+import { useState } from "react"
 
 export default function SignIn() {
   const router = useRouter()
+  const [error, setError] = useState<string>("")
+
   const {
     register,
     handleSubmit,
@@ -24,6 +27,7 @@ export default function SignIn() {
 
   const onSubmit = async (data: SignInInput) => {
     try {
+      setError("");
       const result = await signIn("credentials", {
         email: data.email,
         password: data.password,
@@ -31,12 +35,13 @@ export default function SignIn() {
       })
 
       if (result?.error) {
-        throw new Error("Invalid email or password")
+        setError("Invalid email or password")
+        return
       }
 
       router.push("/dashboard")
     } catch (error) {
-      console.error(error)
+      setError("Something went wrong. Please try again.")
     }
   }
 
@@ -70,6 +75,12 @@ export default function SignIn() {
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="w-full">
+            {error && (
+              <div className="mb-4 p-3 text-sm text-red-500 bg-red-50 border border-red-200 rounded">
+                {error}
+              </div>
+            )}
+
             <div className="mb-4">
               <label htmlFor="email" className="block mb-2 text-sm font-medium">
                 Email Address

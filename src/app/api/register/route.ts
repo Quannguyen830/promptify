@@ -6,7 +6,6 @@ export async function POST(req: Request) {
   try {
     const { email, password, firstName, lastName } = await req.json() as { email: string, password: string, firstName: string, lastName: string }
 
-    // Validate input
     if (!email || !password || !firstName || !lastName) {
       return NextResponse.json(
         { message: "Missing required fields" },
@@ -25,10 +24,8 @@ export async function POST(req: Request) {
       )
     }
 
-    // Hash password
     const hashedPassword = await hash(password, 12)
 
-    // Create user
     await db.user.create({
       data: {
         email: email,

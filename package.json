@@ -67,6 +67,7 @@
     "react-hook-form": "^7.54.2",
     "react-pdf": "^9.2.1",
     "react-resizable-panels": "^2.1.7",
+    "resend": "^4.1.2",
     "server-only": "^0.0.1",
     "superjson": "^2.2.1",
     "tailwind-merge": "^2.5.5",
