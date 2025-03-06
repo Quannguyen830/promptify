@@ -10,8 +10,7 @@ import { PromptifyLogo } from "~/components/share/promptify-logo"
 import { forgotPasswordSchema, type ForgotPasswordInput } from "~/lib/validations/auth"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { z } from "zod"
-
+import Error from "next/error"
 
 export default function ForgotPassword() {
   const [isSubmitting, setIsSubmitting] = useState(false)

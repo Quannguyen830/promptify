@@ -67,14 +67,16 @@ export default function SignUp() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-white p-4">
-      <div className="w-full max-w-xl">
-        <div className="mb-16">
-          <PromptifyLogo />
+    <div className="min-h-screen bg-white">
+      <div className="w-full border-b border-gray-200">
+        <div className="container mx-auto px-4 py-4">
+          <PromptifyLogo className="h-8 w-auto" />
         </div>
+      </div>
 
-        <div className="flex flex-col items-center">
-          <h1 className="mb-12 text-3xl font-bold text-center">Sign Up</h1>
+      <div className="flex min-h-[calc(100vh-73px)] flex-col items-center justify-center p-4">
+        <div className="w-full max-w-xl">
+          <h1 className="mb-8 text-3xl font-bold text-center">Sign Up to Promtify</h1>
 
           <form onSubmit={handleSubmit(onSubmit)} className="w-full">
             <div className="grid grid-cols-2 gap-4 mb-4">
@@ -84,6 +86,7 @@ export default function SignUp() {
                 </label>
                 <Input
                   id="firstName"
+                  placeholder="First Name"
                   className={`w-full h-12 bg-gray-50 ${errors.firstName ? "border-red-500" : ""}`}
                   {...register("firstName")}
                 />
@@ -98,6 +101,7 @@ export default function SignUp() {
                 </label>
                 <Input
                   id="lastName"
+                  placeholder="Last Name"
                   className={`w-full h-12 bg-gray-50 ${errors.lastName ? "border-red-500" : ""}`}
                   {...register("lastName")}
                 />
@@ -114,6 +118,7 @@ export default function SignUp() {
               <Input
                 id="email"
                 type="email"
+                placeholder="Email"
                 className={`w-full h-12 bg-gray-50 ${errors.email ? "border-red-500" : ""}`}
                 {...register("email")}
               />
@@ -130,6 +135,7 @@ export default function SignUp() {
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
+                  placeholder="Password"
                   className={`w-full h-12 bg-gray-50 pr-10 ${errors.password ? "border-red-500" : ""}`}
                   {...register("password")}
                 />
@@ -170,25 +176,27 @@ export default function SignUp() {
             </Button>
           </form>
 
-          <div className="mt-6 mb-4 text-center">
-            <span className="text-sm">Or sign up with:</span>
+          <div className="relative my-8">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-200"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="bg-white px-4 text-gray-500">Or sign up with</span>
+            </div>
           </div>
 
-          <Button
-            variant="outline"
-            className="w-full flex items-center justify-center gap-2 h-12 border border-gray-300"
-            onClick={() => {
-              void signIn("google", {
-                callbackUrl: "/dashboard",
-              })
-            }}
+          <button
+            onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
+            className="w-full flex items-center justify-center gap-2 rounded-md border-2 border-blue-600 bg-white px-4 py-3 text-md font-medium hover:bg-gray-50 text-blue-600"
           >
-            <Image src="/icon/google.svg" alt="Google" width={20} height={20} />
+            <svg className="h-5 w-5 text-blue-600 mr-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512">
+              <path fill="currentColor" d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z" />
+            </svg>
             Sign up with Google
-          </Button>
+          </button>
 
           <div className="mt-6 text-center">
-            <span className="text-sm">Already have an account? </span>
+            <span className="text-sm text-gray-600">Already have an account? </span>
             <Link href="/sign-in" className="text-sm text-blue-600 hover:underline">
               Log in
             </Link>
