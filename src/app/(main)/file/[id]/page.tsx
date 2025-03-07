@@ -4,15 +4,8 @@ import { useParams } from "next/navigation"
 
 import { api } from "~/trpc/react"
 import Loading from "~/components/share/loading-spinner"
-import { Textarea } from "~/components/ui/textarea"
-import { EditToolbar } from "~/components/file-editor/text-editor-toolbox"
-import { PDFToolbar } from "~/components/file-editor/pdf-toolbox"
-import { Document, Page, pdfjs } from 'react-pdf';
-import 'react-pdf/dist/Page/AnnotationLayer.css';
-import 'react-pdf/dist/Page/TextLayer.css';
-import { paginateContent } from "~/app/helpers/file-pagination-helper"
 import TextEditorPage from "~/components/file-editor/text-editor-page"
-
+import PdfPage from "~/components/file-editor/pdf-page"
 
 export default function FilePage() {
   const { id } = useParams<{ id: string }>();
@@ -28,7 +21,13 @@ export default function FilePage() {
 
   return (
     <div className="flex flex-col h-screen">
-      <TextEditorPage documentName={id} />
+      {
+        fetchedFile?.type == "pdf" ? (
+          <PdfPage documentLink={fetchedFile.signedUrl} />
+        ) : (
+          <TextEditorPage documentName={id} />
+        )
+      }
     </div>
   )
 }

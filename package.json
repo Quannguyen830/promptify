@@ -45,6 +45,7 @@
     "@radix-ui/react-switch": "^1.1.3",
     "@radix-ui/react-tooltip": "^1.1.6",
     "@syncfusion/ej2-react-documenteditor": "^28.2.6",
+    "@syncfusion/ej2-react-pdfviewer": "^28.2.9",
     "@t3-oss/env-nextjs": "^0.10.1",
     "@tanstack/react-query": "^5.66.0",
     "@trpc/client": "^11.0.0-rc.446",
