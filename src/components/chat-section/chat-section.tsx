@@ -10,6 +10,9 @@ import Loading from "../share/loading-spinner";
 import { Button } from "../ui/button";
 import { ArrowLeft } from "lucide-react";
 import { useEffect } from "react";
+import { ChatSessionListing } from "./chat-session-listing";
+import { MessageViewer } from "./message-viewer";
+import { ChatState, useChat } from "./chat-store-2";
 
 export function ChatSection() {
   const {
@@ -22,6 +25,11 @@ export function ChatSection() {
     setChatSessions,
     setChatState,
   } = useChatStore();
+
+  const {
+    selectedSessionId,
+    chatState
+  } = useChat();
 
   const { data: fetchedChatSessions, isFetched } = api.chat.getAllChatSessions.useQuery();
 
@@ -49,36 +57,19 @@ export function ChatSection() {
           </div>
         )}
       </div>
-
-      {currentChatState === ChatSectionState.SESSION_LISTING && (
-        <div className="overflow-y-auto h-full flex flex-col gap-2 p-4">
-          {chatSessions?.map((session, index) => (
-            <ChatSessionCard key={index} id={session.id}>
-              {session.name}
-            </ChatSessionCard>
-          ))}
-        </div>
+      
+      {chatState === ChatState.SESSION_LISTING && (
+        <ChatSessionListing/>
       )}
 
-      {currentChatState === ChatSectionState.SESSION_SELECTED && (
-        <div className="overflow-y-auto h-full flex flex-col gap-2 p-4">
-          {messages.map((message, index) => (
-            <ChatBubble key={index} variant={message.sender}>
-              {message.content}
-            </ChatBubble>
-          ))}
-          {isStreaming && (
-            <ChatBubble variant="AGENT">
-              {currentAgentMessageStream}
-            </ChatBubble>
-          )}
-        </div>
+      {selectedSessionId && chatState === ChatState.SESSION_SELECTED && (
+        <MessageViewer />
       )}
  
 
-      {currentChatState === ChatSectionState.IS_LOADING && (
+      {/* {currentChatState === ChatSectionState.IS_LOADING && (
         <Loading/>
-      )}
+      )} */}
 
       <ChatInput />
     </div>

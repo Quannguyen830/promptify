@@ -1,20 +1,33 @@
+"use client";
+
 import { type ChatSessionCardProps } from "~/constants/interfaces";
 import { Button } from "../ui/button";
-import { ChatSectionState, useChatStore } from "./chat-store";
+import { ChatState, useChat } from "./chat-store-2";
 import { Ellipsis } from "lucide-react";
 
 export const ChatSessionCard = ({children, id} : ChatSessionCardProps) => {  
-  const {
-    setCurrentChatSession,
+  // const {
+  //   setCurrentChatSession,
+  //   setChatState,
+  // } = useChatStore();
+
+  // const handleClick = () => {
+  //   setChatState(ChatSectionState.SESSION_SELECTED);
+  //   setCurrentChatSession(id, false);
+  // };
+
+  const { 
     setChatState,
-  } = useChatStore();
-
-
-  const handleClick = () => {
-    setChatState(ChatSectionState.SESSION_SELECTED);
-    setCurrentChatSession(id, false);
-  };
+    setSelectedSessionId
+  } = useChat();
   
+  const handleClick = () => { 
+    console.log("SESSION SELECTED: " + id);
+
+    setChatState(ChatState.SESSION_SELECTED);
+    setSelectedSessionId(id);
+  }
+
   return (
     <Button className="flex overflow-hidden" onClick={handleClick} variant="outline">
       <p className="w-full overflow-hidden">{children}</p>

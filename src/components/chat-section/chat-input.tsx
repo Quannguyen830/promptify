@@ -118,6 +118,8 @@ const ChatInput = () => {
   const onSubmit: SubmitHandler<ChatInputForm> = async (data) => { 
     const inputMessage = data.message;
 
+    if (inputMessage.trim() === "") return;
+
     reset();
         
     if (!currentChatSession) { 
