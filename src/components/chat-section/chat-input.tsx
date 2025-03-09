@@ -47,7 +47,7 @@ const ChatInput = () => {
       void utils.chat.getAllChatSessions.cancel();
 
       const prevSessions = utils.chat.getAllChatSessions.getData();
-
+      
       utils.chat.getAllChatSessions.setData(
         undefined, 
         (sessions) => [
@@ -56,52 +56,33 @@ const ChatInput = () => {
             id: crypto.randomUUID(),
             name: "New Chat",
             messages: [{
-                content: data.firstMessageContent,
-                sender: data.sender
+              content: data.firstMessageContent,
+              sender: data.sender
             }]
           }
         ]
       )
       return { prevSessions };
     },
-    onSettled() {
-      void utils.chat.getAllChatSessions.invalidate();
+    onSettled(data) {
+      if (data) setCurrentChatSession(data.id, true);
+
+      // void utils.chat.getAllChatSessions.invalidate();
     }
   });
 
   const createMessage = api.chat.createMessage.useMutation({
     onMutate(data) {
-      void utils.chat.getAllChatSessions.cancel();
+      // void utils.chat.getAllChatSessions.cancel();
 
-      const prevMessages = utils.chat.getAllChatSessions.getData();
+      addMessage({
+        content: data.content,
+        sender: "USER"
+      });
 
-      // utils.chat.getAllChatSessions.setData(
-      //   undefined,
-      //   (sessions) => {
-      //     if (!sessions) return sessions;
+      // const prevMessages = utils.chat.getAllChatSessions.getData();
 
-      //     return sessions.map((session) => {
-      //       if (session.id === data.chatSessionId) {
-      //         return {
-      //           ...session,
-      //           messages: [
-      //             ...(session.messages ?? []), 
-      //             {
-      //               id: crypto.randomUUID(),
-      //               createdAt: new Date(),
-      //               updatedAt: new Date(),
-      //               sender: data.sender,
-      //               chatSessionId: data.chatSessionId,
-      //               content: data.content
-      //             }
-      //           ]
-      //         };
-      //       }
-      //       return session;
-      //     });        
-      //   }
-      // );
-      return { prevMessages };
+      // return { prevMessages };
     },
     onSettled() {
       void utils.chat.getChatSessionById.invalidate({ id: currentChatSession!.id });
@@ -138,22 +119,14 @@ const ChatInput = () => {
     const inputMessage = data.message;
 
     reset();
-    
-    // update user message to state
-    addMessage({
-      content: inputMessage,
-      sender: "USER"
-    });
-    
+        
     if (!currentChatSession) { 
       setChatState(ChatSectionState.SESSION_SELECTED);
 
-      const result = await createSession.mutateAsync({
+      await createSession.mutateAsync({
         firstMessageContent: inputMessage,
         sender: "USER"
-      });
-      
-      if (result) setCurrentChatSession(result.id, true);
+      });      
     } else {      
       await createMessage.mutateAsync({
         chatSessionId: currentChatSession.id,
