@@ -10,7 +10,6 @@ import { PromptifyLogo } from "~/components/share/promptify-logo"
 import { forgotPasswordSchema, type ForgotPasswordInput } from "~/lib/validations/auth"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import Error from "next/error"
 
 export default function ForgotPassword() {
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -51,14 +50,16 @@ export default function ForgotPassword() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-white p-4">
-      <div className="w-full max-w-xl">
-        <div className="mb-16">
-          <PromptifyLogo />
+    <div className="min-h-screen bg-white">
+      <div className="w-full border-b border-gray-200">
+        <div className="container mx-auto px-4 py-4">
+          <PromptifyLogo className="h-8 w-auto" />
         </div>
+      </div>
 
-        <div className="flex flex-col items-center">
-          <h1 className="mb-2 text-3xl font-bold text-center">Reset Password</h1>
+      <div className="flex min-h-[calc(100vh-73px)] flex-col items-center justify-center p-4">
+        <div className="w-full max-w-xl">
+          <h1 className="mb-8 text-3xl font-bold text-center">Reset Password</h1>
 
           <p className="text-center text-gray-600 mb-6">
             Enter your email address and we&apos;ll send you instructions to reset your password.

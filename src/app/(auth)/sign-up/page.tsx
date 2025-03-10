@@ -3,7 +3,6 @@
 import type { SignUpInput } from "~/lib/validations/auth"
 
 import Link from "next/link"
-import Image from "next/image"
 import { signIn } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
@@ -18,6 +17,7 @@ import { useState } from "react"
 
 export default function SignUp() {
   const [showPassword, setShowPassword] = useState(false)
+  const [error, setError] = useState<string>("")
   const router = useRouter()
   const {
     register,
@@ -34,6 +34,7 @@ export default function SignUp() {
 
   const onSubmit = async (data: SignUpInput) => {
     try {
+      setError("")
       const response = await fetch("/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -46,8 +47,9 @@ export default function SignUp() {
       })
 
       if (!response.ok) {
-        const errorData = await response.json() as { message: string | undefined }
-        throw new Error(errorData.message ?? "Registration failed")
+        const errorData = await response.json() as { message: string }
+        setError(errorData.message || "Registration failed")
+        return
       }
 
       const result = await signIn("credentials", {
@@ -57,12 +59,14 @@ export default function SignUp() {
       })
 
       if (result?.error) {
-        throw new Error("Failed to sign in after registration")
+        setError("Failed to sign in after registration")
+        return
       }
 
       router.push("/dashboard")
     } catch (error) {
       console.error(error)
+      setError("An unexpected error occurred")
     }
   }
 
@@ -79,6 +83,12 @@ export default function SignUp() {
           <h1 className="mb-8 text-3xl font-bold text-center">Sign Up to Promtify</h1>
 
           <form onSubmit={handleSubmit(onSubmit)} className="w-full">
+            {error && (
+              <div className="mb-4 p-3 text-sm text-red-500 bg-red-50 rounded-md border border-red-200">
+                {error}
+              </div>
+            )}
+
             <div className="grid grid-cols-2 gap-4 mb-4">
               <div>
                 <label htmlFor="firstName" className="block mb-2 text-sm font-medium">
