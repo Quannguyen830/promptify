@@ -14,8 +14,6 @@ export default function FilePage() {
     fileId: id
   });
 
-  const { mutate: updateFile } = api.file.updateFileByFileId.useMutation();
-
   if (isLoading) return <Loading />;
   if (error) return <div>Error: {error.message}</div>;
 

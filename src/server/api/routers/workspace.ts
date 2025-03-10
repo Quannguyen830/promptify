@@ -29,7 +29,11 @@ export const workspaceRouter = createTRPCRouter({
         },
         include: {
           files: true,  
-          folders: true
+          folders: {
+            include: {
+              files: true
+            }
+          }
         }
       })
 
@@ -56,8 +60,12 @@ export const workspaceRouter = createTRPCRouter({
           id: input.workspaceId
         },
         include: {
-          folders: true,
-          files: true
+          files: true,
+          folders: {
+            include: {
+              files: true
+            }
+          }
         }
       })
 

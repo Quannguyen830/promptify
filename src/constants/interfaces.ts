@@ -48,9 +48,12 @@ export interface S3FileResponse {
   signedUrl: string
 }
 
-export type FolderHistoryItem = Workspace | Folder | Root;
+export interface FolderHistoryItem extends Root {
+  files?: File[];
+  folders?: Folder[];
+}
 
-export type Parent = Workspace | Folder;
+export type Parent = (Workspace & { files: File[] }) | (Folder & { files: File[] });
 
 // CHAT SECTION
 export interface ChatInputForm {
