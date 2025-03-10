@@ -45,11 +45,15 @@ model User {
   email         String?   @unique
   emailVerified DateTime?
   image         String?
+  password      String?
 
   chatSessions ChatSession[]
   accounts     Account[]
   sessions     Session[]
   Workspace    Workspace[]
+
+  @@index([email])
+  @@index([id])
 }
 
 model VerificationToken {
