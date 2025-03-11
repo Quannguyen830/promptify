@@ -17,11 +17,15 @@ interface ChatStore2 {
 
   streamingMessage: string;
   setStreamingMessage: (message: string) => void;
+  resetStreamingMessage: () => void;
 }
 
 export const useChat = create<ChatStore2>((set) => ({
   chatState: ChatState.SESSION_LISTING,
   setChatState: (newState) => {
+    if (newState === ChatState.SESSION_LISTING) {
+      set(() => ({ selectedSessionId: null }));
+    }
     set(() => ({ chatState: newState }));
   },
 
@@ -37,6 +41,9 @@ export const useChat = create<ChatStore2>((set) => ({
 
   streamingMessage: "",
   setStreamingMessage: (message) => {
-      set(() => ({ streamingMessage: message }))
+    set(() => ({ streamingMessage: message }))
   },
+  resetStreamingMessage: () => {
+    set(() => ({ streamingMessage: "" }))
+  }
 }))

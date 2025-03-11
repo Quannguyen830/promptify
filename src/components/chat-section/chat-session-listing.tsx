@@ -2,21 +2,11 @@
 
 import Loading from "../share/loading-spinner";
 import ChatSessionCard from "./chat-session-card";
-import { ChatSectionState, useChatStore } from "./chat-store";
 
 import { api } from "~/trpc/react";
 
 export function ChatSessionListing() {
-  const {
-    currentChatState
-  } = useChatStore();
-
-  const { data: chatSessions, isSuccess, isLoading } = api.chat.getAllChatSessionsId.useQuery();
-
-  
-  if (isSuccess) {
-    
-  }
+  const { data: chatSessions, isLoading } = api.chat.getAllChatSessionsId.useQuery();
   
   if (isLoading) return (
     <Loading/>

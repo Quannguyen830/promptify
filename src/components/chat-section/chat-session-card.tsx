@@ -6,16 +6,6 @@ import { ChatState, useChat } from "./chat-store-2";
 import { Ellipsis } from "lucide-react";
 
 export const ChatSessionCard = ({children, id} : ChatSessionCardProps) => {  
-  // const {
-  //   setCurrentChatSession,
-  //   setChatState,
-  // } = useChatStore();
-
-  // const handleClick = () => {
-  //   setChatState(ChatSectionState.SESSION_SELECTED);
-  //   setCurrentChatSession(id, false);
-  // };
-
   const { 
     setChatState,
     setSelectedSessionId

@@ -7,6 +7,7 @@ import { MessageStreamViewer } from "./message-stream-bubble";
 export function MessageViewer() {
   const {
     chatState,
+    isStreaming,
     selectedSessionId
   } = useChat();
   
@@ -31,7 +32,7 @@ export function MessageViewer() {
         </ChatBubble>
       ))}
       
-      <MessageStreamViewer />
+      {isStreaming && <MessageStreamViewer />}
     </div>
   )
 }
