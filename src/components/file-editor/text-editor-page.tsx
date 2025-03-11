@@ -4,6 +4,7 @@ import { DocumentEditorContainerComponent, Toolbar, type ToolbarItem, type Custo
 import type { ClickEventArgs } from '@syncfusion/ej2-navigations';
 import { useRef, useEffect, useState } from 'react';
 import { SelectFileDialog } from './select-file-dialog';
+import { api } from '~/trpc/react';
 
 DocumentEditorContainerComponent.Inject(Toolbar);
 
@@ -14,8 +15,10 @@ interface TextEditorProps {
 export default function TextEditorPage({ documentName }: TextEditorProps) {
   const containerRef = useRef<DocumentEditorContainerComponent>(null);
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
+  const [contentChanged, setContentChanged] = useState(false);
 
-  // Helper function for text wrapping
+  const updateFile = api.file.updateFileByFileId.useMutation();
+
   const onWrapText = (text: string): string => {
     let content = '';
     const index: number = text.lastIndexOf(' ');
@@ -29,16 +32,50 @@ export default function TextEditorPage({ documentName }: TextEditorProps) {
     return content;
   };
 
-  // Handle toolbar clicks
+  useEffect(() => {
+    let autoSaveInterval: NodeJS.Timeout;
+
+    if (containerRef.current) {
+      autoSaveInterval = setInterval(() => {
+        if (contentChanged && containerRef.current) {
+          void (async () => {
+            try {
+              if (!containerRef.current) return;
+              const blob = await containerRef.current.documentEditor.saveAsBlob('Docx');
+              const arrayBuffer = await blob.arrayBuffer();
+              const uint8Array = new Uint8Array(arrayBuffer);
+
+              await updateFile.mutateAsync({
+                fileId: documentName,
+                fileBuffer: uint8Array,
+              });
+
+              console.log('Document auto-saved successfully');
+              setContentChanged(false);
+            } catch (error) {
+              console.error('Error auto-saving document:', error);
+            }
+          })();
+        }
+      }, 1000);
+    }
+
+    return () => {
+      if (autoSaveInterval) {
+        clearInterval(autoSaveInterval);
+      }
+    };
+  }, [contentChanged, documentName, updateFile]);
+
+  const handleContentChange = (): void => {
+    setContentChanged(true);
+  };
+
   const handleToolbarClick = (args: ClickEventArgs): void => {
     if (containerRef.current) {
       switch (args.item.id) {
         case 'Open':
           setIsUploadDialogOpen(true);
-          break;
-        case 'Custom':
-          // Disable image toolbar item
-          containerRef.current.toolbar.enableItems(4, false);
           break;
       }
     }
@@ -74,7 +111,7 @@ export default function TextEditorPage({ documentName }: TextEditorProps) {
 
   const customToolbarItems = [
     {
-      prefixIcon: "e-icons e-folder-open",  // Using Syncfusion's open icon
+      prefixIcon: "e-icons e-folder-open",
       tooltipText: "Open Document",
       text: onWrapText("Open"),
       id: "Open"
@@ -119,6 +156,8 @@ export default function TextEditorPage({ documentName }: TextEditorProps) {
         ref={containerRef}
         toolbarItems={customToolbarItems as (CustomToolbarItemModel | ToolbarItem)[]}
         toolbarClick={handleToolbarClick}
+        contentChange={handleContentChange}
+        showPropertiesPane={false}
       />
 
       <SelectFileDialog

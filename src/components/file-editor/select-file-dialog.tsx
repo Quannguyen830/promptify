@@ -8,8 +8,8 @@ import { ScrollArea } from "~/components/ui/scroll-area"
 import { ArrowRight, ChevronRight, FileIcon, Folder as FolderIcon, FolderOpen, Search, Upload } from "lucide-react"
 import { useState, useEffect, Fragment } from "react"
 import { api } from "~/trpc/react"
-import type { File, Folder, Workspace } from "@prisma/client"
-import { type FolderHistoryItem, MyDrive } from "~/constants/interfaces"
+import type { File, Folder } from "@prisma/client"
+import { type FolderHistoryItem, MyDrive, type FolderWithRelations, type WorkspaceWithRelations } from "~/constants/interfaces"
 import { useRouter } from "next/navigation";
 
 interface SelectFileDialogProps {
@@ -21,9 +21,8 @@ interface SelectFileDialogProps {
 export function SelectFileDialog({ open, onOpenChange, onClose }: SelectFileDialogProps) {
   const [selectedFile, setSelectedFile] = useState<File | undefined>(undefined)
   const [searchQuery, setSearchQuery] = useState("")
-  const [workspaceOrFolderList, setWorkspaceOrFolderList] = useState<Folder[] | Workspace[]>([]);
+  const [workspaceOrFolderList, setWorkspaceOrFolderList] = useState<FolderWithRelations[] | WorkspaceWithRelations[]>([]);
   const [allFolders, setAllFolders] = useState<Folder[]>([])
-  const [rootFolders, setRootFolders] = useState<Folder[]>();
   const [folderHistory, setFolderHistory] = useState<FolderHistoryItem[]>([MyDrive]);
   const [currentFiles, setCurrentFiles] = useState<File[]>([]);
   const router = useRouter();
@@ -37,34 +36,31 @@ export function SelectFileDialog({ open, onOpenChange, onClose }: SelectFileDial
     }
   }, [workspaces]);
 
-  useEffect(() => {
-    if (rootFolders && rootFolders.length > 0) {
-      setWorkspaceOrFolderList(rootFolders);
-    }
-  }, [rootFolders]);
-
   const handleOpen = () => {
     if (selectedFile) {
       router.push(`/file/${selectedFile.id}`);
     }
   }
 
-  const handleNextButtonClick = (workspaceOrFolder: Workspace | Folder) => {
-    // This is a folder
+  const handleNextButtonClick = (workspaceOrFolder: WorkspaceWithRelations | FolderWithRelations) => {
     if ('workspaceId' in workspaceOrFolder) {
-      // Get both subfolders and files for the current folder
+      // This is a folder
       const subfolders = allFolders.filter(folder => folder.parentFolderId === workspaceOrFolder.id);
-      const filesInFolder = workspaceOrFolder.files as File[];
+      const filesInFolder = workspaceOrFolder.files;
 
-      setWorkspaceOrFolderList(subfolders); // Update the folder list
-      setCurrentFiles(filesInFolder); // Update the files list
-    }
-    // This is a workspace 
-    else if ('folders' in workspaceOrFolder) {
-      const folders = workspaceOrFolder.folders as Folder[];
-      const filteredRootFolders = folders.filter(folder => folder.parentFolderId === null && folder.workspaceId === workspaceOrFolder.id);
-      setWorkspaceOrFolderList(filteredRootFolders);
-      setCurrentFiles(workspaceOrFolder.files ?? []); // Show workspace files
+      setWorkspaceOrFolderList(subfolders as FolderWithRelations[]);
+      setCurrentFiles(filesInFolder ?? []);
+    } else if ('folders' in workspaceOrFolder) {
+      const folders = workspaceOrFolder.folders;
+      const rootFolders = folders.filter(folder =>
+        folder.parentFolderId === null &&
+        folder.workspaceId === workspaceOrFolder.id
+      );
+
+      const rootFiles = workspaceOrFolder.files.filter(file => !file.folderId);
+
+      setWorkspaceOrFolderList(rootFolders as FolderWithRelations[]);
+      setCurrentFiles(rootFiles);
     }
 
     setFolderHistory((prev) => [...prev, workspaceOrFolder]);
@@ -76,25 +72,30 @@ export function SelectFileDialog({ open, onOpenChange, onClose }: SelectFileDial
       setFolderHistory([MyDrive]);
       setCurrentFiles([]);
     } else {
-      const selectedItem = folderHistory[index] as Workspace | Folder;
+      const selectedItem = folderHistory[index] as WorkspaceWithRelations | FolderWithRelations;
 
       if ('workspaceId' in selectedItem) {
+        // This is a folder
         const subfolders = allFolders.filter(folder => folder.parentFolderId === selectedItem.id);
-        setWorkspaceOrFolderList(subfolders);
-        const filesInFolder = selectedItem.files as File[];
-        setCurrentFiles(filesInFolder);
+        setWorkspaceOrFolderList(subfolders as FolderWithRelations[]);
+        const filesInFolder = selectedItem.files;
+        setCurrentFiles(filesInFolder ?? []);
       } else if ('folders' in selectedItem) {
-        const folders = selectedItem.folders as Folder[];
-        const filteredRootFolders = folders.filter(folder => folder.parentFolderId === null && folder.workspaceId === selectedItem.id);
-        setWorkspaceOrFolderList(filteredRootFolders);
-        setCurrentFiles(selectedItem.files ?? []);
+        const folders = selectedItem.folders;
+        const rootFolders = folders.filter(folder =>
+          folder.parentFolderId === null &&
+          folder.workspaceId === selectedItem.id
+        );
+        const rootFiles = selectedItem.files.filter(file => !file.folderId);
+
+        setWorkspaceOrFolderList(rootFolders as FolderWithRelations[]);
+        setCurrentFiles(rootFiles);
       }
     }
 
     setFolderHistory(folderHistory.slice(0, index + 1));
   };
 
-  // Reset state function
   const resetState = () => {
     setSelectedFile(undefined);
     setSearchQuery("");
@@ -103,7 +104,6 @@ export function SelectFileDialog({ open, onOpenChange, onClose }: SelectFileDial
     setCurrentFiles([]);
   };
 
-  // Reset state when the dialog is closed
   const handleClose = () => {
     resetState();
     onClose();

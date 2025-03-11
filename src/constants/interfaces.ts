@@ -55,6 +55,15 @@ export interface FolderHistoryItem extends Root {
 
 export type Parent = (Workspace & { files: File[] }) | (Folder & { files: File[] });
 
+export type WorkspaceWithRelations = Workspace & {
+  files: File[];
+  folders: (Folder & { files: File[] })[];
+};
+
+export type FolderWithRelations = Folder & {
+  files: File[];
+};
+
 // CHAT SECTION
 export interface ChatInputForm {
   message: string
