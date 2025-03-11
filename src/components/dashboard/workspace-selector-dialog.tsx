@@ -120,14 +120,15 @@ export function WorkspaceSelector({ onSelect }: WorkspaceSelectorProps) {
             >
               <Briefcase className="h-4 w-4" />
               <span className="flex-1">{item.name}</span>
-              {item.hasSubfolders &&
+              {'folders' in item || ('workspaceId' in item && allFolders.some(folder => folder.parentFolderId === item.id)) ? (
                 <ChevronRight
                   className="h-4 w-4"
                   onClick={(e) => {
                     e.stopPropagation();
                     handleNextButtonClick(item)
                   }}
-                />}
+                />
+              ) : null}
             </button>
           ))}
         </div>
