@@ -74,9 +74,9 @@ export function WorkspaceSelector({ onSelect }: WorkspaceSelectorProps) {
           const subfolders = allFolders.filter(folder => folder.parentFolderId === selectedItem.id);
           setWorkspaceOrFolderList(subfolders);
         } else if ('folders' in selectedItem) {
-          const folders = selectedItem.folders as Folder[];
-          const filteredRootFolders = folders.filter(folder => folder.parentFolderId === null && folder.workspaceId === selectedItem.id);
-          setWorkspaceOrFolderList(filteredRootFolders);
+          const folders = selectedItem.folders;
+          const filteredRootFolders = folders?.filter(folder => folder.parentFolderId === null && folder.workspaceId === selectedItem.id);
+          setWorkspaceOrFolderList(filteredRootFolders ?? []);
         }
       }
     }
