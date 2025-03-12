@@ -7,6 +7,8 @@ import { useDashboardStore } from "~/components/dashboard/dashboard-store"
 import { Navbar } from "~/components/dashboard/navbar"
 import Loading from "~/components/share/loading-spinner"
 import { type File, type Folder } from "@prisma/client"
+import { SlidingTab } from "~/components/dashboard/sliding-tab"
+import { Toolbox } from "~/components/dashboard/toolbox"
 
 export default function Page() {
   const { resetHistory, addFile, addFolder, resetCurrentParent } = useDashboardStore();
@@ -49,14 +51,19 @@ export default function Page() {
     <div className="h-screen flex flex-col">
       <Navbar />
 
-      <div className="flex-1 overflow-y-auto p-4">
+      <div className="flex-1 overflow-y-auto py-4">
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-semibold mb-5">Welcome to Promptify Dashboard</h1>
+          <h1 className="text-4xl font-semibold mb-5">Dashboard</h1>
+        </div>
+
+        <div className="flex items-center justify-between">
+          <SlidingTab />
+          <Toolbox />
         </div>
 
         <SuggestedSection title="Suggested workspaces" type="workspaces" workspaces={fetchedWorkspaces} />
-        <SuggestedSection title="Suggested folders" type="folders" folders={fetchedFolders} />
-        <SuggestedSection title="Suggested files" type="files" files={fetchedFiles} />
+        {/* <SuggestedSection title="Suggested folders" type="folders" folders={fetchedFolders} />
+        <SuggestedSection title="Suggested files" type="files" files={fetchedFiles} /> */}
       </div>
     </div>
   )
