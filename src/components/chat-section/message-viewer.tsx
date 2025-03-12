@@ -1,5 +1,5 @@
 import { api } from "~/trpc/react"
-import { ChatState, useChat } from "./chat-store-2"
+import { ChatState, useChat } from "./chat-store"
 import ChatBubble from "./chat-bubble";
 import Loading from "../share/loading-spinner";
 import { MessageStreamViewer } from "./message-stream-bubble";
@@ -25,7 +25,7 @@ export function MessageViewer() {
   }
 
   return (
-    <div className="overflow-y-auto h-full flex flex-col gap-2 p-4">
+    <div className="overflow-y-auto h-full flex-1 flex flex-col gap-2 p-4">
       {chatSession?.messages.map((message, index) => (
         <ChatBubble key={index} variant={message.sender}>
           {message.content}

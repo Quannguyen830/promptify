@@ -1,25 +1,27 @@
+"use client";
+
 import { 
   type SubmitHandler,
   useForm
 } from "react-hook-form";
 import { Paperclip, Send } from "lucide-react";
 import { api } from "~/trpc/react";
+import { useState } from "react";
+import { useSession } from "next-auth/react";
 
-import { ChatSectionState, useChatStore } from "./chat-store";
 import { type ChatInputForm, type ChatModel } from "~/constants/interfaces";
 
 import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-import { useSession } from "next-auth/react";
-import { ChatState, useChat } from "./chat-store-2";
-import { useState } from "react";
+import { ChatState, useChat } from "./chat-store";
 
 const CHAT_MODELS: ChatModel[] = [
   { value: "gemini", name: "Gemini" },
   { value: "gpt", name: "GPT-4" },
   { value: "claude", name: "Super long claude model name" }
 ]
+
 
 const ChatInput = () => {
   const {
@@ -36,7 +38,6 @@ const ChatInput = () => {
     setChatState,
     setSelectedSessionId,
     setStreamingMessage,
-    resetStreamingMessage,
     setIsStreaming
   } = useChat();
 
@@ -108,10 +109,7 @@ const ChatInput = () => {
     },
     {
       onData(data) {
-        console.log(data.content);
-
         if (data.done) {
-          console.log("donee")
           setIsStreaming(false);
         } else {
           setStreamingMessage(streamingMessage + data.content);
@@ -146,7 +144,6 @@ const ChatInput = () => {
         sender: "USER"
       });
     }
-
     setIsStreaming(true); 
   }
 

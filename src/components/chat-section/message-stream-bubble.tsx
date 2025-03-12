@@ -1,5 +1,5 @@
 import ChatBubble from "./chat-bubble";
-import { useChat } from "./chat-store-2"
+import { useChat } from "./chat-store"
 
 export function MessageStreamViewer() {
   const {

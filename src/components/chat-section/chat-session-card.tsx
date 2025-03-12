@@ -2,7 +2,7 @@
 
 import { type ChatSessionCardProps } from "~/constants/interfaces";
 import { Button } from "../ui/button";
-import { ChatState, useChat } from "./chat-store-2";
+import { ChatState, useChat } from "./chat-store";
 import { Ellipsis } from "lucide-react";
 
 export const ChatSessionCard = ({children, id} : ChatSessionCardProps) => {  

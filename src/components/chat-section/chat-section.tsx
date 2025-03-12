@@ -3,7 +3,7 @@ import { Button } from "../ui/button";
 import { ArrowLeft } from "lucide-react";
 import { ChatSessionListing } from "./chat-session-listing";
 import { MessageViewer } from "./message-viewer";
-import { ChatState, useChat } from "./chat-store-2";
+import { ChatState, useChat } from "./chat-store";
 
 export function ChatSection() {
   const {
@@ -27,13 +27,15 @@ export function ChatSection() {
         )}
       </div>
       
-      {chatState === ChatState.SESSION_LISTING && (
-        <ChatSessionListing/>
-      )}
+      <div className="flex-1">
+        {chatState === ChatState.SESSION_LISTING && (
+          <ChatSessionListing/>
+        )}
 
-      {selectedSessionId && chatState === ChatState.SESSION_SELECTED && (
-        <MessageViewer />
-      )}
+        {selectedSessionId && chatState === ChatState.SESSION_SELECTED && (
+          <MessageViewer />
+        )}
+      </div>
 
       <ChatInput />
     </div>
