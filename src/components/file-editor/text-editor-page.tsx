@@ -5,19 +5,36 @@ import type { ClickEventArgs } from '@syncfusion/ej2-navigations';
 import { useRef, useEffect, useState } from 'react';
 import { SelectFileDialog } from './select-file-dialog';
 import { api } from '~/trpc/react';
+import { useRouter } from 'next/navigation';
 
 DocumentEditorContainerComponent.Inject(Toolbar);
 
 interface TextEditorProps {
-  documentName: string
+  documentName: string;
+  workspaceId: string;
+  folderId?: string | undefined;
+  workspaceName: string;
+  folderName?: string | undefined;
 }
 
-export default function TextEditorPage({ documentName }: TextEditorProps) {
+export default function TextEditorPage({
+  documentName,
+  workspaceId,
+  folderId,
+  workspaceName,
+  folderName
+}: TextEditorProps) {
   const containerRef = useRef<DocumentEditorContainerComponent>(null);
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
   const [contentChanged, setContentChanged] = useState(false);
+  const router = useRouter();
 
   const updateFile = api.file.updateFileByFileId.useMutation();
+  const createNewFile = api.file.createEmptyFile.useMutation({
+    onSuccess: (newFileId) => {
+      router.push(`/file/${newFileId}`);
+    },
+  });
 
   const onWrapText = (text: string): string => {
     let content = '';
@@ -77,6 +94,14 @@ export default function TextEditorPage({ documentName }: TextEditorProps) {
         case 'Open':
           setIsUploadDialogOpen(true);
           break;
+        case 'New':
+          void createNewFile.mutateAsync({
+            workspaceId,
+            folderId: folderId ?? undefined,
+            workspaceName,
+            folderName: folderName ?? undefined,
+          });
+          break;
       }
     }
   };
@@ -110,6 +135,12 @@ export default function TextEditorPage({ documentName }: TextEditorProps) {
   }, [documentName]);
 
   const customToolbarItems = [
+    {
+      prefixIcon: "e-icons e-file-new",
+      tooltipText: "New Document",
+      text: onWrapText("New"),
+      id: "New"
+    },
     {
       prefixIcon: "e-icons e-folder-open",
       tooltipText: "Open Document",

@@ -6,6 +6,7 @@ import { api } from "~/trpc/react"
 import Loading from "~/components/share/loading-spinner"
 import TextEditorPage from "~/components/file-editor/text-editor-page"
 import PdfPage from "~/components/file-editor/pdf-page"
+import { useDashboardStore } from "~/components/dashboard/dashboard-store"
 
 export default function FilePage() {
   const { id } = useParams<{ id: string }>();
@@ -20,10 +21,16 @@ export default function FilePage() {
   return (
     <div className="flex flex-col h-screen">
       {
-        fetchedFile?.type == "pdf" ? (
+        fetchedFile?.type === "pdf" ? (
           <PdfPage documentLink={fetchedFile.signedUrl} />
         ) : (
-          <TextEditorPage documentName={id} />
+          <TextEditorPage
+            documentName={id}
+            workspaceId={fetchedFile?.workspaceId ?? ""}
+            workspaceName={fetchedFile?.workspaceName ?? ""}
+            folderId={fetchedFile?.folderId ?? undefined}
+            folderName={fetchedFile?.folderName ?? undefined}
+          />
         )
       }
     </div>

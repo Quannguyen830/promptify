@@ -1,5 +1,3 @@
-version: "3.4"
-
 services:
   word-processor-server:
     image: quannguyen830/word-processor-server

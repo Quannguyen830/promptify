@@ -40,20 +40,13 @@ export const MyDrive = {
   name: "My Drive"
 }
 
-export interface S3FileResponse {
-  name: string
-  message: string
-  body: string
-  type: string
-  signedUrl: string
-}
-
 export interface FolderHistoryItem extends Root {
   files?: File[];
   folders?: Folder[];
 }
 
-export type Parent = (Workspace & { files: File[] }) | (Folder & { files: File[] });
+export type Parent = (Workspace & { files: File[] }) |
+  (Folder & { files: File[] } & { workspaceId: string } & { workspaceName: string });
 
 export type WorkspaceWithRelations = Workspace & {
   files: File[];
