@@ -40,12 +40,14 @@ model Session {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  image         String?
-  password      String?
+  id               String    @id @default(cuid())
+  name             String?
+  email            String?   @unique
+  emailVerified    DateTime?
+  image            String?
+  password         String?
+  resetToken       String?   @unique
+  resetTokenExpiry DateTime?
 
   chatSessions ChatSession[]
   accounts     Account[]
@@ -66,9 +68,12 @@ model VerificationToken {
 
 // WORKSPACE SYSTEM
 model Folder {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  id           String    @id @default(cuid())
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @default(now()) @updatedAt
+  lastAccessed DateTime? @default(now())
+
+  image String?
 
   name     String
   size     Float
@@ -90,14 +95,17 @@ model Folder {
 }
 
 model File {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  id           String    @id @default(cuid())
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @default(now()) @updatedAt
+  lastAccessed DateTime? @default(now())
 
   name     String
   size     Float
   type     String
   itemType String @default("file")
+
+  image String?
 
   folder     Folder? @relation(fields: [folderId], references: [id], onDelete: Cascade)
   folderId   String?
@@ -113,9 +121,12 @@ model File {
 }
 
 model Workspace {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  id           String    @id @default(cuid())
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @default(now()) @updatedAt
+  lastAccessed DateTime? @default(now())
+
+  image String?
 
   name     String
   files    File[]

@@ -1,8 +1,7 @@
-import { hash } from "bcryptjs"
 import { NextResponse } from "next/server"
 import { db } from "~/server/db"
-import { generateTemporaryPassword } from "~/lib/email/generate-password"
-import { sendTemporaryPasswordEmail } from "~/lib/email/send-email"
+import { randomBytes } from "crypto"
+import { sendResetPasswordEmail } from "~/lib/email/send-email"
 
 export async function POST(req: Request) {
   try {
@@ -14,24 +13,27 @@ export async function POST(req: Request) {
 
     if (!user) {
       return NextResponse.json(
-        { message: "If an account exists, you will receive an email with instructions" },
-        { status: 200 }
+        { message: "This email is not registered. Please sign up first." },
+        { status: 400 }
       )
     }
 
-    const temporaryPassword = generateTemporaryPassword(12);
-    const hashedPassword = await hash(temporaryPassword, 12)
+    const resetToken = randomBytes(32).toString('hex')
+    const resetTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours from now
 
     await db.user.update({
       where: { email },
       data: { 
-        password: hashedPassword,
+        resetToken,
+        resetTokenExpiry,
       },
     })
 
-    const emailResult = await sendTemporaryPasswordEmail(
+    const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL}/reset-password?token=${resetToken}`
+
+    const emailResult = await sendResetPasswordEmail(
       email,
-      temporaryPassword,
+      resetUrl,
       user.name ?? 'User'
     )
 

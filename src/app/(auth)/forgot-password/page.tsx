@@ -15,7 +15,7 @@ export default function ForgotPassword() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [email, setEmail] = useState("")
-  const [error, setError] = useState<{ email?: string }>({})
+  const [error, setError] = useState<string | null>(null)
 
   const {
     register,
@@ -28,6 +28,8 @@ export default function ForgotPassword() {
   const onSubmit = async (data: ForgotPasswordInput) => {
     try {
       setIsSubmitting(true)
+      setError(null)
+
       const response = await fetch("/api/send-forgot-password-email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -36,14 +38,15 @@ export default function ForgotPassword() {
 
       const result = await response.json() as { message: string | undefined }
 
-      if (result.message) {
-        setError({ email: result.message })
+      if (!response.ok) {
+        setError(result.message ?? "Something went wrong. Please try again.")
+        return
       }
 
       setEmail(data.email)
       setIsSubmitted(true)
     } catch (error) {
-      setError({ email: "Something went wrong. Please try again." })
+      setError("Something went wrong. Please try again.")
     } finally {
       setIsSubmitting(false)
     }
@@ -80,14 +83,18 @@ export default function ForgotPassword() {
                   required
                 />
                 {errors.email && (
-                  <p className="text-red-500 text-sm">{errors.email.message}</p>
+                  <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
                 )}
-                {error.email && (
-                  <p className="text-red-500 text-sm">{error.email}</p>
+                {error && (
+                  <p className="text-red-500 text-sm mt-1">{error}</p>
                 )}
               </div>
 
-              <Button type="submit" className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white" disabled={isSubmitting}>
+              <Button
+                type="submit"
+                className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white"
+                disabled={isSubmitting}
+              >
                 {isSubmitting ? "Sending..." : "Send Reset Instructions"}
               </Button>
             </form>

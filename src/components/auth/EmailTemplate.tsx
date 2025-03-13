@@ -1,19 +1,19 @@
 import * as React from 'react';
 
 interface EmailTemplateProps {
-  temporaryPassword: string
   name: string
+  resetUrl: string
 }
 
 export const EmailTemplate: React.FC<Readonly<EmailTemplateProps>> = ({
-  temporaryPassword,
+  resetUrl,
   name,
 }) => (
   <div>
     <h1>Welcome to Promptify!</h1>
     <p>Hello {name},</p>
-    <p>Here is your temporary password: <strong>{temporaryPassword}</strong></p>
-    <p>Please change your password after logging in for the first time.</p>
+    <p>Please click the link below to reset your password:</p>
+    <a href={resetUrl}>Reset Password</a>
     <p>Best regards, <br />The Promptify Team</p>
   </div>
 );
