@@ -16,11 +16,6 @@ interface SuggestedSectionProps {
 }
 
 export function SuggestedSection({ title, type, files = [], folders = [], workspaces = [] }: SuggestedSectionProps) {
-  const [isExpanded, setIsExpanded] = useState(true)
-
-  const toggleExpand = () => {
-    setIsExpanded(!isExpanded)
-  }
 
   return (
     <section className="space-y-4 mt-3">
@@ -28,15 +23,7 @@ export function SuggestedSection({ title, type, files = [], folders = [], worksp
         <Button
           variant="ghost"
           className="px-2"
-          onClick={toggleExpand}
-          aria-expanded={isExpanded}
-          aria-controls={`${title.toLowerCase().replace(/\s+/g, "-")}-content`}
         >
-          {isExpanded ? (
-            <ChevronDown className="h-4 w-4 mr-2 transition-transform duration-200" />
-          ) : (
-            <ChevronUp className="h-4 w-4 mr-2 transition-transform duration-200" />
-          )}
           <h3 className='text-lg'>
             {title}
           </h3>
@@ -44,7 +31,6 @@ export function SuggestedSection({ title, type, files = [], folders = [], worksp
       </div>
       <div className={cn(
         "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 transition-all duration-300 ease-in-out origin-top",
-        isExpanded ? "opacity-100 max-h-[1000px]" : "opacity-0 max-h-0 overflow-hidden",
       )}>
         {type === "workspaces" ? (
           workspaces.length > 0 ? (

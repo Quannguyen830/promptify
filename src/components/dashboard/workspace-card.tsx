@@ -44,21 +44,16 @@ export function WorkspaceCard({ id, name, date }: WorkspaceCardProps) {
     removeWorkspace({ workspaceId: id });
   }
   return (
-    <Card className="group relative hover:bg-accent transition-colors">
+    <Card className="border p-4">
       <Link href={`/workspace/${id}`} className="block">
-        <div className="p-4 flex items-start">
-          <div className="mt-1 flex-shrink-0 mr-4">
-            <Briefcase />
-          </div>
-          <div className="flex-1 min-w-0 pr-8">
-            <h3 className="text-sm font-medium leading-none truncate mb-1">
-              {name}
-            </h3>
-            <p className="text-sm text-muted-foreground truncate">
-              {date}
-            </p>
-          </div>
+        <div className="grid grid-cols-2 gap-2 mb-4">
+          <div className="h-16 border rounded"></div>
+          <div className="h-16 border rounded"></div>
+          <div className="h-16 border rounded"></div>
+          <div className="h-16 border rounded"></div>
         </div>
+        <h3 className="font-medium">{name}</h3>
+        <p className="text-xs text-gray-500">{date}</p>
       </Link>
       <div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity">
         <DropdownMenu>

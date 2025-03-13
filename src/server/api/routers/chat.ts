@@ -35,7 +35,6 @@ export const ChatRouter = createTRPCRouter({
         },
       });
 
-      console.log("createChatSessionWithMessage", response);
       return response;
     }),
 
@@ -167,6 +166,21 @@ export const ChatRouter = createTRPCRouter({
     }
   ),
 
+  getAllChatSessionsId: protectedProcedure
+    .query(async ({ ctx }) => {
+      const response = await ctx.db.chatSession.findMany({
+        select: {
+          id: true,
+          name: true
+        },
+        orderBy: {
+          createdAt: "asc"
+        }
+      })
+      return response;
+    }
+  ),
+
   getChatSessionById: protectedProcedure
     .input(z.object({
       id: z.string(),
@@ -178,7 +192,9 @@ export const ChatRouter = createTRPCRouter({
         where: {
           id: id,
         },
-        include: {
+        select: {
+          id: true,
+          name: true,
           messages: true,
         },
       });

@@ -1,42 +1,23 @@
-"use client"
-
-import { api } from "~/trpc/react";
-import { useEffect } from "react";
-
-import { ChatSectionState, useChatStore } from "./chat-store";
-import ChatSessionCard from "./chat-session-card";
-import ChatBubble from "./chat-bubble";
 import ChatInput from "./chat-input";
-import Loading from "../share/loading-spinner";
 import { Button } from "../ui/button";
 import { ArrowLeft } from "lucide-react";
+import { ChatSessionListing } from "./chat-session-listing";
+import { MessageViewer } from "./message-viewer";
+import { ChatState, useChat } from "./chat-store";
 
 export function ChatSection() {
   const {
-    currentChatSession,
-    currentChatState,
-    currentAgentMessageStream,
-    chatSessions,
-    isStreaming,
+    selectedSessionId,
+    chatState,
 
-    setChatSessions,
-    setChatState,
-  } = useChatStore();
-
-  const { data: fetchedChatSessions } = api.chat.getAllChatSessions.useQuery();
-  
-  useEffect(() => {
-    if (fetchedChatSessions) {
-      setChatState(ChatSectionState.SESSION_LISTING);
-      setChatSessions(fetchedChatSessions)
-    } 
-  }, [fetchedChatSessions, setChatSessions, setChatState])
-
+    setChatState
+  } = useChat();
+    
   return (
     <div className="flex flex-col h-full bg-sidebar">
       <div className="h-16 p-4 ">
-        {currentChatState === ChatSectionState.SESSION_SELECTED ? (
-          <Button onClick={() => setChatState(ChatSectionState.SESSION_LISTING)}>
+        {chatState === ChatState.SESSION_SELECTED ? (
+          <Button onClick={() => setChatState(ChatState.SESSION_LISTING)}>
             <ArrowLeft/>
           </Button>
         ) : (
@@ -45,36 +26,16 @@ export function ChatSection() {
           </div>
         )}
       </div>
+      
+      <div className="flex-1">
+        {chatState === ChatState.SESSION_LISTING && (
+          <ChatSessionListing/>
+        )}
 
-      {currentChatState === ChatSectionState.SESSION_LISTING && (
-        <div className="overflow-y-auto h-full flex flex-col gap-2 p-4">
-          {chatSessions?.map((session, index) => (
-            <ChatSessionCard key={index} id={session.id}>
-              {session.name}
-            </ChatSessionCard>
-          ))}
-        </div>
-      )}
-
-      {currentChatState === ChatSectionState.SESSION_SELECTED && (
-        <div className="overflow-y-auto h-full flex flex-col gap-2 p-4">
-          {currentChatSession?.messages.map((message, index) => (
-            <ChatBubble key={index} variant={message.sender}>
-              {message.content}
-            </ChatBubble>
-          ))}
-          {isStreaming && (
-            <ChatBubble variant="AGENT">
-              {currentAgentMessageStream}
-            </ChatBubble>
-          )}
-        </div>
-      )}
- 
-
-      {currentChatState === ChatSectionState.IS_LOADING && (
-        <Loading/>
-      )}
+        {selectedSessionId && chatState === ChatState.SESSION_SELECTED && (
+          <MessageViewer />
+        )}
+      </div>
 
       <ChatInput />
     </div>

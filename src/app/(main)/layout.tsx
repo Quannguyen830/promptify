@@ -1,14 +1,11 @@
-"use client"
-
 import "~/styles/globals.css";
 
-import { GeistSans } from "geist/font/sans";
 import { ThemeProvider } from "~/components/share/theme-provider";
-import { TRPCReactProvider } from "~/trpc/react";
 import { SidebarProvider } from "~/components/ui/sidebar";
-import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "~/components/ui/resizable";
-import { cn } from "~/lib/utils";
-import { ChatSection } from "~/components/chat-section/chat-section";
+import { TRPCReactProvider } from "~/trpc/react";
+import { SessionProvider } from "next-auth/react";
+
+import { GeistSans } from "geist/font/sans";
 import { Sidebar } from "~/components/share/sidebar";
 import { SessionProvider } from "next-auth/react";
 import { useEffect } from "react";
@@ -20,26 +17,10 @@ registerLicense(process.env.NEXT_PUBLIC_SYNCFUSION_KEY ?? "");
 export default function AuthenticatedLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const { toggleOpen, isOpen } = useChatProvider();
-
-  useEffect(() => {
-    const handleKeyPress = (e: KeyboardEvent) => {
-      if (e.key.toLowerCase() === 'l' && (e.metaKey || e.ctrlKey)) {
-        e.preventDefault();
-        toggleOpen();
-      }
-    };
-    window.addEventListener('keydown', handleKeyPress);
-
-    return () => {
-      window.removeEventListener('keydown', handleKeyPress);
-    };
-  }, [toggleOpen])
-
   return (
     <html lang="en" className={GeistSans.variable} suppressHydrationWarning>
       <body>
-        <ThemeProvider
+        {/* <ThemeProvider
           attribute="class"
           defaultTheme="system"
           enableSystem
@@ -61,26 +42,26 @@ export default function AuthenticatedLayout({
                       <ResizablePanel className="px-5" defaultSize={80} minSize={30}>
                         {/* <Navbar /> */}
 
-                        <main className='h-full'>
-                          {children}
-                        </main>
-                      </ResizablePanel>
+        <main className='h-full'>
+          {children}
+        </main>
+      </ResizablePanel>
 
-                      <ResizableHandle />
+      <ResizableHandle />
 
-                      {isOpen && (
-                        <ResizablePanel minSize={25}>
-                          <ChatSection />
-                        </ResizablePanel>
-                      )}
-                    </ResizablePanelGroup>
-                  </div>
-                </div>
-              </SidebarProvider>
-            </SessionProvider>
-          </TRPCReactProvider>
-        </ThemeProvider>
-      </body>
-    </html>
+      {isOpen && (
+        <ResizablePanel minSize={25}>
+          <ChatSection />
+        </ResizablePanel>
+      )}
+    </ResizablePanelGroup>
+                  </div >
+                </div >
+              </SidebarProvider >
+            </SessionProvider >
+          </TRPCReactProvider >
+        </ThemeProvider >
+      </body >
+    </html >
   );
 }

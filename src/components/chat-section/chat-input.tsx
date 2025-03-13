@@ -1,17 +1,20 @@
+"use client";
+
 import { 
   type SubmitHandler,
   useForm
 } from "react-hook-form";
 import { Paperclip, Send } from "lucide-react";
 import { api } from "~/trpc/react";
+import { useState } from "react";
+import { useSession } from "next-auth/react";
 
-import { ChatSectionState, useChatStore } from "./chat-store";
 import { type ChatInputForm, type ChatModel } from "~/constants/interfaces";
 
 import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-import { useSession } from "next-auth/react";
+import { ChatState, useChat } from "./chat-store";
 
 const CHAT_MODELS: ChatModel[] = [
   { value: "gemini", name: "Gemini" },
@@ -19,47 +22,97 @@ const CHAT_MODELS: ChatModel[] = [
   { value: "claude", name: "Super long claude model name" }
 ]
 
+
 const ChatInput = () => {
-  const {
-    currentChatSession,
-    currentUserMessage,
-    currentAgentMessageStream,
-    isStreaming,
-
-    setCurrentChatSession,
-    setChatState,
-    addMessage,
-    setCurrentAgentMessageStream,
-    resetAgentMessageStream,
-    setIsStreaming
-  } = useChatStore()
-
   const {
     register,
     handleSubmit,
     reset
   } = useForm<ChatInputForm>()
 
-  const createSession = api.chat.createChatSession.useMutation();
-  const createMessage = api.chat.createMessage.useMutation();
+  const {
+    selectedSessionId,
+    streamingMessage,
+    isStreaming,
+
+    setChatState,
+    setSelectedSessionId,
+    setStreamingMessage,
+    setIsStreaming
+  } = useChat();
+
+  const utils = api.useUtils();
+
+  const [userMessage, setUserMessage] = useState<string>("");
+  
+  const createSession = api.chat.createChatSession.useMutation({
+    onMutate(data) {
+      setChatState(ChatState.SESSION_SELECTED);
+
+      utils.chat.getAllChatSessions.setData(
+        undefined, 
+        (sessions) => [
+          ...sessions ?? [],
+          {
+            id: crypto.randomUUID(),
+            name: "New Chat",
+            messages: [{
+                content: data.firstMessageContent,
+                sender: data.sender
+            }]
+          }
+        ]
+      )
+    },
+    onSettled(data) {
+      if (data) setSelectedSessionId(data.id);
+
+      void utils.chat.getAllChatSessionsId.invalidate();
+    }
+  });
+
+  const createMessage = api.chat.createMessage.useMutation({
+    onMutate(data) {
+      void utils.chat.getChatSessionById.cancel({ id: data.chatSessionId });
+
+      utils.chat.getChatSessionById.setData(
+        { id: data.chatSessionId },
+        (session) => {
+          if (!session) return undefined;
+          return {
+            ...session, 
+            messages: [
+              ...(session.messages ?? []),
+              {
+                id: crypto.randomUUID(),
+                createdAt: new Date(),
+                updatedAt: new Date(),
+                sender: data.sender,
+                chatSessionId: data.chatSessionId,
+                content: data.content
+              }
+            ]
+          };
+        }
+      );
+    },
+    onSettled() {
+      void utils.chat.getChatSessionById.invalidate({ id: selectedSessionId! });
+    }
+  });
 
   api.chat.streamAgentResponse.useSubscription(
     {
-      chatSessionId: currentChatSession?.id ?? "",
-      content: currentUserMessage,
-      context: currentChatSession?.messages ?? []
+      chatSessionId: selectedSessionId ?? "",
+      content: userMessage,
+      context: utils.chat.getChatSessionById.getData({ id: selectedSessionId ?? "" })?.messages ?? []
     },
     {
       onData(data) {
         if (data.done) {
-          addMessage({
-            content: currentAgentMessageStream,
-            sender: "AGENT"
-          });
           setIsStreaming(false);
-          resetAgentMessageStream();
         } else {
-          setCurrentAgentMessageStream(currentAgentMessageStream + data.content);
+          setStreamingMessage(streamingMessage + data.content);
         }
       },
       enabled: isStreaming
@@ -71,30 +124,22 @@ const ChatInput = () => {
  
   const onSubmit: SubmitHandler<ChatInputForm> = async (data) => { 
     const inputMessage = data.message;
+
+    if (inputMessage.trim() === "") return;
+    setUserMessage(inputMessage);
+
     reset();
-    
-    if (!currentChatSession) {
-      setChatState(ChatSectionState.SESSION_SELECTED);
-      
-      // Update UI
-      addMessage({
-        content: inputMessage,
-        sender: "USER"
-      });
-      const result = await createSession.mutateAsync({
+        
+    if (!selectedSessionId) { 
+      setChatState(ChatState.SESSION_SELECTED);
+
+      await createSession.mutateAsync({
         firstMessageContent: inputMessage,
         sender: "USER"
-      });
-      // Set the current chat session after creation
-      setCurrentChatSession(result.id);
-    } else {
-      // update UI state, save user message
-      addMessage({
-        content: inputMessage,
-        sender: "USER"
-      });
+      });      
+    } else {      
       await createMessage.mutateAsync({
-        chatSessionId: currentChatSession.id,
+        chatSessionId: selectedSessionId,
         content: inputMessage,
         sender: "USER"
       });
