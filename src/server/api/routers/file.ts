@@ -38,7 +38,6 @@ export const fileRouter = createTRPCRouter({
       return newFile.id;
     }),
 
-
   deleteFileByFileId: protectedProcedure
     .input(z.object({ fileId: z.string() }))
     .mutation(async ({ input, ctx }) => {
@@ -57,8 +56,20 @@ export const fileRouter = createTRPCRouter({
       const file = await ctx.db.file.findUnique({
         where: {
           id: input.fileId
+        },
+        select: {
+          id: true,
+          type: true,
+          workspaceId: true,
+          workspaceName: true,
+          folderId: true,
+          folderName: true,
         }
       })
+
+      if (!file) {
+        throw new Error("File not found");
+      }
 
       const getParam = {
         Bucket: s3Bucket,
@@ -66,33 +77,28 @@ export const fileRouter = createTRPCRouter({
       };
 
       const result = await s3Client.send(new GetObjectCommand(getParam));    
-      const signedUrl = await getSignedUrl(s3Client, new GetObjectCommand(getParam), { expiresIn: 3600 });
+      const signedUrl = await getSignedUrl(s3Client, new GetObjectCommand(getParam), { expiresIn: 24 * 60 * 60 });
 
       if (result.Body) {
-        if (file?.type == "application/pdf") {
-          const buffer = await result.Body.transformToByteArray(); 
-
+        if (file.type === "application/pdf") {
           return { 
             message: "Get successful", 
-            body: buffer.toString(),
-            type: 'application/pdf',
-            signedUrl: signedUrl
+            type: 'pdf',
+            signedUrl: signedUrl,
+            workspaceId: file.workspaceId,
+            workspaceName: file.workspaceName,
+            folderId: file.folderId,
+            folderName: file.folderName
           };
-        } else if(file?.type == "text/plain") {
-          const bodyContents = await result.Body.transformToString();
-          return { 
-            message: "Get successful", 
-            body: bodyContents,
-            type: "text/plain"
-          } 
-        } else if(file?.type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
-          const buffer = await result.Body.transformToByteArray();
-
+        } else if(file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
           return {
             message: "Get successful",
-            body: buffer,
-            type: "application/docx",
-            signedUrl: signedUrl
+            type: "docx",
+            signedUrl: signedUrl,
+            workspaceId: file.workspaceId,
+            workspaceName: file.workspaceName,
+            folderId: file.folderId,
+            folderName: file.folderName
           }
         }
       }
@@ -125,5 +131,33 @@ export const fileRouter = createTRPCRouter({
       }
 
       return null;
-    }), 
+    }),
+
+  createEmptyFile: protectedProcedure
+    .input(z.object({ 
+      workspaceId: z.string(),
+      folderId: z.string().optional(),
+      workspaceName: z.string(),
+      folderName: z.string().optional(),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const { workspaceId, folderId, workspaceName, folderName } = input;
+      
+      const newFile = await ctx.db.file.create({
+        data: {
+          name: "Untitled Document.docx",
+          size: 0,
+          type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+          workspaceId: workspaceId,
+          folderId: folderId,
+          workspaceName: workspaceName,
+          folderName: folderName
+        }
+      });
+
+      const emptyBuffer = Buffer.from("");
+      await uploadFileToS3(emptyBuffer, newFile.id);
+
+      return newFile.id;
+    }),
 })

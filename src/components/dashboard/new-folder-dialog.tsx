@@ -55,7 +55,11 @@ export function NewFolderDialog({ open, onOpenChange, onClose }: NewFolderDialog
                 size: 0,
                 parentFolderId: 'workspaceId' in selectedParent ? selectedParent.id : null,
                 createdAt: new Date(),
-                updatedAt: new Date()
+                updatedAt: new Date(),
+                lastAccessed: null,
+                image: null,
+                files: [],
+                subfolders: []
               }]
             };
           }

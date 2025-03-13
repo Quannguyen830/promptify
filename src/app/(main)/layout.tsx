@@ -1,6 +1,5 @@
 import "~/styles/globals.css";
 
-import { ThemeProvider } from "~/components/share/theme-provider";
 import { SidebarProvider } from "~/components/ui/sidebar";
 import { TRPCReactProvider } from "~/trpc/react";
 import { SessionProvider } from "next-auth/react";
@@ -21,19 +20,19 @@ export default function AuthenticatedLayout({
           enableSystem
           disableTransitionOnChange
         > */}
-          <TRPCReactProvider>
-            <SessionProvider>
-              <SidebarProvider>
-                <div className="h-screen w-full overflow-hidden flex">
-                  <Sidebar />
-                  
-                  <main className='w-full h-full'>
-                    {children}
-                  </main>
-                </div>
-              </SidebarProvider>
-            </SessionProvider>
-          </TRPCReactProvider>
+        <TRPCReactProvider>
+          <SessionProvider>
+            <SidebarProvider>
+              <div className="h-screen w-full overflow-hidden flex">
+                <Sidebar />
+
+                <main className='w-full h-full'>
+                  {children}
+                </main>
+              </div>
+            </SidebarProvider>
+          </SessionProvider>
+        </TRPCReactProvider>
         {/* </ThemeProvider> */}
       </body>
     </html>

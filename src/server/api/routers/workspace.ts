@@ -28,8 +28,13 @@ export const workspaceRouter = createTRPCRouter({
           userId: ctx.session.user.id ?? GuestUser.id
         },
         include: {
-          files: true,  
-          folders: true
+          files: true,
+          folders: {
+            include: {
+              files: true,
+              subfolders: true
+            }
+          }
         }
       })
 
@@ -56,8 +61,12 @@ export const workspaceRouter = createTRPCRouter({
           id: input.workspaceId
         },
         include: {
-          folders: true,
-          files: true
+          files: true,
+          folders: {
+            include: {
+              files: true
+            }
+          }
         }
       })
 
