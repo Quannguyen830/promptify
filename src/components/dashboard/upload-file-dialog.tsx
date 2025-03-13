@@ -74,11 +74,13 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
                 type: selectedFile?.type ?? "",
                 createdAt: new Date(),
                 updatedAt: new Date(),
+                lastAccessed: null,
                 itemType: "file",
                 workspaceId: workspace.id,
                 workspaceName: workspace.name,
                 folderId: selectedFolder?.id,
-                folderName: selectedFolder?.name
+                folderName: selectedFolder?.name,
+                image: null,
               }]
             };
           }
