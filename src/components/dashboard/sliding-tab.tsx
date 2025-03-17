@@ -5,7 +5,7 @@ export function SlidingTab() {
   const [activeTab, setActiveTab] = useState("workspaces")
 
   return (
-    <div className="border-b border-gray-200 w-auto">
+    <div className="w-auto">
       <div className="flex">
         <button
           onClick={() => setActiveTab("workspaces")}

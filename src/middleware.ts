@@ -14,8 +14,6 @@ export function middleware(request: NextRequest) {
 
   const token = request.cookies.get("authjs.session-token")?.value;
 
-  console.log("token", token);
-
   if (isPublicPath && token) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }

@@ -12,8 +12,6 @@ import { Toolbox } from "~/components/dashboard/toolbox"
 
 export default function Page() {
   const { resetHistory, addFile, addFolder, resetCurrentParent } = useDashboardStore();
-  const [fetchedFolders, setFetchedFolders] = useState<Folder[]>([]);
-  const [fetchedFiles, setFetchedFiles] = useState<File[]>([]);
 
   const { data: fetchedWorkspaces, isLoading, error } = api.workspace.listWorkspaceByUserId.useQuery();
 
@@ -38,9 +36,6 @@ export default function Page() {
           addFolder(folder);
         });
       }
-
-      setFetchedFolders(folders);
-      setFetchedFiles(files);
     }
   }, [fetchedWorkspaces]);
 
@@ -56,14 +51,12 @@ export default function Page() {
           <h1 className="text-4xl font-semibold mb-5">Dashboard</h1>
         </div>
 
-        <div className="flex items-center justify-between">
+        <div className="flex items-center border-b border-gray-200 justify-between">
           <SlidingTab />
           <Toolbox />
         </div>
 
         <SuggestedSection title="Suggested workspaces" type="workspaces" workspaces={fetchedWorkspaces} />
-        {/* <SuggestedSection title="Suggested folders" type="folders" folders={fetchedFolders} />
-        <SuggestedSection title="Suggested files" type="files" files={fetchedFiles} /> */}
       </div>
     </div>
   )
