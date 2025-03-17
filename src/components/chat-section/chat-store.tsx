@@ -5,7 +5,7 @@ export enum ChatState {
   SESSION_SELECTED
 }
 
-interface ChatStore2 {
+interface ChatStore {
   chatState: ChatState;
   setChatState: (newState: ChatState) => void;
 
@@ -18,8 +18,7 @@ interface ChatStore2 {
   streamingMessage: string;
   setStreamingMessage: (message: string) => void;
 }
-
-export const useChat = create<ChatStore2>((set) => ({
+export const useChat = create<ChatStore>((set) => ({
   chatState: ChatState.SESSION_LISTING,
   setChatState: (newState) => {
     if (newState === ChatState.SESSION_LISTING) {

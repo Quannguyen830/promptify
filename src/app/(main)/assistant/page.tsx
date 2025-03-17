@@ -1,4 +1,4 @@
-import AssistantInput from "~/components/assistant/assistant-input";
+import AssistantInput from "~/components/assistant/input/assistant-input";
 import AssistantMessageViewer from "~/components/assistant/assistant-message-viewer";
 import AssistantSidebar from "~/components/assistant/assistant-sidebar";
 
@@ -14,10 +14,10 @@ export default function AssistantPage() {
 
         {/* message viewer */}
         <AssistantMessageViewer />
-        <AssistantInput />
+        <AssistantInput className="flex-none h-[161px]"/>
       </div>
 
-      <AssistantSidebar className="" />
+      <AssistantSidebar />
     </div>
   )
 } 
