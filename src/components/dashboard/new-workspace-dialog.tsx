@@ -46,7 +46,9 @@ export function NewWorkspaceDialog({ open, onOpenChange, onClose }: NewFolderDia
           updatedAt: new Date(),
           itemType: "workspace",
           hasSubfolders: false,
-          size: 0
+          size: 0,
+          lastAccessed: null,
+          image: null
         }];
       });
 

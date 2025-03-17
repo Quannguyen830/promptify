@@ -1,0 +1,7 @@
+services:
+  word-processor-server:
+    image: quannguyen830/word-processor-server
+    environment:
+      SYNCFUSION_LICENSE_KEY: "Ngo9BigBOggjHTQxAR8/V1NMaF5cXmBCf1FpRmJGdld5fUVHYVZUTXxaS00DNHVRdkdmWX1ccHRQRmJeVkRzWEo="
+    ports:
+      - "6002:80"

@@ -74,9 +74,9 @@ export function WorkspaceSelector({ onSelect }: WorkspaceSelectorProps) {
           const subfolders = allFolders.filter(folder => folder.parentFolderId === selectedItem.id);
           setWorkspaceOrFolderList(subfolders);
         } else if ('folders' in selectedItem) {
-          const folders = selectedItem.folders as Folder[];
-          const filteredRootFolders = folders.filter(folder => folder.parentFolderId === null && folder.workspaceId === selectedItem.id);
-          setWorkspaceOrFolderList(filteredRootFolders);
+          const folders = selectedItem.folders;
+          const filteredRootFolders = folders?.filter(folder => folder.parentFolderId === null && folder.workspaceId === selectedItem.id);
+          setWorkspaceOrFolderList(filteredRootFolders ?? []);
         }
       }
     }
@@ -120,14 +120,15 @@ export function WorkspaceSelector({ onSelect }: WorkspaceSelectorProps) {
             >
               <Briefcase className="h-4 w-4" />
               <span className="flex-1">{item.name}</span>
-              {item.hasSubfolders &&
+              {'folders' in item || ('workspaceId' in item && allFolders.some(folder => folder.parentFolderId === item.id)) ? (
                 <ChevronRight
                   className="h-4 w-4"
                   onClick={(e) => {
                     e.stopPropagation();
                     handleNextButtonClick(item)
                   }}
-                />}
+                />
+              ) : null}
             </button>
           ))}
         </div>

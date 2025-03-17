@@ -40,16 +40,22 @@ export const MyDrive = {
   name: "My Drive"
 }
 
-export interface S3FileResponse {
-  message: string
-  body: string
-  type: string
-  signedUrl?: string
+export interface FolderHistoryItem extends Root {
+  files?: File[];
+  folders?: Folder[];
 }
 
-export type FolderHistoryItem = Workspace | Folder | Root;
+export type Parent = (Workspace & { files: File[] }) |
+  (Folder & { files: File[] } & { workspaceId: string } & { workspaceName: string });
 
-export type Parent = Workspace | Folder;
+export type WorkspaceWithRelations = Workspace & {
+  files: File[];
+  folders: (Folder & { files: File[] })[];
+};
+
+export type FolderWithRelations = Folder & {
+  files: File[];
+};
 
 // CHAT SECTION
 export interface ChatInputForm {
