@@ -2,8 +2,8 @@ import ChatInput from "./chat-input";
 import { Button } from "../ui/button";
 import { ArrowLeft } from "lucide-react";
 import { ChatSessionListing } from "./chat-session-listing";
-import { MessageViewer } from "./message-viewer";
 import { ChatState, useChat } from "./chat-store";
+import MessageViewer from "./message-viewer";
 
 export function ChatSection() {
   const {
@@ -33,7 +33,7 @@ export function ChatSection() {
         )}
 
         {selectedSessionId && chatState === ChatState.SESSION_SELECTED && (
-          <MessageViewer />
+          <MessageViewer className="overflow-y-auto h-full flex-1 flex flex-col gap-2 p-4" />
         )}
       </div>
 

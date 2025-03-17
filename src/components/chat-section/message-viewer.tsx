@@ -3,8 +3,9 @@ import { ChatState, useChat } from "./chat-store"
 import ChatBubble from "./chat-bubble";
 import Loading from "../share/loading-spinner";
 import { MessageStreamViewer } from "./message-stream-bubble";
+import { type BaseProps } from "~/constants/interfaces";
 
-export function MessageViewer() {
+const MessageViewer: React.FC<BaseProps> = ({ className }) => {
   const {
     chatState,
     isStreaming,
@@ -25,7 +26,7 @@ export function MessageViewer() {
   }
 
   return (
-    <div className="overflow-y-auto h-full flex-1 flex flex-col gap-2 p-4">
+    <div className={`${className}`}>
       {chatSession?.messages.map((message, index) => (
         <ChatBubble key={index} variant={message.sender}>
           {message.content}
@@ -36,3 +37,4 @@ export function MessageViewer() {
     </div>
   )
 }
+export default MessageViewer;
