@@ -22,18 +22,18 @@ import { cn } from '~/lib/utils'
 export function Sidebar() {
   const [isWorkspaceOpen, setIsWorkspaceOpen] = useState(true);
   const pathname = usePathname();
-  
+
   const mainNavigation = useMemo(() => [
-    { name: 'Dashboard', icon: Home, href: 'dashboard' },
-    { name: 'AI Assistant', icon: FileText, href: 'assistant' },
+    { name: 'Dashboard', icon: Home, href: '/dashboard' },
+    { name: 'AI Assistant', icon: FileText, href: '/assistant' },
   ], []);
   const quickAccess = useMemo(() => [
-    { name: 'Recent', icon: Clock, href: 'recents' },
-    { name: 'Starred', icon: Star, href: 'starred' },
-    { name: 'Deleted', icon: Trash2, href: 'deleted' },
+    { name: 'Recent', icon: Clock, href: '/recents' },
+    { name: 'Starred', icon: Star, href: '/starred' },
+    { name: 'Deleted', icon: Trash2, href: '/deleted' },
   ], []);
 
-  const isActivePath = (href: string) => pathname.includes(href);
+  const isActivePath = (href: string) => pathname === href || pathname.startsWith(href);
 
   return (
     <SidebarCn collapsible='icon' defaultValue={25}>

@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
-import { uploadFileToS3 } from "~/server/services/s3-service";
+import { deleteFileFromS3, uploadFileToS3 } from "~/server/services/s3-service";
 import { s3Bucket, s3Client } from "~/config/S3-client";
 import { GetObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
@@ -46,6 +46,8 @@ export const fileRouter = createTRPCRouter({
           id: input.fileId
         }
       })
+
+      await deleteFileFromS3(removedFile.id)
 
       return removedFile.name;
     }),

@@ -20,35 +20,89 @@ interface FolderCardProps {
 export function FolderCard({ id, title, subtitle, icon }: FolderCardProps) {
   const utils = api.useUtils();
 
-  const { mutate: removeFolder } = api.folder.deleteFolderByFolderId.useMutation(
-    {
-      onMutate: () => {
-        void utils.workspace.listWorkspaceByUserId.cancel();
+  const { mutate: removeFolder } = api.folder.deleteFolderByFolderId.useMutation({
+    onMutate: () => {
+      void utils.workspace.listWorkspaceByUserId.cancel()
+      void utils.workspace.getWorkspaceByWorkspaceId.cancel()
+      void utils.folder.getFolderContentByFolderId.cancel()
 
-        const previousWorkspaces = utils.workspace.listWorkspaceByUserId.getData();
+      const previousWorkspaces = utils.workspace.listWorkspaceByUserId.getData()
+      const workspaces = previousWorkspaces ?? []
 
-        utils.workspace.listWorkspaceByUserId.setData(undefined, (prev) => {
-          if (!prev) return prev;
+      // Find the folder to get its workspace and parent folder IDs
+      const folder = workspaces.flatMap(w => w.folders).find(f => f.id === id)
+      if (!folder) return { previousWorkspaces }
 
-          return prev.map(workspace => {
-            return {
-              ...workspace,
-              folders: workspace.folders.filter(folder => folder.id !== id)
-            }
-          })
-        });
+      // Store previous states
+      const previousWorkspace = folder.workspaceId
+        ? utils.workspace.getWorkspaceByWorkspaceId.getData({ workspaceId: folder.workspaceId })
+        : undefined
+      const previousParentFolder = folder.parentFolderId
+        ? utils.folder.getFolderContentByFolderId.getData({ folderId: folder.parentFolderId })
+        : undefined
 
-        return { previousWorkspaces };
-      },
-      onSuccess: () => {
-        void utils.workspace.listWorkspaceByUserId.invalidate();
-      },
-      onError: (error, variables, context) => {
-        utils.workspace.listWorkspaceByUserId.setData(undefined, context?.previousWorkspaces);
-        console.error("Error removing folder:", error);
+      // Update workspace view
+      if (folder.workspaceId) {
+        utils.workspace.getWorkspaceByWorkspaceId.setData(
+          { workspaceId: folder.workspaceId },
+          (prev) => prev ? {
+            ...prev,
+            folders: prev.folders.filter(f => f.id !== id)
+          } : prev
+        )
+      }
+
+      // Update parent folder view
+      if (folder.parentFolderId) {
+        utils.folder.getFolderContentByFolderId.setData(
+          { folderId: folder.parentFolderId },
+          (prev) => prev ? {
+            ...prev,
+            subfolders: prev.subfolders.filter(f => f.id !== id)
+          } : prev
+        )
+      }
+
+      // Update dashboard view
+      utils.workspace.listWorkspaceByUserId.setData(
+        undefined,
+        (prev) => prev?.map(workspace => ({
+          ...workspace,
+          folders: workspace.folders.filter(f => f.id !== id)
+        }))
+      )
+
+      return { previousWorkspaces, previousWorkspace, previousParentFolder }
+    },
+
+    onSuccess: () => {
+      void utils.workspace.listWorkspaceByUserId.invalidate()
+      void utils.workspace.getWorkspaceByWorkspaceId.invalidate()
+      void utils.folder.getFolderContentByFolderId.invalidate()
+    },
+
+    onError: (error, variables, context) => {
+      if (context) {
+        utils.workspace.listWorkspaceByUserId.setData(undefined, context.previousWorkspaces)
+
+        const folder = context.previousWorkspaces?.flatMap(w => w.folders).find(f => f.id === id)
+        if (folder) {
+          if (folder.workspaceId && context.previousWorkspace) {
+            utils.workspace.getWorkspaceByWorkspaceId.setData(
+              { workspaceId: folder.workspaceId },
+              context.previousWorkspace
+            )
+          }
+          if (folder.parentFolderId && context.previousParentFolder) {
+            utils.folder.getFolderContentByFolderId.setData(
+              { folderId: folder.parentFolderId },
+              context.previousParentFolder
+            )
+          }
+        }
       }
     }
-  );
+  });
 
   const handleRemove = () => {
     removeFolder({ folderId: id });
