@@ -14,7 +14,9 @@ export default function AuthenticatedLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
+          <div className="min-h-screen bg-white">
+            {children}
+          </div>
         </ThemeProvider>
       </body>
     </html>
