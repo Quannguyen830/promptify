@@ -1,35 +1,56 @@
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "~/components/ui/alert-dialog"
+"use client"
+
+import * as React from "react"
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "~/components/ui/dialog"
+import { Button } from "~/components/ui/button"
+import { AlertTriangle } from "lucide-react"
 
 interface DeleteWarningDialogProps {
-  isOpen: boolean
-  onClose: () => void
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  onConfirm: () => void
+  title: string
+  description: string
 }
 
-export function DeleteWarningDialog({ isOpen, onClose }: DeleteWarningDialogProps) {
+export function DeleteWarningDialog({
+  open,
+  onOpenChange,
+  onConfirm,
+  title,
+  description
+}: DeleteWarningDialogProps) {
   return (
-    <AlertDialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-          <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete your
-            account and remove your data from our servers.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel onClick={onClose}>Cancel</AlertDialogCancel>
-          <AlertDialogAction>Continue</AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2 text-destructive">
+            <AlertTriangle className="h-5 w-5" />
+            {title}
+          </DialogTitle>
+        </DialogHeader>
+
+        <div className="py-4">
+          <p className="text-sm text-muted-foreground">{description}</p>
+        </div>
+
+        <DialogFooter>
+          <div className="flex justify-end gap-2">
+            <Button variant="ghost" onClick={() => onOpenChange(false)}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                onConfirm()
+                onOpenChange(false)
+              }}
+            >
+              Delete
+            </Button>
+          </div>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   )
-}
+} 

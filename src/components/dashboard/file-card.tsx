@@ -11,8 +11,11 @@ import Image from "next/image"
 import { type FileCardProps } from '~/constants/interfaces'
 import { api } from '~/trpc/react'
 import Link from 'next/link'
+import { useState } from 'react'
+import { DeleteWarningDialog } from './delete-warning-dialog'
 
 export function FileCard({ id, title, date, imageUrl, subtitle }: FileCardProps) {
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const utils = api.useUtils();
 
   const { mutate: removeFile } = api.file.deleteFileByFileId.useMutation({
@@ -99,11 +102,22 @@ export function FileCard({ id, title, date, imageUrl, subtitle }: FileCardProps)
     }
   });
   const handleRemove = () => {
-    removeFile({ fileId: id });
+    setShowDeleteDialog(true)
+  }
+
+  const handleConfirmDelete = () => {
+    removeFile({ fileId: id })
   }
 
   return (
     <>
+      <DeleteWarningDialog
+        open={showDeleteDialog}
+        onOpenChange={setShowDeleteDialog}
+        onConfirm={handleConfirmDelete}
+        title="Delete File"
+        description={`Are you sure you want to delete "${title}"? This action cannot be undone.`}
+      />
       <Card className="hover:bg-accent cursor-pointer transition-colors">
         <Link href={`/file/${id}`}>
           <CardHeader className="p-0">

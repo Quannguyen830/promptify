@@ -9,6 +9,8 @@ import {
 } from "~/components/ui/dropdown-menu"
 import Link from "next/link"
 import { api } from '~/trpc/react'
+import { useState } from 'react'
+import { DeleteWarningDialog } from './delete-warning-dialog'
 
 interface FolderCardProps {
   id: string
@@ -18,6 +20,7 @@ interface FolderCardProps {
 }
 
 export function FolderCard({ id, title, subtitle, icon }: FolderCardProps) {
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const utils = api.useUtils();
 
   const { mutate: removeFolder } = api.folder.deleteFolderByFolderId.useMutation({
@@ -105,11 +108,23 @@ export function FolderCard({ id, title, subtitle, icon }: FolderCardProps) {
   });
 
   const handleRemove = () => {
-    removeFolder({ folderId: id });
+    setShowDeleteDialog(true)
+  }
+
+  const handleConfirmDelete = () => {
+    removeFolder({ folderId: id })
   }
 
   return (
     <>
+      <DeleteWarningDialog
+        open={showDeleteDialog}
+        onOpenChange={setShowDeleteDialog}
+        onConfirm={handleConfirmDelete}
+        title="Delete Folder"
+        description={`Are you sure you want to delete "${title}"? All contents within this folder will be permanently deleted. This action cannot be undone.`}
+      />
+
       <Card className="group relative hover:bg-accent transition-colors">
         <Link href={`/folder/${id}`} className="block">
           <div className="p-4 flex items-start">

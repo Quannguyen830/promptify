@@ -2,11 +2,10 @@
 
 import { SuggestedSection } from "~/components/dashboard/suggested-section"
 import { api } from "~/trpc/react"
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useDashboardStore } from "~/components/dashboard/dashboard-store"
 import { Navbar } from "~/components/dashboard/navbar"
 import Loading from "~/components/share/loading-spinner"
-import { type File, type Folder } from "@prisma/client"
 import { SlidingTab } from "~/components/dashboard/sliding-tab"
 import { Toolbox } from "~/components/dashboard/toolbox"
 
