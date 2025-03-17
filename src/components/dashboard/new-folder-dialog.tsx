@@ -5,12 +5,13 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Input } from "~/components/ui/input"
 import { Button } from "~/components/ui/button"
 import { Label } from "~/components/ui/label"
-import { FolderPlus } from "lucide-react"
+import { FolderPlus, ArrowLeft } from "lucide-react"
 import { useRef, useState, type ChangeEvent } from "react"
-import { type Folder } from "@prisma/client"
+import { type Folder, type Workspace } from "@prisma/client"
 import { api } from "~/trpc/react"
 import { useRouter } from "next/navigation"
 import { useDashboardStore } from "./dashboard-store"
+import { WorkspaceSelector } from "./workspace-selector-dialog"
 
 interface NewFolderDialogProps {
   open: boolean
@@ -18,12 +19,30 @@ interface NewFolderDialogProps {
   onClose: () => void
 }
 
+type Step = "workspace" | "folder"
+
 export function NewFolderDialog({ open, onOpenChange, onClose }: NewFolderDialogProps) {
+  const [step, setStep] = useState<Step>("workspace")
+  const [selectedParent, setSelectedParent] = useState<Workspace | Folder | null>(null)
   const [folderName, setFolderName] = useState("")
   const inputRef = useRef<HTMLInputElement>(null)
   const utils = api.useUtils()
   const router = useRouter()
   const currentParent = useDashboardStore((state) => state.currentParent)
+
+  // Reset state when dialog opens
+  React.useEffect(() => {
+    if (open) {
+      if (currentParent) {
+        setStep("folder")
+        setSelectedParent(currentParent)
+      } else {
+        setStep("workspace")
+        setSelectedParent(null)
+      }
+      setFolderName("")
+    }
+  }, [open, currentParent])
 
   const createFolderMutation = api.folder.createNewFolder.useMutation({
     onMutate: () => {
@@ -31,27 +50,30 @@ export function NewFolderDialog({ open, onOpenChange, onClose }: NewFolderDialog
       void utils.workspace.getWorkspaceByWorkspaceId.cancel()
       void utils.folder.getFolderContentByFolderId.cancel()
 
+      const parent = currentParent ?? selectedParent
+      if (!parent) return {}
+
       const previousWorkspaces = utils.workspace.listWorkspaceByUserId.getData()
-      const previousWorkspace = currentParent?.itemType === 'workspace'
-        ? utils.workspace.getWorkspaceByWorkspaceId.getData({ workspaceId: currentParent.id })
+      const previousWorkspace = parent.itemType === 'workspace'
+        ? utils.workspace.getWorkspaceByWorkspaceId.getData({ workspaceId: parent.id })
         : undefined
-      const previousFolder = currentParent?.itemType === 'folder'
-        ? utils.folder.getFolderContentByFolderId.getData({ folderId: currentParent.id })
+      const previousFolder = parent.itemType === 'folder'
+        ? utils.folder.getFolderContentByFolderId.getData({ folderId: parent.id })
         : undefined
 
       const newFolder = {
         id: "new-folder",
         name: folderName,
-        workspaceId: currentParent?.itemType === 'workspace'
-          ? currentParent.id
-          : (currentParent as Folder).workspaceId,
-        workspaceName: currentParent?.itemType === 'workspace'
-          ? currentParent.name
-          : (currentParent as Folder).workspaceName,
+        workspaceId: parent.itemType === 'workspace'
+          ? parent.id
+          : (parent as Folder).workspaceId,
+        workspaceName: parent.itemType === 'workspace'
+          ? parent.name
+          : (parent as Folder).workspaceName,
         itemType: "folder",
         hasSubfolders: false,
         size: 0,
-        parentFolderId: currentParent?.itemType === 'folder' ? currentParent.id : null,
+        parentFolderId: parent.itemType === 'folder' ? parent.id : null,
         createdAt: new Date(),
         updatedAt: new Date(),
         lastAccessed: null,
@@ -60,17 +82,18 @@ export function NewFolderDialog({ open, onOpenChange, onClose }: NewFolderDialog
         subfolders: []
       }
 
-      if (currentParent?.itemType === 'workspace') {
+      // Update views based on parent type
+      if (parent.itemType === 'workspace') {
         utils.workspace.getWorkspaceByWorkspaceId.setData(
-          { workspaceId: currentParent.id },
+          { workspaceId: parent.id },
           (prev) => prev ? {
             ...prev,
             folders: [...prev.folders, newFolder]
           } : prev
         )
-      } else if (currentParent?.itemType === 'folder') {
+      } else if (parent.itemType === 'folder') {
         utils.folder.getFolderContentByFolderId.setData(
-          { folderId: currentParent.id },
+          { folderId: parent.id },
           (prev) => prev ? {
             ...prev,
             subfolders: [...prev.subfolders, newFolder]
@@ -78,10 +101,11 @@ export function NewFolderDialog({ open, onOpenChange, onClose }: NewFolderDialog
         )
       }
 
+      // Update dashboard view
       utils.workspace.listWorkspaceByUserId.setData(
         undefined,
         (prev) => {
-          if (!prev || !currentParent) return prev
+          if (!prev) return prev
 
           return prev.map(workspace => {
             if (workspace.id === newFolder.workspaceId) {
@@ -95,32 +119,31 @@ export function NewFolderDialog({ open, onOpenChange, onClose }: NewFolderDialog
         }
       )
 
-      return {
-        previousWorkspaces,
-        previousWorkspace,
-        previousFolder
-      }
+      return { previousWorkspaces, previousWorkspace, previousFolder }
     },
 
     onSuccess: () => {
+      const parent = currentParent ?? selectedParent
+      if (!parent) return
+
       void utils.workspace.listWorkspaceByUserId.invalidate()
-      if (currentParent?.itemType === 'workspace') {
-        void utils.workspace.getWorkspaceByWorkspaceId.invalidate({ workspaceId: currentParent.id })
-      } else if (currentParent?.itemType === 'folder') {
-        void utils.folder.getFolderContentByFolderId.invalidate({ folderId: currentParent.id })
+      if (parent.itemType === 'workspace') {
+        void utils.workspace.getWorkspaceByWorkspaceId.invalidate({ workspaceId: parent.id })
+      } else if (parent.itemType === 'folder') {
+        void utils.folder.getFolderContentByFolderId.invalidate({ folderId: parent.id })
       }
     },
 
     onError: (error, variables, context) => {
-      utils.workspace.listWorkspaceByUserId.setData(undefined, context?.previousWorkspaces)
+      void utils.workspace.listWorkspaceByUserId.invalidate()
 
       if (currentParent?.itemType === 'workspace' && context?.previousWorkspace) {
-        utils.workspace.getWorkspaceByWorkspaceId.setData(
+        void utils.workspace.getWorkspaceByWorkspaceId.setData(
           { workspaceId: currentParent.id },
           context.previousWorkspace
         )
       } else if (currentParent?.itemType === 'folder' && context?.previousFolder) {
-        utils.folder.getFolderContentByFolderId.setData(
+        void utils.folder.getFolderContentByFolderId.setData(
           { folderId: currentParent.id },
           context.previousFolder
         )
@@ -128,29 +151,30 @@ export function NewFolderDialog({ open, onOpenChange, onClose }: NewFolderDialog
     }
   })
 
+  const handleWorkspaceSelect = (selected: Workspace | Folder) => {
+    setSelectedParent(selected)
+    setStep("folder")
+  }
+
   const handleCreate = async () => {
-    if (!currentParent || !folderName.trim()) return
+    const parent = currentParent ?? selectedParent
+    if (!parent || !folderName.trim()) return
 
     onClose()
 
     const uploadPayload = {
-      workspaceId: currentParent.itemType === 'workspace'
-        ? currentParent.id
-        : (currentParent as Folder).workspaceId,
-      workspaceName: currentParent.itemType === 'workspace'
-        ? currentParent.name
-        : (currentParent as Folder).workspaceName,
+      workspaceId: parent.itemType === 'workspace'
+        ? parent.id
+        : (parent as Folder).workspaceId,
+      workspaceName: parent.itemType === 'workspace'
+        ? parent.name
+        : (parent as Folder).workspaceName,
       name: folderName,
-      parentsFolderId: currentParent.itemType === 'folder' ? currentParent.id : undefined
+      parentsFolderId: parent.itemType === 'folder' ? parent.id : undefined
     }
 
     const newFolderId = await createFolderMutation.mutateAsync(uploadPayload)
     router.push(`/folder/${newFolderId}`)
-  }
-
-  const handleClose = () => {
-    setFolderName("")
-    onClose()
   }
 
   return (
@@ -159,38 +183,57 @@ export function NewFolderDialog({ open, onOpenChange, onClose }: NewFolderDialog
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <FolderPlus className="h-5 w-5" />
-            New Folder
+            {step === "workspace" ? "Select Location" : "New Folder"}
           </DialogTitle>
         </DialogHeader>
 
-        <div className="py-4 space-y-4">
-          <div className="text-sm text-muted-foreground">
-            Creating folder in: {currentParent?.name ?? "My Drive"}
+        {!currentParent && step === "workspace" ? (
+          <WorkspaceSelector onSelect={handleWorkspaceSelect} />
+        ) : (
+          <div className="py-4 space-y-4">
+            {!currentParent && (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Button variant="ghost" size="sm" className="gap-1"
+                  onClick={() => setStep("workspace")}
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                  Back
+                </Button>
+                Creating folder in: {selectedParent?.name}
+              </div>
+            )}
+            {currentParent && (
+              <div className="text-sm text-muted-foreground">
+                Creating folder in: {currentParent.name}
+              </div>
+            )}
+            <div className="space-y-2">
+              <Label htmlFor="folderName">Folder name</Label>
+              <Input
+                id="folderName"
+                ref={inputRef}
+                value={folderName}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setFolderName(e.target.value)}
+                placeholder="Untitled folder"
+                className="border-primary"
+              />
+            </div>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="folderName">Folder name</Label>
-            <Input
-              id="folderName"
-              ref={inputRef}
-              value={folderName}
-              onChange={(e: ChangeEvent<HTMLInputElement>) => setFolderName(e.target.value)}
-              placeholder="Untitled folder"
-              className="border-primary"
-            />
-          </div>
-        </div>
+        )}
 
         <DialogFooter>
           <div className="flex justify-end gap-2">
-            <Button variant="ghost" onClick={handleClose}>
+            <Button variant="ghost" onClick={onClose}>
               Cancel
             </Button>
-            <Button
-              onClick={handleCreate}
-              disabled={!folderName.trim() || !currentParent}
-            >
-              Create
-            </Button>
+            {step === "folder" && (
+              <Button
+                onClick={handleCreate}
+                disabled={!folderName.trim() || !(currentParent ?? selectedParent)}
+              >
+                Create
+              </Button>
+            )}
           </div>
         </DialogFooter>
       </DialogContent>
