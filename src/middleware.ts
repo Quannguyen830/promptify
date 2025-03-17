@@ -12,7 +12,7 @@ export function middleware(request: NextRequest) {
 
   const isPublicPath = publicPaths.some(path => pathname.startsWith(path));
 
-  const token = request.cookies.get("authjs.session-token")?.value;
+  const token = request.cookies.get(process.env.NODE_ENV === 'production' ? '__Secure-authjs.session-token' : 'authjs.session-token')?.value;
 
   if (isPublicPath && token) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
