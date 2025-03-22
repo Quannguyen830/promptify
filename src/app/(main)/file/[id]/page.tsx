@@ -6,7 +6,11 @@ import { api } from "~/trpc/react"
 import Loading from "~/components/share/loading-spinner"
 import TextEditorPage from "~/components/file-editor/text-editor-page"
 import PdfPage from "~/components/file-editor/pdf-page"
-import { useDashboardStore } from "~/components/dashboard/dashboard-store"
+import { registerLicense } from '@syncfusion/ej2-base';
+
+if (typeof window !== 'undefined') {
+  registerLicense("Ngo9BigBOggjHTQxAR8/V1NMaF5cXmBCf1FpRmJGdld5fUVHYVZUTXxaS00DNHVRdkdmWXxccHZUQ2VcWUNxVko=");
+}
 
 export default function FilePage() {
   const { id } = useParams<{ id: string }>();
@@ -19,7 +23,7 @@ export default function FilePage() {
   if (error) return <div>Error: {error.message}</div>;
 
   return (
-    <div className="flex flex-col h-screen">
+    <div className="flex flex-col h-screen w-full">
       {
         fetchedFile?.type === "pdf" ? (
           <PdfPage documentLink={fetchedFile.signedUrl} />

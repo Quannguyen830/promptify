@@ -1,7 +1,7 @@
 services:
   word-processor-server:
-    image: quannguyen830/word-processor-server
+    image: quannguyen830/word-processor-server:latest
     environment:
-      SYNCFUSION_LICENSE_KEY: "Ngo9BigBOggjHTQxAR8/V1NMaF5cXmBCf1FpRmJGdld5fUVHYVZUTXxaS00DNHVRdkdmWX1ccHRQRmJeVkRzWEo="
+      SYNCFUSION_LICENSE_KEY: "Ngo9BigBOggjHTQxAR8/V1NMaF5cXmBCf1FpRmJGdld5fUVHYVZUTXxaS00DNHVRdkdmWXxccHZUQ2VcWUNxVko="
     ports:
       - "6002:80"

@@ -166,19 +166,19 @@ export default function TextEditorPage({
     'Separator',
     'Find',
     'Separator',
-    'Comments',
-    'TrackChanges',
-    'Separator',
-    'LocalClipboard',
-    'RestrictEditing',
-    'Separator',
-    'FormFields',
-    'UpdateFields',
-    'ContentControl'
+    // 'Comments',
+    // 'TrackChanges',
+    // 'Separator',
+    // 'LocalClipboard',
+    // 'RestrictEditing',
+    // 'Separator',
+    // 'FormFields',
+    // 'UpdateFields',
+    // 'ContentControl'
   ];
 
   return (
-    <div className="h-full">
+    <div className="h-full w-full px-4 overflow-hidden">
       <DocumentEditorContainerComponent
         id="container"
         height='100%'
@@ -188,7 +188,6 @@ export default function TextEditorPage({
         toolbarItems={customToolbarItems as (CustomToolbarItemModel | ToolbarItem)[]}
         toolbarClick={handleToolbarClick}
         contentChange={handleContentChange}
-        showPropertiesPane={false}
       />
 
       <SelectFileDialog
