@@ -41,6 +41,7 @@ export default function TestPage() {
       <DocumentEditorContainerComponent
         id="container"
         height='100%'
+        width='calc(100vh-208px)'
         serviceUrl="http://localhost:6002/api/documenteditor"
         enableToolbar={true}
         ref={containerRef}
