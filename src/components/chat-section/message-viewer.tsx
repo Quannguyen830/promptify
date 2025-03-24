@@ -1,9 +1,12 @@
 import { api } from "~/trpc/react"
-import { ChatState, useChat } from "./chat-store"
-import ChatBubble from "./chat-bubble";
-import Loading from "../share/loading-spinner";
-import { MessageStreamViewer } from "./message-stream-bubble";
 import { type BaseProps } from "~/constants/interfaces";
+import { ChatState, useChat } from "./chat-store"
+
+import ChatBubble from "./chat-bubble";
+import { MessageStreamViewer } from "./message-stream-bubble";
+
+import Loading from "../share/loading-spinner";
+
 
 const MessageViewer: React.FC<BaseProps> = ({ className }) => {
   const {
@@ -22,7 +25,9 @@ const MessageViewer: React.FC<BaseProps> = ({ className }) => {
   )
   
   if (isLoading) {
-    return <Loading />
+    return (
+      <Loading className="h-full" />
+    ) 
   }
 
   return (

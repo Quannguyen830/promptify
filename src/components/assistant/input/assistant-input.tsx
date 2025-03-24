@@ -4,6 +4,7 @@ import { SendHorizonal } from "lucide-react";
 import { Button } from "~/components/ui/button";
 
 const AssistantInput: React.FC<BaseProps> = ({ className }) => {
+  
   return (
     <form className={`h-[161px] box-border w-full bg-gray-50 rounded-sm p-3 ${className}`}>
       <AssistantInputToolbar />

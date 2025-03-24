@@ -14,7 +14,7 @@ export default function AssistantPage() {
 
         {/* message viewer */}
         <AssistantMessageViewer />
-        <AssistantInput className="flex-none h-[161px]"/>
+        <AssistantInput className="flex-none h-[161px] justify-end"/>
       </div>
 
       <AssistantSidebar />

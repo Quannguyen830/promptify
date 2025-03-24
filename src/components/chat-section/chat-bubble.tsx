@@ -18,7 +18,7 @@ const ChatBubble = ({ className, children, variant }: ChatBubbleProps) => {
   return (
     <>
       {variant === "AGENT" ? (
-        <div className={`${AGENT_BUBBLE_STYLE} ${className}`}>
+        <div className={` ${AGENT_BUBBLE_STYLE} ${className}`}>
           <p>{children}</p>
         </div>
       ) : (

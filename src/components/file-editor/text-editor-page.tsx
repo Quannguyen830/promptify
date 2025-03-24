@@ -109,7 +109,7 @@ export default function TextEditorPage({
   useEffect(() => {
     if (documentName) {
       fetch(
-        'http://52.63.165.192/api/documenteditor/LoadFromS3',
+        'https://52.63.165.192/api/documenteditor/LoadFromS3',
         {
           method: 'Post',
           headers: { 'Content-Type': 'application/json;charset=UTF-8' },
@@ -182,7 +182,7 @@ export default function TextEditorPage({
       <DocumentEditorContainerComponent
         id="container"
         height='100%'
-        serviceUrl="http://52.63.165.192/api/documenteditor"
+        serviceUrl="https://52.63.165.192/api/documenteditor"
         enableToolbar={true}
         ref={containerRef}
         toolbarItems={customToolbarItems as (CustomToolbarItemModel | ToolbarItem)[]}

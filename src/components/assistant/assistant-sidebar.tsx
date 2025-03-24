@@ -52,7 +52,7 @@ const AssistantSidebar: React.FC<BaseProps> = ({ className }) => {
 
         <Separator/>
 
-        <AssistantTopicListing />
+        <AssistantTopicListing className="pt-3" />
       </SidebarHeader>
 
 
