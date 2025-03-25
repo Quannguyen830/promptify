@@ -178,7 +178,7 @@ export default function TextEditorPage({
   ];
 
   return (
-    <div className="h-full w-full px-4 overflow-hidden">
+    <div className="h-full w-[calc(100vw-208px)]">
       <DocumentEditorContainerComponent
         id="container"
         height='100%'

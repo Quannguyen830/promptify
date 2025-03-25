@@ -27,7 +27,7 @@ export default function AuthenticatedLayout({
               <div className="h-screen w-full overflow-hidden flex">
                 <Sidebar />
 
-                <main className='w-[calc(100vw-208px)] h-full'>
+                <main className='flex-1 h-full'>
                   {children}
                 </main>
               </div>
