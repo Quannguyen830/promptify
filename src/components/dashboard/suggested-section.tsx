@@ -1,10 +1,9 @@
-import { ChevronDown, Folder as FolderIcon, AlertTriangle, ChevronUp } from 'lucide-react'
+import { Folder as FolderIcon, AlertTriangle } from 'lucide-react'
 import { Button } from "~/components/ui/button"
 import { FolderCard } from "./folder-card"
 import { FileCard } from "./file-card"
 import { type Folder, type File, type Workspace } from '@prisma/client'
 import { WorkspaceCard } from "./workspace-card"
-import { useState } from 'react'
 import { cn } from '~/lib/utils'
 
 interface SuggestedSectionProps {

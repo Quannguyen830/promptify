@@ -44,6 +44,7 @@ export function FileCard({ id, title, date, imageUrl, subtitle }: FileCardProps)
       }
     }
   );
+
   const handleRemove = () => {
     removeFile({ fileId: id });
   }
