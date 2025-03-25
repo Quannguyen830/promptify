@@ -109,7 +109,7 @@ export default function TextEditorPage({
   useEffect(() => {
     if (documentName) {
       fetch(
-        'https://52.63.165.192/api/documenteditor/LoadFromS3',
+        'https://promptify-wordprocessor-server.duckdns.org/api/documenteditor/LoadFromS3',
         {
           method: 'Post',
           headers: { 'Content-Type': 'application/json;charset=UTF-8' },
@@ -166,29 +166,28 @@ export default function TextEditorPage({
     'Separator',
     'Find',
     'Separator',
-    'Comments',
-    'TrackChanges',
-    'Separator',
-    'LocalClipboard',
-    'RestrictEditing',
-    'Separator',
-    'FormFields',
-    'UpdateFields',
-    'ContentControl'
+    // 'Comments',
+    // 'TrackChanges',
+    // 'Separator',
+    // 'LocalClipboard',
+    // 'RestrictEditing',
+    // 'Separator',
+    // 'FormFields',
+    // 'UpdateFields',
+    // 'ContentControl'
   ];
 
   return (
-    <div className="h-full">
+    <div className="h-full w-full px-4 overflow-hidden">
       <DocumentEditorContainerComponent
         id="container"
         height='100%'
-        serviceUrl="https://52.63.165.192/api/documenteditor"
+        serviceUrl="https://promptify-wordprocessor-server.duckdns.org/api/documenteditor"
         enableToolbar={true}
         ref={containerRef}
         toolbarItems={customToolbarItems as (CustomToolbarItemModel | ToolbarItem)[]}
         toolbarClick={handleToolbarClick}
         contentChange={handleContentChange}
-        showPropertiesPane={false}
       />
 
       <SelectFileDialog
