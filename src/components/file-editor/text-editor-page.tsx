@@ -109,7 +109,7 @@ export default function TextEditorPage({
   useEffect(() => {
     if (documentName) {
       fetch(
-        'https://promptify-wordprocessor-server.duckdns.org/api/documenteditor/LoadFromS3',
+        `${process.env.NEXT_PUBLIC_DOCUMENT_EDITOR_WEB_SERVER_URL}/LoadFromS3`,
         {
           method: 'Post',
           headers: { 'Content-Type': 'application/json;charset=UTF-8' },
@@ -182,7 +182,7 @@ export default function TextEditorPage({
       <DocumentEditorContainerComponent
         id="container"
         height='100%'
-        serviceUrl="https://promptify-wordprocessor-server.duckdns.org/api/documenteditor"
+        serviceUrl={process.env.NEXT_PUBLIC_DOCUMENT_EDITOR_WEB_SERVER_URL}
         enableToolbar={true}
         ref={containerRef}
         toolbarItems={customToolbarItems as (CustomToolbarItemModel | ToolbarItem)[]}
