@@ -33,7 +33,7 @@ export const fileRouter = createTRPCRouter({
         }
       })
 
-      await uploadFileToS3(buffer, newFile.id)
+      await uploadFileToS3(buffer, newFile.id, fileType)
 
       return newFile.id;
     }),
@@ -127,7 +127,7 @@ export const fileRouter = createTRPCRouter({
       })
 
       if(file) {
-        await uploadFileToS3(buffer, file.id)
+        await uploadFileToS3(buffer, file.id, file.type)
 
         return file.id;
       }
@@ -158,7 +158,7 @@ export const fileRouter = createTRPCRouter({
       });
 
       const emptyBuffer = Buffer.from("");
-      await uploadFileToS3(emptyBuffer, newFile.id);
+      await uploadFileToS3(emptyBuffer, newFile.id, newFile.type);
 
       return newFile.id;
     }),

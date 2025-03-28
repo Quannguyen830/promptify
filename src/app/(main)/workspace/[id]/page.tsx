@@ -10,6 +10,7 @@ import { useEffect, useState } from 'react'
 import { type Folder } from "@prisma/client"
 import { Navbar } from "~/components/dashboard/navbar"
 import Loading from "~/components/share/loading-spinner"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "~/components/ui/tabs"
 
 export default function WorkspacePage() {
   const { id } = useParams<{ id: string }>();
@@ -48,11 +49,13 @@ export default function WorkspacePage() {
   if (error) return <div>Error: {error.message}</div>;
 
   return (
-    <div className="px-6">
+    <div className="px-6 h-full">
       <Navbar />
 
-      <main className="container mx-auto space-y-6 mt-5">
-        <div className="flex items-center justify-between">
+      <main className="container mx-auto mt-5 h-full">
+        <h1 className="text-2xl font-semibold mb-3">{fetchedWorkspace?.name}</h1>
+
+        <div className="mb-6">
           <FolderBreadcrumb
             items={[
               { id: "MyDrive", label: "MyDrive", href: "/dashboard", current: false, isFolder: false },
@@ -66,8 +69,63 @@ export default function WorkspacePage() {
             ]}
           />
         </div>
-        <SuggestedSection title="Folder contents" type="folders" folders={fetchedFolders} />
-        <SuggestedSection title="File contents" type="files" files={fetchedWorkspace?.files ?? []} />
+
+        <Tabs defaultValue="all" className="w-full h-full">
+          <TabsList className="border-b w-full justify-start h-auto p-0 bg-transparent">
+            <TabsTrigger
+              value="all"
+              className="px-4 py-2 data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none bg-transparent"
+            >
+              All Files
+            </TabsTrigger>
+            <TabsTrigger
+              value="folders"
+              className="px-4 py-2 data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none bg-transparent"
+            >
+              Folder
+            </TabsTrigger>
+            <TabsTrigger
+              value="documents"
+              className="px-4 py-2 data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none bg-transparent"
+            >
+              Document
+            </TabsTrigger>
+            <TabsTrigger
+              value="pdf"
+              className="px-4 py-2 data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none bg-transparent"
+            >
+              PDF
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="all" className="mt-6 h-full">
+            {fetchedFolders && fetchedFolders.length > 0 ? (
+              <SuggestedSection title="Folder contents" type="folders" folders={fetchedFolders} />
+            ) : (
+              <div className="flex flex-col items-center justify-center mt-32">
+                <p className="text-muted-foreground text-center mb-4">This workspace doesn&apos;t have any file.</p>
+                <div className="flex gap-2">
+                  <button className="text-blue-500 hover:underline">Create new file</button>
+                  <span className="text-muted-foreground">or</span>
+                  <button className="text-blue-500 hover:underline">Upload your file</button>
+                  <span className="text-muted-foreground">to get started</span>
+                </div>
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="folders">
+            {/* Folder specific content */}
+          </TabsContent>
+
+          <TabsContent value="documents">
+            {/* Documents specific content */}
+          </TabsContent>
+
+          <TabsContent value="pdf">
+            {/* PDF specific content */}
+          </TabsContent>
+        </Tabs>
       </main>
     </div>
   )
