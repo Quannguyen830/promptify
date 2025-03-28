@@ -34,7 +34,10 @@ export const useChat = create<ChatStore>((set) => ({
 
   isStreaming: false,
   setIsStreaming(value) {
-    set(() => ({ isStreaming: value }))
+    set(() => ({ 
+      isStreaming: value,
+      streamingMessage: ""
+    }))
   },
 
   streamingMessage: "",

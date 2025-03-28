@@ -31,14 +31,14 @@ const MessageViewer: React.FC<BaseProps> = ({ className }) => {
   }
 
   return (
-    <div className={`${className}`}>
+    <div className={` ${className}`}>
       {chatSession?.messages.map((message, index) => (
         <ChatBubble key={index} variant={message.sender}>
           {message.content}
         </ChatBubble>
       ))}
       
-      {isStreaming && <MessageStreamViewer />}
+      {/* {isStreaming && <MessageStreamViewer />} */}
     </div>
   )
 }
