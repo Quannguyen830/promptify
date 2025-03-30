@@ -1,12 +1,11 @@
 "use client"
 
-import * as React from "react"
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "~/components/ui/dialog"
 import { Input } from "~/components/ui/input"
 import { Button } from "~/components/ui/button"
 import { Label } from "~/components/ui/label"
 import { FolderPlus, ArrowLeft } from "lucide-react"
-import { useRef, useState, type ChangeEvent } from "react"
+import { useEffect, useRef, useState, type ChangeEvent } from "react"
 import { type Folder, type Workspace } from "@prisma/client"
 import { api } from "~/trpc/react"
 import { useRouter } from "next/navigation"
@@ -31,7 +30,7 @@ export function NewFolderDialog({ open, onOpenChange, onClose }: NewFolderDialog
   const currentParent = useDashboardStore((state) => state.currentParent)
 
   // Reset state when dialog opens
-  React.useEffect(() => {
+  useEffect(() => {
     if (open) {
       if (currentParent) {
         setStep("folder")

@@ -4,26 +4,23 @@ import {
   type SubmitHandler,
   useForm
 } from "react-hook-form";
-import { Paperclip, Send } from "lucide-react";
+import { SendHorizonal } from "lucide-react";
 import { api } from "~/trpc/react";
 import { useState } from "react";
-import { useSession } from "next-auth/react";
 
-import { type ChatInputForm, type ChatModel } from "~/constants/interfaces";
+import { type BaseProps, type ChatInputForm } from "~/constants/interfaces";
 
 import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { ChatState, useChat } from "./chat-store";
 
-const CHAT_MODELS: ChatModel[] = [
-  { value: "gemini", name: "Gemini" },
-  { value: "gpt", name: "GPT-4" },
-  { value: "claude", name: "Super long claude model name" }
-]
+interface ChatInputProps extends BaseProps {
+  formClassName?: string;
+  textareaClassName?: string;
+}
 
 
-const ChatInput = () => {
+const ChatInput: React.FC<ChatInputProps> = ({ children, formClassName, textareaClassName }) => {
   const {
     register,
     handleSubmit,
@@ -32,17 +29,13 @@ const ChatInput = () => {
 
   const {
     selectedSessionId,
-    streamingMessage,
     isStreaming,
-
     setChatState,
     setSelectedSessionId,
-    setStreamingMessage,
-    setIsStreaming
+    setIsStreaming,
   } = useChat();
 
   const utils = api.useUtils();
-
   const [userMessage, setUserMessage] = useState<string>("");
   
   const createSession = api.chat.createChatSession.useMutation({
@@ -111,16 +104,45 @@ const ChatInput = () => {
       onData(data) {
         if (data.done) {
           setIsStreaming(false);
+          void utils.chat.getChatSessionById.invalidate();
         } else {
-          setStreamingMessage(streamingMessage + data.content);
+          void utils.chat.getChatSessionById.cancel({ id: selectedSessionId ?? "" });
+
+          utils.chat.getChatSessionById.setData(
+            { id: selectedSessionId ?? "" },
+            (session) => {
+              if (!session?.messages || session.messages.length === 0) return;
+          
+              const lastMessage = session.messages[session.messages.length - 1];
+          
+              return {
+                ...session,
+                messages:
+                  lastMessage!.sender === "USER"
+                    ? [
+                        ...session.messages,
+                        {
+                          id: "streaming-message",
+                          createdAt: new Date(),
+                          updatedAt: new Date(),
+                          sender: "AGENT",
+                          chatSessionId: selectedSessionId!,
+                          content: data.content
+                        }
+                      ]
+                    : session.messages.map((msg, index) =>
+                        index === session.messages.length - 1
+                          ? { ...msg, content: msg.content + data.content, updatedAt: new Date() }
+                          : msg
+                      )
+              };
+            }
+          );
         }
       },
       enabled: isStreaming
     }
   );
-
-  const userId = useSession().data?.user?.id;
-  if (!userId) return;
  
   const onSubmit: SubmitHandler<ChatInputForm> = async (data) => { 
     const inputMessage = data.message;
@@ -160,41 +182,19 @@ const ChatInput = () => {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col p-4 gap-2">
+    <form 
+      onSubmit={handleSubmit(onSubmit)} 
+      className={`${formClassName}`}
+    >
       <Textarea 
         {...register("message")} 
-        placeholder="Cmd + L"
+        placeholder="Ask me anything"
         onKeyDown={handleKeyDown}
-        className="relative z-0 resize-none overflow-hidden focus-visible:ring-0 w-full"
+        className={`${textareaClassName}`}
       />
-      
-      <div className="flex justify-between">
-        <div>
-          <Button onClick={addContext} type="button" variant="ghost" size="icon" className="h-8 w-8">
-            <Paperclip className="h-4 w-4" />
-          </Button>
-        </div>
-
-        <div className="flex flex-row gap-1">
-          <Select>
-            <SelectTrigger className="focus-visible:ring-0 focus:ring-0 shadow-none w-auto h-8 gap-2">
-              <SelectValue placeholder={CHAT_MODELS[0]?.name} />
-            </SelectTrigger>
-
-            <SelectContent>
-              <SelectGroup>
-                {CHAT_MODELS.map((model) => (
-                  <SelectItem key={model.value} value={model.value}>{model.name}</SelectItem>
-                ))}
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-
-          <Button variant="default" type="submit" size="icon" className="h-8 w-8">
-            <Send className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
+      <Button variant={"ghost"} type="submit" className="p-2 fill-black stroke-black">
+        <SendHorizonal />
+      </Button>
     </form>
   );
 };

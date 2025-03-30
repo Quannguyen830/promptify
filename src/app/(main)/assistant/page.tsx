@@ -1,3 +1,5 @@
+import AssistantInput from "~/components/assistant/input/assistant-input";
+import AssistantMessageViewer from "~/components/assistant/assistant-message-viewer";
 import AssistantSidebar from "~/components/assistant/assistant-sidebar";
 
 export default function AssistantPage() {
@@ -5,19 +7,17 @@ export default function AssistantPage() {
     <div className="flex flex-row w-full h-full">
       {/* main assistant panel */}
       <div className="flex flex-col flex-1 p-6 gap-6">
-        
-        <div className="flex flex-col gap-2">
+        <hgroup className="flex flex-col gap-2">
           <h3 className="font-semibold text-2xl">AI Ask</h3>
           <p>How can I help you today?</p>
-        </div>
+        </hgroup>
 
         {/* message viewer */}
-        <div>
-
-        </div>
+        <AssistantMessageViewer />
+        <AssistantInput className="flex-none h-[161px] justify-end"/>
       </div>
 
-      <AssistantSidebar className="" />
+      <AssistantSidebar />
     </div>
   )
 } 

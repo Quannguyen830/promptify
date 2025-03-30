@@ -109,7 +109,7 @@ export default function TextEditorPage({
   useEffect(() => {
     if (documentName) {
       fetch(
-        'http://52.63.165.192/api/documenteditor/LoadFromS3',
+        `${process.env.NEXT_PUBLIC_DOCUMENT_EDITOR_WEB_SERVER_URL}/LoadFromS3`,
         {
           method: 'Post',
           headers: { 'Content-Type': 'application/json;charset=UTF-8' },
@@ -166,29 +166,28 @@ export default function TextEditorPage({
     'Separator',
     'Find',
     'Separator',
-    'Comments',
-    'TrackChanges',
-    'Separator',
-    'LocalClipboard',
-    'RestrictEditing',
-    'Separator',
-    'FormFields',
-    'UpdateFields',
-    'ContentControl'
+    // 'Comments',
+    // 'TrackChanges',
+    // 'Separator',
+    // 'LocalClipboard',
+    // 'RestrictEditing',
+    // 'Separator',
+    // 'FormFields',
+    // 'UpdateFields',
+    // 'ContentControl'
   ];
 
   return (
-    <div className="h-full">
+    <div className="h-full w-[calc(100vw-208px)]">
       <DocumentEditorContainerComponent
         id="container"
         height='100%'
-        serviceUrl="http://52.63.165.192/api/documenteditor"
+        serviceUrl={process.env.NEXT_PUBLIC_DOCUMENT_EDITOR_WEB_SERVER_URL}
         enableToolbar={true}
         ref={containerRef}
         toolbarItems={customToolbarItems as (CustomToolbarItemModel | ToolbarItem)[]}
         toolbarClick={handleToolbarClick}
         contentChange={handleContentChange}
-        showPropertiesPane={false}
       />
 
       <SelectFileDialog

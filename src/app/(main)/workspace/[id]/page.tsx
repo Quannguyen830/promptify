@@ -7,14 +7,15 @@ import { useParams } from 'next/navigation'
 import { api } from '~/trpc/react'
 import { useDashboardStore } from "~/components/dashboard/dashboard-store"
 import { useEffect, useState } from 'react'
-import { type Folder } from "@prisma/client"
 import { Navbar } from "~/components/dashboard/navbar"
-import Loading from "~/components/share/loading-spinner"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "~/components/ui/tabs"
+import Loading from "~/components/share/loading-spinner"
+import type { File, Folder } from "@prisma/client"
 
 export default function WorkspacePage() {
   const { id } = useParams<{ id: string }>();
-  const { addItemsHistory, history, setCurrentParent } = useDashboardStore();
+  const { addItemsHistory, history, setCurrentParent, files, folders } = useDashboardStore();
+  const [fetchedFiles, setFetchedFiles] = useState<File[]>();
   const [fetchedFolders, setFetchedFolders] = useState<Folder[]>();
 
   const { data: fetchedWorkspace, isLoading: isLoading, error: error } = api.workspace.getWorkspaceByWorkspaceId.useQuery(
@@ -29,8 +30,8 @@ export default function WorkspacePage() {
 
   useEffect(() => {
     if (fetchedWorkspace) {
-      const folders = fetchedWorkspace.folders.filter(folder => folder.parentFolderId == null)
-      setFetchedFolders(folders);
+      setFetchedFiles(fetchedWorkspace.files.filter(file => file.workspaceId === id));
+      setFetchedFolders(fetchedWorkspace.folders.filter(folder => folder.workspaceId === id));
 
       addItemsHistory({
         id: fetchedWorkspace.id,
@@ -52,7 +53,7 @@ export default function WorkspacePage() {
     <div className="px-6 h-full">
       <Navbar />
 
-      <main className="container mx-auto mt-5 h-full">
+      <main className="mt-5 h-full">
         <h1 className="text-2xl font-semibold mb-3">{fetchedWorkspace?.name}</h1>
 
         <div className="mb-6">
@@ -85,10 +86,10 @@ export default function WorkspacePage() {
               Folder
             </TabsTrigger>
             <TabsTrigger
-              value="documents"
+              value="files"
               className="px-4 py-2 data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none bg-transparent"
             >
-              Document
+              Files
             </TabsTrigger>
             <TabsTrigger
               value="pdf"
@@ -99,8 +100,8 @@ export default function WorkspacePage() {
           </TabsList>
 
           <TabsContent value="all" className="mt-6 h-full">
-            {fetchedFolders && fetchedFolders.length > 0 ? (
-              <SuggestedSection title="Folder contents" type="folders" folders={fetchedFolders} />
+            {fetchedFiles && fetchedFiles.length > 0 ? (
+              <SuggestedSection title="Files" type="files" files={fetchedFiles} />
             ) : (
               <div className="flex flex-col items-center justify-center mt-32">
                 <p className="text-muted-foreground text-center mb-4">This workspace doesn&apos;t have any file.</p>
@@ -115,11 +116,11 @@ export default function WorkspacePage() {
           </TabsContent>
 
           <TabsContent value="folders">
-            {/* Folder specific content */}
+            <SuggestedSection title="Folder contents" type="folders" folders={fetchedFolders} />
           </TabsContent>
 
-          <TabsContent value="documents">
-            {/* Documents specific content */}
+          <TabsContent value="files">
+            <SuggestedSection title="Files" type="files" files={files} />
           </TabsContent>
 
           <TabsContent value="pdf">

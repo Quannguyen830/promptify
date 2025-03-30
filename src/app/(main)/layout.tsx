@@ -7,10 +7,11 @@ import { SessionProvider } from "next-auth/react";
 import { GeistSans } from "geist/font/sans";
 import { Sidebar } from "~/components/share/sidebar";
 
-
 export default function AuthenticatedLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+
+
   return (
     <html lang="en" className={GeistSans.variable} suppressHydrationWarning>
       <body>
@@ -26,7 +27,7 @@ export default function AuthenticatedLayout({
               <div className="h-screen w-full overflow-hidden flex">
                 <Sidebar />
 
-                <main className='w-full h-full'>
+                <main className='flex-1 h-full'>
                   {children}
                 </main>
               </div>
