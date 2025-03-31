@@ -38,6 +38,16 @@ export const ChatRouter = createTRPCRouter({
       return response;
     }),
 
+  createChatSessionWithoutInitMessage: protectedProcedure
+    .mutation(async ({ ctx }) => {
+      return await ctx.db.chatSession.create({
+        data: {
+          name: "Untilted",
+          userId: ctx.session.user.id
+        }
+      });
+    }),
+
   streamAgentResponse: publicProcedure
   .input(z.object({
     chatSessionId: z.string(),

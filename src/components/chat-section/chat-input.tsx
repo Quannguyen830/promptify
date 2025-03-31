@@ -184,13 +184,13 @@ const ChatInput: React.FC<ChatInputProps> = ({ children, formClassName, textarea
   return (
     <form 
       onSubmit={handleSubmit(onSubmit)} 
-      className={`${formClassName}`}
+      className={formClassName}
     >
       <Textarea 
         {...register("message")} 
         placeholder="Ask me anything"
         onKeyDown={handleKeyDown}
-        className={`${textareaClassName}`}
+        className={textareaClassName}
       />
       <Button variant={"ghost"} type="submit" className="p-2 fill-black stroke-black">
         <SendHorizonal />
