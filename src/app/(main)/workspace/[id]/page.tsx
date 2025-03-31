@@ -14,7 +14,7 @@ import type { File, Folder } from "@prisma/client"
 
 export default function WorkspacePage() {
   const { id } = useParams<{ id: string }>();
-  const { addItemsHistory, history, setCurrentParent, files, folders } = useDashboardStore();
+  const { addItemsHistory, history, setCurrentParent } = useDashboardStore();
   const [fetchedFiles, setFetchedFiles] = useState<File[]>();
   const [fetchedFolders, setFetchedFolders] = useState<Folder[]>();
 
@@ -120,7 +120,7 @@ export default function WorkspacePage() {
           </TabsContent>
 
           <TabsContent value="files">
-            <SuggestedSection title="Files" type="files" files={files} />
+            <SuggestedSection title="Files" type="files" files={fetchedFiles} />
           </TabsContent>
 
           <TabsContent value="pdf">

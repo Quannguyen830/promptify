@@ -57,6 +57,13 @@ export type FolderWithRelations = Folder & {
   files: File[];
 };
 
+export interface TreeItem {
+  id: string
+  name: string
+  type: 'folder' | 'file'
+  children?: TreeItem[]
+}
+
 // CHAT SECTION
 export interface ChatInputForm {
   message: string

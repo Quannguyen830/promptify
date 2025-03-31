@@ -9,7 +9,6 @@ import { Upload, ArrowLeft } from "lucide-react"
 import { type ChangeEvent, useState, useRef, useEffect } from "react"
 import { useSession } from "next-auth/react"
 import { api } from "~/trpc/react"
-import { useRouter } from "next/navigation"
 import { useDashboardStore } from "./dashboard-store"
 import { type Folder, type Workspace } from "@prisma/client"
 import { WorkspaceSelector } from "./workspace-selector-dialog"
@@ -27,7 +26,6 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { data: session } = useSession()
   const utils = api.useUtils()
-  const router = useRouter()
   const currentParent = useDashboardStore((state) => state.currentParent)
 
   useEffect(() => {
@@ -189,8 +187,7 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
             : undefined,
         }
 
-        const fileId = await uploadFileMutation.mutateAsync(uploadPayload)
-        router.push(`/file/${fileId}`)
+        await uploadFileMutation.mutateAsync(uploadPayload)
       }
     } catch (error) {
       console.error("File upload failed:", error)

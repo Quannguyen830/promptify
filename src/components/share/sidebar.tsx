@@ -17,11 +17,15 @@ import Link from 'next/link'
 import { useMemo, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import { cn } from '~/lib/utils'
-
+import { WorkspaceTree } from './workspace-tree'
+import { useDashboardStore } from '~/components/dashboard/dashboard-store'
+import { type Workspace } from "@prisma/client"
+import { type TreeItem } from '~/constants/interfaces'
 
 export function Sidebar() {
-  const [isWorkspaceOpen, setIsWorkspaceOpen] = useState(true);
+  const [openWorkspaces, setOpenWorkspaces] = useState<Record<string, boolean>>({});
   const pathname = usePathname();
+  const { workspaces, files, folders } = useDashboardStore();
 
   const mainNavigation = useMemo(() => [
     { name: 'Dashboard', icon: Home, href: '/dashboard' },
@@ -34,6 +38,53 @@ export function Sidebar() {
   ], []);
 
   const isActivePath = (href: string) => pathname === href || pathname.startsWith(href);
+
+  const toggleWorkspace = (workspaceId: string) => {
+    setOpenWorkspaces(prev => ({
+      ...prev,
+      [workspaceId]: !prev[workspaceId]
+    }));
+  };
+
+  const buildWorkspaceTree = (workspace: Workspace) => {
+    const workspaceFolders = folders.filter(f => f.workspaceId === workspace.id);
+    const workspaceFiles = files.filter(f => f.workspaceId === workspace.id);
+
+    const buildFolderTree = (parentFolderId: string | null): TreeItem[] => {
+      const currentLevelFolders = workspaceFolders.filter(f => f.parentFolderId === parentFolderId);
+      const currentLevelFiles = workspaceFiles.filter(f => f.folderId === parentFolderId);
+
+      const folderItems: TreeItem[] = currentLevelFolders.map(folder => ({
+        id: folder.id,
+        name: folder.name,
+        type: 'folder' as const,
+        children: buildFolderTree(folder.id)
+      }));
+
+      const fileItems: TreeItem[] = currentLevelFiles.map(file => ({
+        id: file.id,
+        name: file.name,
+        type: 'file' as const
+      }));
+
+      return [...folderItems, ...fileItems];
+    };
+
+    const rootFolders = workspaceFolders.filter(f => !f.parentFolderId).map(folder => ({
+      id: folder.id,
+      name: folder.name,
+      type: 'folder' as const,
+      children: buildFolderTree(folder.id)
+    }));
+
+    const rootFiles = workspaceFiles.filter(f => !f.folderId).map(file => ({
+      id: file.id,
+      name: file.name,
+      type: 'file' as const
+    }));
+
+    return [...rootFolders, ...rootFiles];
+  };
 
   return (
     <SidebarCn collapsible='icon' defaultValue={25}>
@@ -69,21 +120,30 @@ export function Sidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarGroup className="py-2 border-b">
-          <SidebarGroupContent>
-            <button
-              onClick={() => setIsWorkspaceOpen(!isWorkspaceOpen)}
-              className="flex items-center justify-between w-full px-2 py-2.5 rounded-md hover:bg-gray-200"
-            >
-              <div className='flex flex-row gap-2'>
-                <Airplay size={18} />
-                <span className="text-sm font-semibold">Workspace 1</span>
-              </div>
+        {workspaces.map((workspace) => (
+          <SidebarGroup key={workspace.id} className="py-2 border-b">
+            <SidebarGroupContent>
+              <button
+                onClick={() => toggleWorkspace(workspace.id)}
+                className="flex items-center justify-between w-full px-2 py-2.5 rounded-md hover:bg-gray-200"
+              >
+                <div className='flex flex-row gap-2'>
+                  <Airplay size={18} />
+                  <span className="text-sm font-semibold">{workspace.name}</span>
+                </div>
 
-              <ChevronDown size={16} className={`transform transition-transform ${isWorkspaceOpen ? 'rotate-180' : ''}`} />
-            </button>
-          </SidebarGroupContent>
-        </SidebarGroup>
+                <ChevronDown
+                  size={16}
+                  className={`transform transition-transform ${openWorkspaces[workspace.id] ? 'rotate-180' : ''}`}
+                />
+              </button>
+
+              {openWorkspaces[workspace.id] && (
+                <WorkspaceTree items={buildWorkspaceTree(workspace)} />
+              )}
+            </SidebarGroupContent>
+          </SidebarGroup>
+        ))}
 
         <SidebarGroup className="mt-4">
           <SidebarGroupContent>

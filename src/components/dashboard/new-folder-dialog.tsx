@@ -8,7 +8,6 @@ import { FolderPlus, ArrowLeft } from "lucide-react"
 import { useEffect, useRef, useState, type ChangeEvent } from "react"
 import { type Folder, type Workspace } from "@prisma/client"
 import { api } from "~/trpc/react"
-import { useRouter } from "next/navigation"
 import { useDashboardStore } from "./dashboard-store"
 import { WorkspaceSelector } from "./workspace-selector-dialog"
 
@@ -26,7 +25,6 @@ export function NewFolderDialog({ open, onOpenChange, onClose }: NewFolderDialog
   const [folderName, setFolderName] = useState("")
   const inputRef = useRef<HTMLInputElement>(null)
   const utils = api.useUtils()
-  const router = useRouter()
   const currentParent = useDashboardStore((state) => state.currentParent)
 
   // Reset state when dialog opens
@@ -172,8 +170,7 @@ export function NewFolderDialog({ open, onOpenChange, onClose }: NewFolderDialog
       parentsFolderId: parent.itemType === 'folder' ? parent.id : undefined
     }
 
-    const newFolderId = await createFolderMutation.mutateAsync(uploadPayload)
-    router.push(`/folder/${newFolderId}`)
+    await createFolderMutation.mutateAsync(uploadPayload)
   }
 
   return (
