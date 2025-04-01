@@ -1,3 +1,4 @@
+import type { BaseProps } from "~/constants/interfaces";
 import CustomLoading1 from "./loader/custom-loading-1"
 
 const Loading: React.FC<BaseProps> = ({ className }) => {
