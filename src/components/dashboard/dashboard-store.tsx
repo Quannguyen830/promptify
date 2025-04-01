@@ -1,4 +1,4 @@
-import { type File, type Folder } from "@prisma/client";
+import { type Workspace, type File, type Folder } from "@prisma/client";
 import { create } from "zustand";
 import { type BreadcrumbItem } from "./folder-breadcrumb";
 import { type Parent } from "~/constants/interfaces";
@@ -9,11 +9,13 @@ export interface DashboardStore {
   files: File[];
   folders: Folder[];
   currentParent: Parent | null;
+  workspaces: Workspace[];
 
   addItemsHistory: (item: BreadcrumbItem) => void;
   resetHistory: () => void;
   addFile: (file: File) => void;
   addFolder: (folder: Folder) => void;
+  addWorkspace: (workspace: Workspace) => void;
   setCurrentParent: (parent: Parent | null) => void;
   resetCurrentParent: () => void;
 }
@@ -24,12 +26,21 @@ export const useDashboardStore = create<DashboardStore>((set) => ({
   files: [],
   folders: [],
   currentParent: null,
+  workspaces: [],
+
 
   addItemsHistory: (item) => set((state) => {
     if (!state.history.some(existingItem => existingItem.id === item.id)) {
       return {
         history: [...state.history, item],
       };
+    }
+    return state;
+  }),
+
+  addWorkspace: (workspace) => set((state) => {
+    if (!state.workspaces.some(existingWorkspace => existingWorkspace.id === workspace.id)) {
+      return { workspaces: [...state.workspaces, workspace] };
     }
     return state;
   }),

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client'
 
 import { SuggestedSection } from "~/components/dashboard/suggested-section"
@@ -42,7 +43,7 @@ export default function FolderPage() {
   if (error) return <div>Error: {error.message}</div>;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="px-6">
       <Navbar />
 
       <main className="container mx-auto space-y-6 mt-5">
