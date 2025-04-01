@@ -1,0 +1,2 @@
+-- CreateEnum
+CREATE TYPE "ChatProvider" AS ENUM ('GEMINI_2_FLASH', 'CLAUDE_3_HAIKU_20240307');
