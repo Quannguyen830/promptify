@@ -14,7 +14,6 @@ export const ChatRouter = createTRPCRouter({
     .mutation(async ({ input, ctx }) => {
       const { firstMessageContent: content, sender } = input;
       
-      // const agentReply = await sendMessage(content);
       const chatName = await generateChatTitle(content);
 
       const response = await ctx.db.chatSession.create({

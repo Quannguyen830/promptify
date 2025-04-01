@@ -13,6 +13,7 @@ import { type BaseProps, type ChatInputForm } from "~/constants/interfaces";
 import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
 import { ChatState, useChat } from "./chat-store";
+import { MessageSenderSchema } from "~/constants/types";
 
 interface ChatInputProps extends BaseProps {
   formClassName?: string;
@@ -125,7 +126,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ children, formClassName, textarea
                           id: "streaming-message",
                           createdAt: new Date(),
                           updatedAt: new Date(),
-                          sender: "AGENT",
+                          sender: MessageSenderSchema.enum.AGENT,
                           chatSessionId: selectedSessionId!,
                           content: data.content
                         }

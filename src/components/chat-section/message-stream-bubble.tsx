@@ -1,3 +1,4 @@
+import { MessageSenderSchema } from "~/constants/types";
 import ChatBubble from "./chat-bubble";
 import { useChat } from "./chat-store"
 
@@ -7,7 +8,7 @@ export function MessageStreamViewer() {
   } = useChat();
 
   return (
-    <ChatBubble variant="AGENT">
+    <ChatBubble variant={MessageSenderSchema.enum.AGENT}>
       {streamingMessage}
     </ChatBubble>
   )

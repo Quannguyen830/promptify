@@ -149,7 +149,7 @@ model ChatSession {
 
 enum MessageSender {
   USER
-  AGENT
+  SYSTEM @map("AGENT")
 }
 
 model Message {
