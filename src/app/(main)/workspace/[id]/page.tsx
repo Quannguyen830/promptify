@@ -11,12 +11,14 @@ import { Navbar } from "~/components/dashboard/navbar"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "~/components/ui/tabs"
 import Loading from "~/components/share/loading-spinner"
 import type { File, Folder } from "@prisma/client"
+import { UploadFileDialog } from "~/components/dashboard/upload-file-dialog"
 
 export default function WorkspacePage() {
   const { id } = useParams<{ id: string }>();
   const { addItemsHistory, history, setCurrentParent } = useDashboardStore();
   const [fetchedFiles, setFetchedFiles] = useState<File[]>();
   const [fetchedFolders, setFetchedFolders] = useState<Folder[]>();
+  const [isUploadFileOpen, setIsUploadFileOpen] = useState(false);
 
   const { data: fetchedWorkspace, isLoading: isLoading, error: error } = api.workspace.getWorkspaceByWorkspaceId.useQuery(
     { workspaceId: id }
@@ -106,9 +108,9 @@ export default function WorkspacePage() {
               <div className="flex flex-col items-center justify-center mt-32">
                 <p className="text-muted-foreground text-center mb-4">This workspace doesn&apos;t have any file.</p>
                 <div className="flex gap-2">
-                  <button className="text-blue-500 hover:underline">Create new file</button>
+                  <button className="text-blue-500 hover:underline" onClick={() => setIsUploadFileOpen(true)}>Create new file</button>
                   <span className="text-muted-foreground">or</span>
-                  <button className="text-blue-500 hover:underline">Upload your file</button>
+                  <button className="text-blue-500 hover:underline" onClick={() => setIsUploadFileOpen(true)}>Upload your file</button>
                   <span className="text-muted-foreground">to get started</span>
                 </div>
               </div>
@@ -128,6 +130,12 @@ export default function WorkspacePage() {
           </TabsContent>
         </Tabs>
       </main>
+
+      <UploadFileDialog
+        open={isUploadFileOpen}
+        onOpenChange={setIsUploadFileOpen}
+        onClose={() => setIsUploadFileOpen(false)}
+      />
     </div>
   )
 }

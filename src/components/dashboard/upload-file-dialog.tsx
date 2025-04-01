@@ -19,6 +19,22 @@ interface UploadFileDialogProps {
   onClose: () => void
 }
 
+async function generateThumbnail(file: File): Promise<string | null> {
+  try {
+    if (file.type === 'application/pdf') {
+
+    }
+    else if (file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+
+    }
+
+    return null;
+  } catch (error) {
+    console.error('Error generating thumbnail:', error);
+    return null;
+  }
+}
+
 export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDialogProps) {
   const [step, setStep] = useState<"workspace" | "upload">("workspace")
   const [selectedParent, setSelectedParent] = useState<Workspace | Folder | null>(null)
@@ -168,11 +184,15 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
         const arrayBuffer = await selectedFile.arrayBuffer()
         const uint8Array = new Uint8Array(arrayBuffer)
 
+        // Generate thumbnail
+        const thumbnail = await generateThumbnail(selectedFile)
+
         const uploadPayload = {
           fileName: selectedFile.name,
           fileSize: selectedFile.size.toString(),
           fileType: selectedFile.type,
           fileBuffer: uint8Array,
+          image: thumbnail,
           workspaceId: parent.itemType === 'workspace'
             ? parent.id
             : (parent as Folder).workspaceId,

@@ -23,11 +23,11 @@ export interface FolderCardProps {
 }
 
 export interface FileCardProps {
-  title: string
-  subtitle: string
-  date: string
-  imageUrl: string
   id: string
+  title: string
+  date: string
+  subtitle: string
+  image: string
 }
 
 interface Root {

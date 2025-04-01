@@ -7,11 +7,12 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 export const fileRouter = createTRPCRouter({
   uploadFile: protectedProcedure
-    .input(z.object({ 
+    .input(z.object({
       fileName: z.string(),
       fileSize: z.string(),
-      fileType: z.string(),  
+      fileType: z.string(),
       fileBuffer: z.instanceof(Uint8Array),
+      image: z.string().nullable(),
       workspaceId: z.string(),
       folderId: z.string().optional(),
       workspaceName: z.string(),
@@ -26,6 +27,7 @@ export const fileRouter = createTRPCRouter({
           name: fileName,
           size: parseFloat(fileSize),
           type: fileType,
+          image: input.image,
           workspaceId: workspaceId,
           folderId: folderId,
           workspaceName: workspaceName,
