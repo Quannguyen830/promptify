@@ -8,6 +8,7 @@ import { Ellipsis, FileText } from "lucide-react";
 
 export const ChatSessionCard = ({children, className, id} : ChatSessionCardProps) => {  
   const { 
+    selectedSessionId,
     setChatState,
     setSelectedSessionId
   } = useChat();
@@ -18,9 +19,9 @@ export const ChatSessionCard = ({children, className, id} : ChatSessionCardProps
   }
 
   return (
-    <Button className={`flex overflow-hidden ${className}`} onClick={handleClick} variant="ghost">
+    <Button className={`flex overflow-hidden items-start ${selectedSessionId === id && "bg-stone-200 text-accent-foreground"} ${className}`} onClick={handleClick} variant="ghost">
       <FileText/>
-      <p className="w-full overflow-hidden">{children}</p>
+      <p className="w-full text-start overflow-hidden">{children}</p>
       
       {/* TODO: Implement tools */}
       <Ellipsis/>

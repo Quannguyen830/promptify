@@ -13,6 +13,8 @@ import { type BaseProps, type ChatInputForm } from "~/constants/interfaces";
 import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
 import { ChatState, useChat } from "./chat-store";
+import { MessageSenderSchema } from "~/constants/types";
+import { ChatModelEnum } from "~/server/services/llm-service";
 
 interface ChatInputProps extends BaseProps {
   formClassName?: string;
@@ -98,7 +100,8 @@ const ChatInput: React.FC<ChatInputProps> = ({ children, formClassName, textarea
     {
       chatSessionId: selectedSessionId ?? "",
       content: userMessage,
-      context: utils.chat.getChatSessionById.getData({ id: selectedSessionId ?? "" })?.messages ?? []
+      context: utils.chat.getChatSessionById.getData({ id: selectedSessionId ?? "" })?.messages ?? [],
+      model: ChatModelEnum.GEMINI_2_FLASH
     },
     {
       onData(data) {
@@ -125,7 +128,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ children, formClassName, textarea
                           id: "streaming-message",
                           createdAt: new Date(),
                           updatedAt: new Date(),
-                          sender: "AGENT",
+                          sender: MessageSenderSchema.enum.AGENT,
                           chatSessionId: selectedSessionId!,
                           content: data.content
                         }
@@ -184,13 +187,13 @@ const ChatInput: React.FC<ChatInputProps> = ({ children, formClassName, textarea
   return (
     <form 
       onSubmit={handleSubmit(onSubmit)} 
-      className={`${formClassName}`}
+      className={formClassName}
     >
       <Textarea 
         {...register("message")} 
         placeholder="Ask me anything"
         onKeyDown={handleKeyDown}
-        className={`${textareaClassName}`}
+        className={textareaClassName}
       />
       <Button variant={"ghost"} type="submit" className="p-2 fill-black stroke-black">
         <SendHorizonal />

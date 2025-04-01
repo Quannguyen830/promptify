@@ -9,18 +9,46 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/colla
 import { api } from "~/trpc/react";
 import ChatSessionCard from "../chat-section/chat-session-card";
 import Loading from "../share/loading-spinner";
+import { ChatState, useChat } from "../chat-section/chat-store";
 
 
 const AssistantTopicListing: React.FC<BaseProps> = ({ className }) => {
-  const { data: topics, isLoading } = api.chat.getAllChatSessionsId.useQuery();
+  const utils = api.useUtils();
+  const {
+    setChatState,
+    setSelectedSessionId,
+  } = useChat();
   
-  const handleNewTopic = () => {
-    console.log("feroh")
+  const { data: topics, isLoading } = api.chat.getAllChatSessionsId.useQuery();
+  const createSession = api.chat.createChatSessionWithoutInitMessage.useMutation({
+    onMutate() {
+      setChatState(ChatState.SESSION_SELECTED);
+
+      utils.chat.getAllChatSessionsId.setData(
+        undefined, 
+        (sessions) => [
+          ...sessions ?? [],
+          {
+            id: crypto.randomUUID(),
+            name: "Untitled",
+          }
+        ]
+      )
+    },
+    onSettled(data) {
+      if (data) setSelectedSessionId(data.id);
+
+      void utils.chat.getAllChatSessionsId.invalidate();
+    }
+  });
+   
+  const handleCreateSession =  async () => {
+    await createSession.mutateAsync();
   }
   
   return (
     <div className={`flex flex-col gap-2 ${className}`}>
-      <Button className="flex p-3 w-full justify-between rounded-lg h-12" onClick={handleNewTopic}>
+      <Button className="flex p-3 w-full justify-between rounded-lg h-12" onClick={handleCreateSession}>
         <span className="font-medium ">New Topic</span>
         <Plus className="w-10"/> 
       </Button>

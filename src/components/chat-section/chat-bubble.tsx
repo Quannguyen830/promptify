@@ -3,6 +3,7 @@
 import { type BaseProps } from "~/constants/interfaces";
 import { Avatar, AvatarFallback } from "../ui/avatar";
 import { useSession } from "next-auth/react";
+import { MessageSenderSchema } from "~/constants/types";
 
 interface ChatBubbleProps extends BaseProps {
   variant: string
@@ -17,7 +18,7 @@ const ChatBubble = ({ className, children, variant }: ChatBubbleProps) => {
 
   return (
     <>
-      {variant === "AGENT" ? (
+      {variant === MessageSenderSchema.enum.AGENT ? (
         <div className={` ${AGENT_BUBBLE_STYLE} ${className}`}>
           <p>{children}</p>
         </div>

@@ -22,6 +22,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^1.2.4",
+    "@ai-sdk/google": "^1.2.5",
     "@anthropic-ai/sdk": "^0.33.1",
     "@auth/prisma-adapter": "^2.7.2",
     "@aws-sdk/client-s3": "^3.744.0",
@@ -55,6 +57,7 @@
     "@trpc/client": "^11.0.0-rc.446",
     "@trpc/react-query": "^11.0.0-rc.446",
     "@trpc/server": "^11.0.0-rc.446",
+    "ai": "^4.2.8",
     "bcryptjs": "^3.0.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

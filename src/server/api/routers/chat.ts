@@ -2,8 +2,8 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import { MessageSenderSchema } from "~/constants/types";
 
-import { generateChatTitle, sendMessageWithContextStreaming } from "~/server/services/gemini-service";
 import { observable } from "@trpc/server/observable";
+import { ChatModelEnum, generateChatTitle, sendMessageWithContextStreaming } from "~/server/services/llm-service";
 
 export const ChatRouter = createTRPCRouter({
   createChatSession: protectedProcedure
@@ -14,7 +14,6 @@ export const ChatRouter = createTRPCRouter({
     .mutation(async ({ input, ctx }) => {
       const { firstMessageContent: content, sender } = input;
       
-      // const agentReply = await sendMessage(content);
       const chatName = await generateChatTitle(content);
 
       const response = await ctx.db.chatSession.create({
@@ -38,6 +37,16 @@ export const ChatRouter = createTRPCRouter({
       return response;
     }),
 
+  createChatSessionWithoutInitMessage: protectedProcedure
+    .mutation(async ({ ctx }) => {
+      return await ctx.db.chatSession.create({
+        data: {
+          name: "Untilted",
+          userId: ctx.session.user.id
+        }
+      });
+    }),
+
   streamAgentResponse: publicProcedure
   .input(z.object({
     chatSessionId: z.string(),
@@ -45,10 +54,11 @@ export const ChatRouter = createTRPCRouter({
     context: z.array(z.object({
       content: z.string(),
       sender: MessageSenderSchema
-    }))
+    })),
+    model: z.nativeEnum(ChatModelEnum)
   }))
   .subscription(async ({ input, ctx }) => {
-    const { chatSessionId, content, context } = input;
+    const { chatSessionId, content, context, model } = input;
         
     return observable<{ content: string, done: boolean }>((emit) => {
       // Define an abort controller to cancel the stream if needed
@@ -59,23 +69,22 @@ export const ChatRouter = createTRPCRouter({
       (async () => {
         try {
           // Get streaming response
-          const streamResponse = await sendMessageWithContextStreaming(content, context);
+          const streamResponse = sendMessageWithContextStreaming(content, context, model);
           let accumulatedResponse = '';
           
           // Process each chunk as it comes in
-          for await (const chunk of streamResponse.stream) {
+          for await (const chunk of streamResponse.textStream) {
             // Check if the subscription has been cancelled
             if (signal.aborted) {
               console.log('Streaming was aborted');
               break;
             }
             
-            const textChunk = chunk.text();
-            accumulatedResponse += textChunk;
+            accumulatedResponse += chunk;
             
             // Emit each chunk to the client
             emit.next({
-              content: textChunk,
+              content: chunk,
               done: false
             });
           }

@@ -150,5 +150,5 @@ model Message {
 
 enum MessageSender {
   USER
-  AGENT
+  SYSTEM @map("AGENT")
 }
