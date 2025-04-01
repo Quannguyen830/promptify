@@ -14,6 +14,7 @@ import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
 import { ChatState, useChat } from "./chat-store";
 import { MessageSenderSchema } from "~/constants/types";
+import { ChatModelEnum } from "~/server/services/llm-service";
 
 interface ChatInputProps extends BaseProps {
   formClassName?: string;
@@ -99,7 +100,8 @@ const ChatInput: React.FC<ChatInputProps> = ({ children, formClassName, textarea
     {
       chatSessionId: selectedSessionId ?? "",
       content: userMessage,
-      context: utils.chat.getChatSessionById.getData({ id: selectedSessionId ?? "" })?.messages ?? []
+      context: utils.chat.getChatSessionById.getData({ id: selectedSessionId ?? "" })?.messages ?? [],
+      model: ChatModelEnum.GEMINI_2_FLASH
     },
     {
       onData(data) {
