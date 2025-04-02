@@ -12,27 +12,12 @@ import { api } from "~/trpc/react"
 import { useDashboardStore } from "./dashboard-store"
 import { type Folder, type Workspace } from "@prisma/client"
 import { WorkspaceSelector } from "./workspace-selector-dialog"
+import { generateThumbnail } from "~/lib/utils/generateThumbnail"
 
 interface UploadFileDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   onClose: () => void
-}
-
-async function generateThumbnail(file: File): Promise<string | null> {
-  try {
-    if (file.type === 'application/pdf') {
-
-    }
-    else if (file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
-
-    }
-
-    return null;
-  } catch (error) {
-    console.error('Error generating thumbnail:', error);
-    return null;
-  }
 }
 
 export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDialogProps) {
@@ -184,7 +169,7 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
         const arrayBuffer = await selectedFile.arrayBuffer()
         const uint8Array = new Uint8Array(arrayBuffer)
 
-        // Generate thumbnail
+        // Generate thumbnail - now using the imported function
         const thumbnail = await generateThumbnail(selectedFile)
 
         const uploadPayload = {
@@ -192,7 +177,7 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
           fileSize: selectedFile.size.toString(),
           fileType: selectedFile.type,
           fileBuffer: uint8Array,
-          image: thumbnail,
+          image: thumbnail, // This will now contain the proper thumbnail
           workspaceId: parent.itemType === 'workspace'
             ? parent.id
             : (parent as Folder).workspaceId,

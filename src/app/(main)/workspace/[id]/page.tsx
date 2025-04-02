@@ -88,10 +88,10 @@ export default function WorkspacePage() {
               Folder
             </TabsTrigger>
             <TabsTrigger
-              value="files"
+              value="docx"
               className="px-4 py-2 data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none bg-transparent"
             >
-              Files
+              DOCX
             </TabsTrigger>
             <TabsTrigger
               value="pdf"
@@ -118,15 +118,15 @@ export default function WorkspacePage() {
           </TabsContent>
 
           <TabsContent value="folders">
-            <SuggestedSection title="Folder contents" type="folders" folders={fetchedFolders} />
+            <SuggestedSection title="Folders" type="folders" folders={fetchedFolders} />
           </TabsContent>
 
-          <TabsContent value="files">
-            <SuggestedSection title="Files" type="files" files={fetchedFiles} />
+          <TabsContent value="docx">
+            <SuggestedSection title="Files" type="files" files={fetchedFiles?.filter(file => file.type.includes("doc"))} />
           </TabsContent>
 
           <TabsContent value="pdf">
-            {/* PDF specific content */}
+            <SuggestedSection title="Files" type="files" files={fetchedFiles?.filter(file => file.type.includes("pdf"))} />
           </TabsContent>
         </Tabs>
       </main>

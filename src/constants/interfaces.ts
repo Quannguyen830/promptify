@@ -28,6 +28,7 @@ export interface FileCardProps {
   date: string
   subtitle: string
   image: string
+  fileType: string
 }
 
 interface Root {
