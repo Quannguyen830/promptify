@@ -1,17 +1,18 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client'
 
 import { SuggestedSection } from "~/components/dashboard/suggested-section"
 import { api } from "~/trpc/react"
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useDashboardStore } from "~/components/dashboard/dashboard-store"
 import { Navbar } from "~/components/dashboard/navbar"
 import Loading from "~/components/share/loading-spinner"
-import { type File, type Folder } from "@prisma/client"
 import { SlidingTab } from "~/components/dashboard/sliding-tab"
 import { Toolbox } from "~/components/dashboard/toolbox"
+import { Tabs, TabsContent } from "~/components/ui/tabs"
 
 export default function Page() {
-  const { resetHistory, addFile, addFolder, resetCurrentParent } = useDashboardStore();
+  const { resetHistory, addFile, addFolder, resetCurrentParent, addWorkspace } = useDashboardStore();
 
   const { data: fetchedWorkspaces, isLoading, error } = api.workspace.listWorkspaceByUserId.useQuery();
 
@@ -36,6 +37,12 @@ export default function Page() {
           addFolder(folder);
         });
       }
+
+      if (fetchedWorkspaces?.length) {
+        fetchedWorkspaces.forEach(workspace => {
+          addWorkspace(workspace);
+        });
+      }
     }
   }, [fetchedWorkspaces]);
 
@@ -51,12 +58,36 @@ export default function Page() {
           <h1 className="text-4xl font-semibold mb-5">Dashboard</h1>
         </div>
 
-        <div className="flex items-center border-b border-gray-200 justify-between">
-          <SlidingTab />
-          <Toolbox />
-        </div>
+        <Tabs defaultValue="workspaces" className="w-full">
+          <div className="flex items-center border-b border-gray-200 justify-between">
+            <SlidingTab />
+            <Toolbox />
+          </div>
 
-        <SuggestedSection title="Suggested workspaces" type="workspaces" workspaces={fetchedWorkspaces} />
+          <TabsContent value="workspaces" className="mt-6">
+            <SuggestedSection
+              title="Suggested workspaces"
+              type="workspaces"
+              workspaces={fetchedWorkspaces}
+            />
+          </TabsContent>
+
+          <TabsContent value="task">
+            <div className="flex flex-col items-center justify-center mt-32">
+              <p className="text-muted-foreground text-center mb-4">
+                No tasks available.
+              </p>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="document">
+            <div className="flex flex-col items-center justify-center mt-32">
+              <p className="text-muted-foreground text-center mb-4">
+                No documents available.
+              </p>
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   )

@@ -1,17 +1,18 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
-import { uploadFileToS3 } from "~/server/services/s3-service";
+import { deleteFileFromS3, uploadFileToS3 } from "~/server/services/s3-service";
 import { s3Bucket, s3Client } from "~/config/S3-client";
 import { GetObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 export const fileRouter = createTRPCRouter({
   uploadFile: protectedProcedure
-    .input(z.object({ 
+    .input(z.object({
       fileName: z.string(),
       fileSize: z.string(),
-      fileType: z.string(),  
+      fileType: z.string(),
       fileBuffer: z.instanceof(Uint8Array),
+      image: z.string().nullable(),
       workspaceId: z.string(),
       folderId: z.string().optional(),
       workspaceName: z.string(),
@@ -26,6 +27,7 @@ export const fileRouter = createTRPCRouter({
           name: fileName,
           size: parseFloat(fileSize),
           type: fileType,
+          image: input.image,
           workspaceId: workspaceId,
           folderId: folderId,
           workspaceName: workspaceName,
@@ -33,7 +35,7 @@ export const fileRouter = createTRPCRouter({
         }
       })
 
-      await uploadFileToS3(buffer, newFile.id)
+      await uploadFileToS3(buffer, newFile.id, fileType)
 
       return newFile.id;
     }),
@@ -46,6 +48,8 @@ export const fileRouter = createTRPCRouter({
           id: input.fileId
         }
       })
+
+      await deleteFileFromS3(removedFile.id)
 
       return removedFile.name;
     }),
@@ -125,7 +129,7 @@ export const fileRouter = createTRPCRouter({
       })
 
       if(file) {
-        await uploadFileToS3(buffer, file.id)
+        await uploadFileToS3(buffer, file.id, file.type)
 
         return file.id;
       }
@@ -156,7 +160,7 @@ export const fileRouter = createTRPCRouter({
       });
 
       const emptyBuffer = Buffer.from("");
-      await uploadFileToS3(emptyBuffer, newFile.id);
+      await uploadFileToS3(emptyBuffer, newFile.id, newFile.type);
 
       return newFile.id;
     }),

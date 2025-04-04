@@ -5,14 +5,13 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Button } from "~/components/ui/button"
 import { Input } from "~/components/ui/input"
 import { Label } from "~/components/ui/label"
-import { ScrollArea } from "~/components/ui/scroll-area"
-import { ArrowRight, ChevronRight, Folder as FolderIcon, Search, Upload } from "lucide-react"
-import { type ChangeEvent, useState, useRef, useEffect, Fragment } from "react"
+import { Upload, ArrowLeft } from "lucide-react"
+import { type ChangeEvent, useState, useRef, useEffect } from "react"
 import { useSession } from "next-auth/react"
 import { api } from "~/trpc/react"
+import { useDashboardStore } from "./dashboard-store"
 import { type Folder, type Workspace } from "@prisma/client"
-import { type FolderHistoryItem, MyDrive } from "~/constants/interfaces"
-import { useRouter } from "next/navigation";
+import { WorkspaceSelector } from "./workspace-selector-dialog"
 
 interface UploadFileDialogProps {
   open: boolean
@@ -20,193 +19,218 @@ interface UploadFileDialogProps {
   onClose: () => void
 }
 
+async function generateThumbnail(file: File): Promise<string | null> {
+  try {
+    if (file.type === 'application/pdf') {
+
+    }
+    else if (file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+
+    }
+
+    return null;
+  } catch (error) {
+    console.error('Error generating thumbnail:', error);
+    return null;
+  }
+}
+
 export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDialogProps) {
+  const [step, setStep] = useState<"workspace" | "upload">("workspace")
+  const [selectedParent, setSelectedParent] = useState<Workspace | Folder | null>(null)
   const [selectedFile, setSelectedFile] = useState<File | undefined>(undefined)
-  const [searchQuery, setSearchQuery] = useState("")
-  const [selectedFolder, setSelectedFolder] = useState<Folder | Workspace>();
-  const [workspaceOrFolderList, setWorkspaceOrFolderList] = useState<Folder[] | Workspace[]>([]);
-  const [allFolders, setAllFolders] = useState<Folder[]>([])
-  const [rootFolders, setRootFolders] = useState<Folder[]>();
-  const [childFolders, setChildFolders] = useState<Folder[]>();
-  const [folderHistory, setFolderHistory] = useState<FolderHistoryItem[]>([MyDrive]);
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const { data: session } = useSession();
-  const utils = api.useUtils();
-  const router = useRouter();
-
-  const { data: workspaces } = api.workspace.listWorkspaceByUserId.useQuery();
+  const { data: session } = useSession()
+  const utils = api.useUtils()
+  const currentParent = useDashboardStore((state) => state.currentParent)
 
   useEffect(() => {
-    setWorkspaceOrFolderList(workspaces ?? []);
-    if (workspaces) {
-      setAllFolders(workspaces.flatMap(workspace => workspace.folders));
+    if (open) {
+      if (currentParent) {
+        setStep("upload")
+        setSelectedParent(currentParent)
+      } else {
+        setStep("workspace")
+        setSelectedParent(null)
+      }
+      setSelectedFile(undefined)
     }
-  }, [workspaces]);
-
-  useEffect(() => {
-    if (rootFolders && rootFolders.length > 0) {
-      setWorkspaceOrFolderList(rootFolders);
-    }
-  }, [rootFolders]);
-
-  useEffect(() => {
-    if (childFolders && childFolders.length > 0) {
-      setWorkspaceOrFolderList(childFolders);
-    }
-  }, [childFolders])
+  }, [open, currentParent])
 
   const uploadFileMutation = api.file.uploadFile.useMutation({
     onMutate: () => {
-      void utils.workspace.listWorkspaceByUserId.cancel();
+      void utils.workspace.listWorkspaceByUserId.cancel()
+      void utils.workspace.getWorkspaceByWorkspaceId.cancel()
+      void utils.folder.getFolderContentByFolderId.cancel()
 
-      const previousWorkspaces = utils.workspace.listWorkspaceByUserId.getData();
+      const parent = currentParent ?? selectedParent
+      if (!parent) return {}
 
-      void utils.workspace.listWorkspaceByUserId.setData(undefined, (prev) => {
-        if (!prev) return prev;
+      const previousWorkspaces = utils.workspace.listWorkspaceByUserId.getData()
+      const previousWorkspace = parent.itemType === 'workspace'
+        ? utils.workspace.getWorkspaceByWorkspaceId.getData({ workspaceId: parent.id })
+        : undefined
+      const previousFolder = parent.itemType === 'folder'
+        ? utils.folder.getFolderContentByFolderId.getData({ folderId: parent.id })
+        : undefined
 
+      const newFile = {
+        id: "new-file",
+        name: selectedFile?.name ?? "",
+        size: selectedFile?.size ?? 0,
+        type: selectedFile?.type ?? "",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        lastAccessed: null,
+        itemType: "file",
+        workspaceId: parent.itemType === 'workspace'
+          ? parent.id
+          : (parent as Folder).workspaceId,
+        workspaceName: parent.itemType === 'workspace'
+          ? parent.name
+          : (parent as Folder).workspaceName,
+        folderId: parent.itemType === 'folder' ? parent.id : null,
+        folderName: parent.itemType === 'folder' ? parent.name : null,
+        image: null,
+      }
+
+      // Update views based on parent type
+      if (parent.itemType === 'workspace') {
+        utils.workspace.getWorkspaceByWorkspaceId.setData(
+          { workspaceId: parent.id },
+          (prev) => prev ? {
+            ...prev,
+            files: [...prev.files, newFile]
+          } : prev
+        )
+      } else if (parent.itemType === 'folder') {
+        utils.folder.getFolderContentByFolderId.setData(
+          { folderId: parent.id },
+          (prev) => prev ? {
+            ...prev,
+            files: [...prev.files, newFile]
+          } : prev
+        )
+      }
+
+      // Update dashboard view
+      utils.workspace.listWorkspaceByUserId.setData(undefined, (prev) => {
+        if (!prev) return prev
         return prev.map(workspace => {
-          if (workspace.id === selectedFolder?.id) {
+          if (workspace.id === newFile.workspaceId) {
             return {
-              ...workspace, files: [...workspace.files, {
-                id: "new-file",
-                name: selectedFile?.name ?? "",
-                size: selectedFile?.size ?? 0,
-                type: selectedFile?.type ?? "",
-                createdAt: new Date(),
-                updatedAt: new Date(),
-                lastAccessed: null,
-                itemType: "file",
-                workspaceId: workspace.id,
-                workspaceName: workspace.name,
-                folderId: selectedFolder?.id,
-                folderName: selectedFolder?.name,
-                image: null,
-              }]
-            };
+              ...workspace,
+              files: [...workspace.files, newFile]
+            }
           }
-          return workspace;
-        });
-      });
+          return workspace
+        })
+      })
 
-      return { previousWorkspaces };
+      return { previousWorkspaces, previousWorkspace, previousFolder }
     },
+
     onSuccess: () => {
-      void utils.workspace.listWorkspaceByUserId.invalidate();
+      const parent = currentParent ?? selectedParent
+      if (!parent) return
+
+      void utils.workspace.listWorkspaceByUserId.invalidate()
+      if (parent.itemType === 'workspace') {
+        void utils.workspace.getWorkspaceByWorkspaceId.invalidate({ workspaceId: parent.id })
+      } else if (parent.itemType === 'folder') {
+        void utils.folder.getFolderContentByFolderId.invalidate({ folderId: parent.id })
+      }
     },
+
     onError: (error, variables, context) => {
-      utils.workspace.listWorkspaceByUserId.setData(undefined, context?.previousWorkspaces);
+      utils.workspace.listWorkspaceByUserId.setData(undefined, context?.previousWorkspaces)
+
+      if (currentParent?.itemType === 'workspace' && context?.previousWorkspace) {
+        utils.workspace.getWorkspaceByWorkspaceId.setData(
+          { workspaceId: currentParent.id },
+          context.previousWorkspace
+        )
+      } else if (currentParent?.itemType === 'folder' && context?.previousFolder) {
+        utils.folder.getFolderContentByFolderId.setData(
+          { folderId: currentParent.id },
+          context.previousFolder
+        )
+      }
     }
-  });
+  })
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+    const file = e.target.files?.[0]
     if (file) {
-      setSelectedFile(file);
+      setSelectedFile(file)
     } else {
-      setSelectedFile(undefined);
+      setSelectedFile(undefined)
     }
   }
 
-  const handleFolderClick = async (workspaceOrFolder: Workspace | Folder) => {
-    setSelectedFolder(workspaceOrFolder);
-  };
-
-  const handleNextButtonClick = (workspaceOrFolder: Workspace | Folder) => {
-    // This is a folder
-    if ('workspaceId' in workspaceOrFolder) {
-      const subfolders = allFolders.filter(folder => folder.parentFolderId === workspaceOrFolder.id);
-      setChildFolders(subfolders)
-    }
-    // This is a workspace 
-    else if ('folders' in workspaceOrFolder) {
-      const folders = workspaceOrFolder.folders as Folder[];
-      const filteredRootFolders = folders.filter(folder => folder.parentFolderId === null && folder.workspaceId === workspaceOrFolder.id);
-      setRootFolders(filteredRootFolders);
-    }
-
-    setFolderHistory((prev) => [...prev, workspaceOrFolder]);
+  const handleWorkspaceSelect = (selected: Workspace | Folder) => {
+    setSelectedParent(selected)
+    setStep("upload")
   }
 
   const handleUpload = async () => {
-    if (selectedFile && selectedFolder) {
-      try {
-        if (session !== null) {
-          if (selectedFile) {
-            handleClose();
+    const parent = currentParent ?? selectedParent
+    if (!selectedFile || !parent) return
 
-            const arrayBuffer = await selectedFile.arrayBuffer();
-            const uint8Array = new Uint8Array(arrayBuffer);
+    try {
+      if (session !== null) {
+        handleClose()
 
-            // Determine the workspaceId based on the type of selectedFolder
-            const workspaceId = 'workspaceId' in selectedFolder ? selectedFolder.workspaceId : selectedFolder.id;
-            const workspaceName = 'workspaceId' in selectedFolder ? selectedFolder.workspaceName : selectedFolder.name;
-            const folderName = 'workspaceId' in selectedFolder ? selectedFolder.name : undefined;
+        const arrayBuffer = await selectedFile.arrayBuffer()
+        const uint8Array = new Uint8Array(arrayBuffer)
 
-            const uploadPayload = {
-              fileName: selectedFile.name,
-              fileSize: selectedFile.size.toString(),
-              fileType: selectedFile.type,
-              fileBuffer: uint8Array,
-              workspaceId: workspaceId,
-              folderId: 'workspaceId' in selectedFolder ? selectedFolder.id : undefined,
-              workspaceName: workspaceName,
-              folderName: folderName,
-            };
+        // Generate thumbnail
+        const thumbnail = await generateThumbnail(selectedFile)
 
-            const fileId = await uploadFileMutation.mutateAsync(uploadPayload);
-
-            router.push(`/file/${fileId}`);
-          }
+        const uploadPayload = {
+          fileName: selectedFile.name,
+          fileSize: selectedFile.size.toString(),
+          fileType: selectedFile.type,
+          fileBuffer: uint8Array,
+          image: thumbnail,
+          workspaceId: parent.itemType === 'workspace'
+            ? parent.id
+            : (parent as Folder).workspaceId,
+          folderId: parent.itemType === 'folder'
+            ? parent.id
+            : undefined,
+          workspaceName: parent.itemType === 'workspace'
+            ? parent.name
+            : (parent as Folder).workspaceName,
+          folderName: parent.itemType === 'folder'
+            ? parent.name
+            : undefined,
         }
-      } catch (error) {
-        console.error("File upload failed:", error);
+
+        await uploadFileMutation.mutateAsync(uploadPayload)
       }
+    } catch (error) {
+      console.error("File upload failed:", error)
     }
-  };
-
-  const handleBreadcrumbClick = (index: number) => {
-    if (index === 0) {
-      setWorkspaceOrFolderList(workspaces ?? []);
-      setFolderHistory([MyDrive]);
-    } else {
-      const selectedItem = folderHistory[index] as Workspace | Folder;
-      setSelectedFolder(selectedItem);
-
-      // Check if the selected item is a folder or workspace and set the children accordingly
-      if ('workspaceId' in selectedItem) {
-        const subfolders = allFolders.filter(folder => folder.parentFolderId === selectedItem.id);
-        setWorkspaceOrFolderList(subfolders);
-      } else if ('folders' in selectedItem) {
-        const folders = selectedItem.folders as Folder[];
-        const filteredRootFolders = folders.filter(folder => folder.parentFolderId === null && folder.workspaceId === selectedItem.id);
-        setWorkspaceOrFolderList(filteredRootFolders);
-      }
-    }
-
-    setFolderHistory(folderHistory.slice(0, index + 1));
-  };
+  }
 
   // Reset state function
   const resetState = () => {
-    setSelectedFile(undefined);
-    setSearchQuery("");
-    setSelectedFolder(undefined);
-    setWorkspaceOrFolderList(workspaces ?? []);
-    setFolderHistory([MyDrive]);
-  };
+    setSelectedFile(undefined)
+  }
 
   // Reset state when the dialog is closed
   const handleClose = () => {
-    resetState();
-    onClose();
-  };
+    resetState()
+    onClose()
+  }
 
   const handleDialogOpenChange = (isOpen: boolean) => {
     if (!isOpen) {
-      handleClose();
+      handleClose()
     }
-    onOpenChange(isOpen);
-  };
+    onOpenChange(isOpen)
+  }
 
   return (
     <Dialog open={open} onOpenChange={handleDialogOpenChange}>
@@ -214,99 +238,66 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Upload className="h-5 w-5" />
-            Upload files to Drive
+            {step === "workspace" ? "Select Upload Location" : "Upload Files"}
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
-          {/* File Selection */}
-          <div className="space-y-2">
-            <Label>Choose files</Label>
-            <div className="flex gap-2">
-              <Input
-                ref={fileInputRef}
-                type="file"
-                multiple
-                onChange={handleFileChange}
-                className="cursor-pointer"
-                accept=".pdf, .docx"
-              />
-            </div>
-            {/* Add a helper text for file type guidance */}
-            <p className="text-sm text-muted-foreground">Allowed file types: PDF, DOCX</p>
-          </div>
-
-          <div className="space-y-2">
-            <Label>Select destination location</Label>
-
-            {/* Breadcrumb Navigation */}
-            <div className="flex items-center gap-1 text-sm text-muted-foreground pb-2">
-              {folderHistory.map((folder, index) => (
-                <Fragment key={folder.id}>
-                  {index > 0 && <ChevronRight className="h-4 w-4" />}
-                  <button
-                    onClick={() => handleBreadcrumbClick(index)}
-                    className="hover:text-primary transition-colors"
-                  >
-                    {folder.name}
-                  </button>
-                </Fragment>
-              ))}
-            </div>
-
-            {/* Folder Search */}
-            <div className="relative">
-              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search folders"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-8"
-              />
-            </div>
-
-            {/* Folder List */}
-            <ScrollArea className="h-[200px] border rounded-md">
-              <div className="p-4 space-y-2">
-                {workspaceOrFolderList.map((workspaceOrFolder) => (
-                  <button
-                    key={workspaceOrFolder.id}
-                    onClick={() => handleFolderClick(workspaceOrFolder)}
-                    className={`w-full flex items-center gap-2 p-2 rounded-md hover:bg-accent text-left ${selectedFolder?.id === workspaceOrFolder.id ? 'bg-accent' : ''
-                      }`}
-                  >
-                    <FolderIcon className="h-4 w-4" />
-                    <span className="flex-1">{workspaceOrFolder.name}</span>
-                    {workspaceOrFolder.hasSubfolders &&
-                      <ChevronRight
-                        className="h-4 w-4"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleNextButtonClick(workspaceOrFolder);
-                        }}
-                      />}
-                  </button>
-                ))}
+        {!currentParent && step === "workspace" ? (
+          <WorkspaceSelector onSelect={handleWorkspaceSelect} />
+        ) : (
+          <div className="space-y-4 py-4">
+            {!currentParent && (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Button variant="ghost" size="sm" className="gap-1"
+                  onClick={() => setStep("workspace")}
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                  Back
+                </Button>
+                Uploading to: {selectedParent?.name}
               </div>
-            </ScrollArea>
-          </div>
+            )}
+            {/* File Selection */}
+            <div className="space-y-2">
+              <Label>Choose files</Label>
+              <div className="flex gap-2">
+                <Input
+                  ref={fileInputRef}
+                  type="file"
+                  multiple
+                  onChange={handleFileChange}
+                  className="cursor-pointer"
+                  accept=".pdf, .docx"
+                />
+              </div>
+              {/* Add a helper text for file type guidance */}
+              <p className="text-sm text-muted-foreground">Allowed file types: PDF, DOCX</p>
+            </div>
 
-          {/* Selected Path Display */}
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <ArrowRight className="h-4 w-4" />
-            Files will be uploaded to: {selectedFolder ? selectedFolder.name : "No folder selected"}
+            {/* Current Location Display */}
+            {currentParent && (
+              <div className="text-sm text-muted-foreground">
+                Files will be uploaded to: {currentParent.name}
+              </div>
+            )}
           </div>
-        </div>
+        )}
 
         <DialogFooter>
           <div className="flex justify-end gap-2">
             <Button variant="ghost" onClick={handleClose}>
               Cancel
             </Button>
-            <Button onClick={handleUpload} disabled={!selectedFile} className="gap-2">
-              <Upload className="h-4 w-4" />
-              Upload
-            </Button>
+            {step === "upload" && (
+              <Button
+                onClick={handleUpload}
+                disabled={!selectedFile || !(currentParent ?? selectedParent)}
+                className="gap-2"
+              >
+                <Upload className="h-4 w-4" />
+                Upload
+              </Button>
+            )}
           </div>
         </DialogFooter>
       </DialogContent>

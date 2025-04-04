@@ -1,11 +1,10 @@
-import React from "react"
-import { Spinner } from "~/components/ui/spinner"
-import { type BaseProps } from "~/constants/interfaces"
+import type { BaseProps } from "~/constants/interfaces";
+import CustomLoading1 from "./loader/custom-loading-1"
 
-const Loading: React.FC<BaseProps> = ({className}) => {
+const Loading: React.FC<BaseProps> = ({ className }) => {
   return (
-    <div className={`flex items-center justify-center ${className}`}>
-      <Spinner className="text-primary" />
+    <div className="flex items-center justify-center h-screen">
+      <CustomLoading1 />
     </div>
   )
 }

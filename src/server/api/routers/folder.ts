@@ -25,7 +25,6 @@ export const folderRouter = createTRPCRouter({
         }
       })
 
-      // Update parent folder and workspace hasSubFolder field
       if(parentsFolderId) {
         await ctx.db.folder.update({
           where: {

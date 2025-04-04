@@ -12,7 +12,6 @@ import { Button } from "~/components/ui/button"
 import { useSession } from "next-auth/react"
 import { api } from "~/trpc/react"
 import { useRef, useState, useEffect } from "react"
-import { useRouter } from "next/navigation";
 
 interface NewFolderDialogProps {
   open: boolean
@@ -25,7 +24,6 @@ export function NewWorkspaceDialog({ open, onOpenChange, onClose }: NewFolderDia
   const utils = api.useUtils();
   const [workspaceName, setWorkspaceName] = useState("")
   const inputRef = useRef<HTMLInputElement>(null)
-  const router = useRouter();
 
   const createNewWorkspace = api.workspace.createNewWorkspace.useMutation({
     onMutate: () => {
@@ -76,12 +74,10 @@ export function NewWorkspaceDialog({ open, onOpenChange, onClose }: NewFolderDia
         if (session != null) {
           onClose();
 
-          const newWorkspaceId = await createNewWorkspace.mutateAsync({
+          await createNewWorkspace.mutateAsync({
             userId: session.user.id,
             workspaceName: workspaceName
           });
-
-          router.push(`/workspace/${newWorkspaceId}`);
         }
       } catch (error) {
         console.log("File upload failed:", error)

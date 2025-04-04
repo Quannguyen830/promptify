@@ -37,22 +37,24 @@ export function FolderBreadcrumb({ items }: FolderBreadcrumbProps) {
   }
 
   return (
-    <nav className="flex items-center space-x-1 text-2xl">
+    <nav className="flex items-center text-sm text-muted-foreground">
       {items.map((item, index) => (
         <div key={item.href} className="flex items-center">
-          {index > 0 && <ChevronRight className="h-4 w-4 mx-2 text-muted-foreground" />}
+          {index > 0 && (
+            <ChevronRight className="h-4 w-4 mx-1 flex-shrink-0" />
+          )}
           {item.current ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="px-2 font-medium text-2xl hover:bg-accent"
+                  className="px-2 py-1 h-auto font-medium text-sm hover:bg-transparent hover:text-foreground"
                 >
                   {item.label}
-                  <ChevronDown className="ml-1 h-4 w-4" />
+                  <ChevronDown className="ml-1 h-3 w-3" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent>
+              <DropdownMenuContent align="start">
                 <DropdownMenuItem>
                   Rename
                 </DropdownMenuItem>
@@ -67,7 +69,7 @@ export function FolderBreadcrumb({ items }: FolderBreadcrumbProps) {
           ) : (
             <Link
               href={item.href}
-              className="transition-colors"
+              className="px-2 py-1 rounded-sm hover:text-foreground transition-colors"
               onClick={() => handleClick(item.href)}
             >
               {item.label}
