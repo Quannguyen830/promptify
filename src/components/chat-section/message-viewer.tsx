@@ -3,7 +3,6 @@ import { type BaseProps } from "~/constants/interfaces";
 import { ChatState, useChat } from "./chat-store"
 
 import ChatBubble from "./chat-bubble";
-import { MessageStreamViewer } from "./message-stream-bubble";
 
 import Loading from "../share/loading-spinner";
 
@@ -11,7 +10,6 @@ import Loading from "../share/loading-spinner";
 const MessageViewer: React.FC<BaseProps> = ({ className }) => {
   const {
     chatState,
-    isStreaming,
     selectedSessionId
   } = useChat();
   
@@ -37,8 +35,6 @@ const MessageViewer: React.FC<BaseProps> = ({ className }) => {
           {message.content}
         </ChatBubble>
       ))}
-      
-      {/* {isStreaming && <MessageStreamViewer />} */}
     </div>
   )
 }

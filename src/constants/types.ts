@@ -8,6 +8,13 @@ import {
 
 
 // CHAT
+export const ChatProviderSchema = z.enum([
+  "gemini-2.0-flash",
+  "claude-3-haiku-20240307"
+]);
+export type ChatProvider = z.infer<typeof ChatProviderSchema>; 
+
+
 export const MessageSenderSchema = z.nativeEnum(MessageSenderPrisma);
 export type MessageSender = z.infer<typeof MessageSenderSchema>;
 

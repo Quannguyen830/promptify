@@ -1,9 +1,9 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
-import { MessageSenderSchema } from "~/constants/types";
+import { ChatProviderSchema, MessageSenderSchema } from "~/constants/types";
 
 import { observable } from "@trpc/server/observable";
-import { ChatModelEnum, generateChatTitle, sendMessageWithContextStreaming } from "~/server/services/llm-service";
+import { generateChatTitle, sendMessageWithContextStreaming } from "~/server/services/llm-service";
 
 export const ChatRouter = createTRPCRouter({
   createChatSession: protectedProcedure
@@ -14,8 +14,10 @@ export const ChatRouter = createTRPCRouter({
     .mutation(async ({ input, ctx }) => {
       const { firstMessageContent: content, sender } = input;
       
-      const chatName = await generateChatTitle(content);
+      if (!ctx.session.user.id) return;
 
+      const chatName = await generateChatTitle(content);
+      
       const response = await ctx.db.chatSession.create({
         data: {
           name: chatName,
@@ -55,7 +57,7 @@ export const ChatRouter = createTRPCRouter({
       content: z.string(),
       sender: MessageSenderSchema
     })),
-    model: z.nativeEnum(ChatModelEnum)
+    model: ChatProviderSchema
   }))
   .subscription(async ({ input, ctx }) => {
     const { chatSessionId, content, context, model } = input;
@@ -69,11 +71,11 @@ export const ChatRouter = createTRPCRouter({
       (async () => {
         try {
           // Get streaming response
-          const streamResponse = sendMessageWithContextStreaming(content, context, model);
+          const textStream = await sendMessageWithContextStreaming(content, context, model);
           let accumulatedResponse = '';
           
           // Process each chunk as it comes in
-          for await (const chunk of streamResponse.textStream) {
+          for await (const chunk of textStream) {
             // Check if the subscription has been cancelled
             if (signal.aborted) {
               console.log('Streaming was aborted');
@@ -96,7 +98,7 @@ export const ChatRouter = createTRPCRouter({
               data: {
                 chatSessionId: chatSessionId,
                 content: accumulatedResponse,
-                sender: MessageSenderSchema.enum.AGENT
+                sender: MessageSenderSchema.enum.SYSTEM
               }
             });
             
@@ -170,7 +172,6 @@ export const ChatRouter = createTRPCRouter({
         }
       });
 
-      console.log("getAllChatSessions: ", response);
       return response;
     }
   ),
@@ -208,7 +209,6 @@ export const ChatRouter = createTRPCRouter({
         },
       });
 
-      console.log("getChatSessionById: ", response);
       return response;
     }
   ),

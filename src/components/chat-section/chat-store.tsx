@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { type ChatProvider, ChatProviderSchema } from "~/constants/types";
 
 export enum ChatState {
   SESSION_LISTING,
@@ -15,8 +16,8 @@ interface ChatStore {
   isStreaming: boolean;
   setIsStreaming: (value: boolean) => void;
 
-  streamingMessage: string;
-  setStreamingMessage: (message: string) => void;
+  chatProvider: ChatProvider;
+  setChatProvider: (provider: ChatProvider) => void;
 }
 export const useChat = create<ChatStore>((set) => ({
   chatState: ChatState.SESSION_LISTING,
@@ -40,21 +41,18 @@ export const useChat = create<ChatStore>((set) => ({
     }))
   },
 
-  streamingMessage: "",
-  setStreamingMessage: (message) => {
-    set(() => ({ streamingMessage: message }))
+  chatProvider: ChatProviderSchema.Enum["gemini-2.0-flash"],
+  setChatProvider(provider) {
+    set(() => ({ chatProvider: provider }))
   },
-  resetStreamingMessage: () => {
-    set(() => ({ streamingMessage: "" }))
-  }
 }))
 
 
-export interface ChatProvider {
+interface ChatSectionProvider {
   isOpen: boolean;
   toggleOpen: () => void;
 }
-export const useChatProvider = create<ChatProvider>((set) => ({
+export const useChatSectionProvider = create<ChatSectionProvider>((set) => ({
   isOpen: false,
   toggleOpen: () => {
     set((state) => ({ isOpen: !state.isOpen }))
