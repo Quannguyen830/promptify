@@ -3,9 +3,7 @@ import { type BaseProps } from "~/constants/interfaces";
 import { ChatState, useChat } from "./chat-store"
 
 import ChatBubble from "./chat-bubble";
-
 import Loading from "../share/loading-spinner";
-
 
 const MessageViewer: React.FC<BaseProps> = ({ className }) => {
   const {
@@ -29,11 +27,9 @@ const MessageViewer: React.FC<BaseProps> = ({ className }) => {
   }
 
   return (
-    <div className={` ${className}`}>
+    <div className={`w-full ${className}`}>
       {chatSession?.messages.map((message, index) => (
-        <ChatBubble key={index} variant={message.sender}>
-          {message.content}
-        </ChatBubble>
+        <ChatBubble content={message.content} key={index} variant={message.sender} />
       ))}
     </div>
   )

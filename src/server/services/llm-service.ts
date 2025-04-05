@@ -1,4 +1,4 @@
-import { generateText, streamText } from "ai";
+import { generateText, smoothStream, streamText } from "ai";
 
 import { anthropic } from '@ai-sdk/anthropic';
 import { google } from "@ai-sdk/google"
@@ -45,7 +45,8 @@ export const sendMessageWithContextStreaming = async (message: string, context: 
   const promptWithContext = `Previous conversation context:\n${contextString}\n\nCurrent message: ${message}`;
   const result = streamText({
     model: chatProviders[model],
-    prompt: promptWithContext
+    prompt: promptWithContext,
+    experimental_transform: smoothStream(),
   })
 
   return result;
