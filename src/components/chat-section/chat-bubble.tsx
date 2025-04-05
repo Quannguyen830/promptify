@@ -5,10 +5,10 @@ import { Avatar, AvatarFallback } from "../ui/avatar";
 import { useSession } from "next-auth/react";
 import { MessageSenderSchema } from "~/constants/types";
 
-import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeHighlight from 'rehype-highlight';
-
+import Markdown from "react-markdown";
+import ReactMarkdown from 'react-markdown';
 
 interface ChatBubbleProps extends BaseProps {
   variant: string
@@ -25,10 +25,10 @@ const ChatBubble = ({ className, content, variant }: ChatBubbleProps) => {
   return (
     <>
       {variant === MessageSenderSchema.enum.SYSTEM ? (
-        <div className={` ${AGENT_BUBBLE_STYLE} ${className}`}>
+        <div className={`markdown-body max-w-[100vh-548px] ${AGENT_BUBBLE_STYLE} ${className}`}>
           <ReactMarkdown
-            // remarkPlugins={[remarkGfm]}
-            // rehypePlugins={[rehypeHighlight]}
+            remarkPlugins={[remarkGfm]}
+            rehypePlugins={[rehypeHighlight]}
           >
             {content}
           </ReactMarkdown>

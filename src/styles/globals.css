@@ -96,3 +96,74 @@
     @apply bg-background text-foreground;
   }
 }
+
+
+/* Markdown styling override using Tailwind classes */
+.markdown-body {
+  @apply text-sm text-gray-800 leading-relaxed break-words break-all max-w-[100vh-556px];
+}
+
+.markdown-body p {
+  @apply mb-3;
+}
+
+.markdown-body h1 {
+  @apply text-xl font-bold mb-3;
+}
+
+.markdown-body h2 {
+  @apply text-lg font-semibold mb-2;
+}
+
+.markdown-body h3 {
+  @apply text-base font-semibold mb-2;
+}
+
+.markdown-body ul {
+  @apply list-disc list-inside mb-3;
+}
+
+.markdown-body ol {
+  @apply list-decimal list-inside mb-3;
+}
+
+.markdown-body li {
+  @apply mb-1;
+}
+
+.markdown-body a {
+  @apply text-blue-600 underline hover:text-blue-800;
+}
+
+.markdown-body blockquote {
+  @apply border-l-4 border-gray-300 pl-4 italic text-gray-600 mb-3;
+}
+
+.markdown-body hr {
+  @apply border-t my-4 border-gray-300;
+}
+
+.markdown-body pre {
+  @apply bg-gray-100 rounded p-4 text-sm overflow-x-auto mb-4;
+}
+
+.markdown-body code {
+  @apply bg-gray-200 text-red-600 px-1 py-0.5 rounded text-sm font-mono;
+}
+
+.markdown-body pre code {
+  @apply bg-transparent text-black p-0;
+}
+
+/* Optional tables */
+.markdown-body table {
+  @apply table-auto w-full border-collapse text-left text-sm mb-4;
+}
+
+.markdown-body th {
+  @apply border-b px-4 py-2 font-semibold bg-gray-50;
+}
+
+.markdown-body td {
+  @apply border-b px-4 py-2;
+}
