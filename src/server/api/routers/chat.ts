@@ -71,11 +71,11 @@ export const ChatRouter = createTRPCRouter({
       (async () => {
         try {
           // Get streaming response
-          const textStream = await sendMessageWithContextStreaming(content, context, model);
+          const result = await sendMessageWithContextStreaming(content, context, model);
           let accumulatedResponse = '';
           
           // Process each chunk as it comes in
-          for await (const chunk of textStream) {
+          for await (const chunk of result.textStream) {
             // Check if the subscription has been cancelled
             if (signal.aborted) {
               console.log('Streaming was aborted');

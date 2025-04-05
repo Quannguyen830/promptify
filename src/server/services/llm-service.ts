@@ -45,15 +45,10 @@ export const sendMessageWithContextStreaming = async (message: string, context: 
   const promptWithContext = `Previous conversation context:\n${contextString}\n\nCurrent message: ${message}`;
   const result = streamText({
     model: chatProviders[model],
-    system: DEFAULT_GEMINI_INSTRUCTION,
     prompt: promptWithContext
   })
 
-  for await (const textPart of result.textStream) {
-    process.stdout.write(textPart);
-  }
-
-  return result.textStream;
+  return result;
 }
 
 
