@@ -12,7 +12,7 @@ const PageBreadcrumb: React.FC<BaseProps> = ({ className }) => {
     <Breadcrumb className={` ${className}`}>
       <BreadcrumbList>        
         <BreadcrumbItem>
-          <BreadcrumbLink href="/">Home</BreadcrumbLink>
+          <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
         </BreadcrumbItem>
         <BreadcrumbSeparator />
         

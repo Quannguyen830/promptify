@@ -8,7 +8,6 @@ import { MessageSenderSchema } from "~/constants/types";
 import remarkGfm from 'remark-gfm';
 import rehypeHighlight from 'rehype-highlight';
 import Markdown from "react-markdown";
-import ReactMarkdown from 'react-markdown';
 
 interface ChatBubbleProps extends BaseProps {
   variant: string
@@ -26,12 +25,12 @@ const ChatBubble = ({ className, content, variant }: ChatBubbleProps) => {
     <>
       {variant === MessageSenderSchema.enum.SYSTEM ? (
         <div className={`markdown-body max-w-[100vh-548px] ${AGENT_BUBBLE_STYLE} ${className}`}>
-          <ReactMarkdown
+          <Markdown
             remarkPlugins={[remarkGfm]}
             rehypePlugins={[rehypeHighlight]}
           >
             {content}
-          </ReactMarkdown>
+          </Markdown>
         </div>
       ) : (
         <div className={`${USER_BUBBLE_STYLE} ${className}`}>
