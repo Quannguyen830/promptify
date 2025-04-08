@@ -68,7 +68,8 @@ export const fileRouter = createTRPCRouter({
           workspaceName: true,
           folderId: true,
           folderName: true,
-        }
+          name: true
+        } 
       })
 
       if (!file) {
@@ -92,7 +93,9 @@ export const fileRouter = createTRPCRouter({
             workspaceId: file.workspaceId,
             workspaceName: file.workspaceName,
             folderId: file.folderId,
-            folderName: file.folderName
+            folderName: file.folderName,
+            name: file.name,
+            id: file.id
           };
         } else if(file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
           return {
@@ -102,7 +105,9 @@ export const fileRouter = createTRPCRouter({
             workspaceId: file.workspaceId,
             workspaceName: file.workspaceName,
             folderId: file.folderId,
-            folderName: file.folderName
+            folderName: file.folderName,
+            name: file.name,
+            id: file.id
           }
         }
       }

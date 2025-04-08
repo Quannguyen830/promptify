@@ -65,6 +65,18 @@ export interface TreeItem {
   children?: TreeItem[]
 }
 
+// SEARCH SECTION
+
+export interface SearchResult {
+  _source: {
+    content: string;
+    key: string;
+  };
+  highlight?: {
+    content: string[];
+  };
+}
+
 // CHAT SECTION
 export interface ChatInputForm {
   message: string

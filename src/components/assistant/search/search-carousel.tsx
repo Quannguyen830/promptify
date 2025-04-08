@@ -5,12 +5,14 @@ import { type BaseProps } from "~/constants/interfaces";
 import { Button } from "../../ui/button";
 import SearchCard from "./search-card";
 import { useRef, useState } from "react";
+import { type SearchResult } from "~/constants/interfaces";
 
 interface SearchCarouselProps extends BaseProps {
   title: string;
+  results: SearchResult[];
 }
 
-const SearchCarousel: React.FC<SearchCarouselProps> = ({ className, title }) => {
+const SearchCarousel: React.FC<SearchCarouselProps> = ({ className, title, results }) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [showLeftButton, setShowLeftButton] = useState(false);
   const [showRightButton, setShowRightButton] = useState(true);
@@ -33,9 +35,6 @@ const SearchCarousel: React.FC<SearchCarouselProps> = ({ className, title }) => 
     );
   };
 
-  // Placeholder cards
-  const cards = Array(5).fill(null);
-
   return (
     <div className={`flex flex-col gap-4 ${className}`}>
       <h2 className="text-xl font-semibold">{title}</h2>
@@ -56,8 +55,8 @@ const SearchCarousel: React.FC<SearchCarouselProps> = ({ className, title }) => 
           className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth px-1"
           onScroll={handleScroll}
         >
-          {cards.map((_, index) => (
-            <SearchCard key={index} className="flex-shrink-0" />
+          {results.map((result, index) => (
+            <SearchCard key={index} className="flex-shrink-0" result={result} />
           ))}
         </div>
 
