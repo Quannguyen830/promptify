@@ -1,11 +1,12 @@
 "use client";
 
 import { useSession } from "next-auth/react";
+import { useChat } from "../chat-section/chat-store";
 
 import { type BaseProps } from "~/constants/interfaces";
-import MessageViewer from "../chat-section/message-viewer";
-import { useChat } from "../chat-section/chat-store";
 import Loading from "../share/loading-spinner";
+import MessageViewer from "../chat-section/message-viewer";
+
 
 
 const AssistantMessageViewer: React.FC<BaseProps> = ({ className }) => {

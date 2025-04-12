@@ -1,19 +1,19 @@
 "use client"
 
-import type { SignUpInput } from "~/lib/validations/auth"
+import { EyeIcon, EyeOffIcon } from "lucide-react"
+import { type SignUpInput, signUpSchema } from "~/constants/types"
 
-import Link from "next/link"
-import { signIn } from "next-auth/react"
-import { useRouter } from "next/navigation"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { signUpSchema } from "~/lib/validations/auth"
-import { Input } from "~/components/ui/input"
 import { Button } from "~/components/ui/button"
 import { Checkbox } from "~/components/ui/checkbox"
-import { EyeIcon, EyeOffIcon } from "lucide-react"
-import { useState } from "react"
 import { FormAnimationWrapper } from "~/components/share/form-animation-wrapper"
+import { Input } from "~/components/ui/input"
+import Link from "next/link"
+import { PromptifyLogo } from "~/components/share/promptify-logo"
+import { signIn } from "next-auth/react"
+import { useForm } from "react-hook-form"
+import { useRouter } from "next/navigation"
+import { useState } from "react"
+import { zodResolver } from "@hookform/resolvers/zod"
 
 export default function SignUp() {
   const [showPassword, setShowPassword] = useState(false)

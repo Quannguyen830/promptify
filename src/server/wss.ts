@@ -54,9 +54,9 @@ export function createWSServer() {
       });
     });
     
-    global.wssInstance.on("error", (error) => {
-      console.error("WebSocket Server Error:", error);
-    });
+    // global.wssInstance.on("error", (error) => {
+    //   console.error("WebSocket Server Error:", error);
+    // });
     
     // Handle multiple termination signals
     ['SIGINT', 'SIGTERM', 'SIGQUIT', 'SIGHUP'].forEach(signal => {
@@ -71,7 +71,7 @@ export function createWSServer() {
     
     // Handle uncaught exceptions
     process.on('uncaughtException', (error) => {
-      console.error('Uncaught Exception:', error);
+      // console.error('Uncaught Exception:', error);
       closeWSSServer();
     });
     

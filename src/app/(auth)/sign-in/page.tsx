@@ -1,16 +1,18 @@
 "use client"
 
-import Link from "next/link"
-import { Input } from "~/components/ui/input"
+import { type SignInInput, signInSchema } from "~/constants/types"
+
 import { Button } from "~/components/ui/button"
 import { Checkbox } from "~/components/ui/checkbox"
-import { signIn } from "next-auth/react"
-import { useRouter } from "next/navigation"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { signInSchema, type SignInInput } from "~/lib/validations/auth"
-import { useState } from "react"
 import { FormAnimationWrapper } from "~/components/share/form-animation-wrapper"
+import { Input } from "~/components/ui/input"
+import Link from "next/link"
+import { PromptifyLogo } from "~/components/share/promptify-logo"
+import { signIn } from "next-auth/react"
+import { useForm } from "react-hook-form"
+import { useRouter } from "next/navigation"
+import { useState } from "react"
+import { zodResolver } from "@hookform/resolvers/zod"
 
 export default function SignIn() {
   const router = useRouter()

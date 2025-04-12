@@ -3,18 +3,16 @@ import { type BaseProps } from "~/constants/interfaces";
 import { ChatState, useChat } from "./chat-store"
 
 import ChatBubble from "./chat-bubble";
-import { MessageStreamViewer } from "./message-stream-bubble";
-
 import Loading from "../share/loading-spinner";
-
+import { useEffect, useRef } from "react";
 
 const MessageViewer: React.FC<BaseProps> = ({ className }) => {
+  const bottomRef = useRef<HTMLDivElement>(null);
   const {
     chatState,
-    isStreaming,
     selectedSessionId
   } = useChat();
-  
+
   const { data: chatSession, isLoading } = api.chat.getChatSessionById.useQuery(
     {
       id: selectedSessionId!
@@ -23,6 +21,10 @@ const MessageViewer: React.FC<BaseProps> = ({ className }) => {
       enabled: chatState === ChatState.SESSION_SELECTED
     }
   )
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [chatSession?.messages]);
   
   if (isLoading) {
     return (
@@ -31,14 +33,12 @@ const MessageViewer: React.FC<BaseProps> = ({ className }) => {
   }
 
   return (
-    <div className={` ${className}`}>
+    <div className={`w-full ${className}`}>
       {chatSession?.messages.map((message, index) => (
-        <ChatBubble key={index} variant={message.sender}>
-          {message.content}
-        </ChatBubble>
+        <ChatBubble content={message.content} key={index} variant={message.sender} />
       ))}
       
-      {/* {isStreaming && <MessageStreamViewer />} */}
+      <div ref={bottomRef}/>
     </div>
   )
 }

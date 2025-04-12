@@ -14,7 +14,6 @@ import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
 import { ChatState, useChat } from "./chat-store";
 import { MessageSenderSchema } from "~/constants/types";
-import { ChatModelEnum } from "~/server/services/llm-service";
 
 interface ChatInputProps extends BaseProps {
   formClassName?: string;
@@ -22,7 +21,7 @@ interface ChatInputProps extends BaseProps {
 }
 
 
-const ChatInput: React.FC<ChatInputProps> = ({ children, formClassName, textareaClassName }) => {
+const ChatInput: React.FC<ChatInputProps> = ({ formClassName, textareaClassName }) => {
   const {
     register,
     handleSubmit,
@@ -32,6 +31,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ children, formClassName, textarea
   const {
     selectedSessionId,
     isStreaming,
+    chatProvider,
     setChatState,
     setSelectedSessionId,
     setIsStreaming,
@@ -101,7 +101,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ children, formClassName, textarea
       chatSessionId: selectedSessionId ?? "",
       content: userMessage,
       context: utils.chat.getChatSessionById.getData({ id: selectedSessionId ?? "" })?.messages ?? [],
-      model: ChatModelEnum.GEMINI_2_FLASH
+      model: chatProvider
     },
     {
       onData(data) {
@@ -128,7 +128,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ children, formClassName, textarea
                           id: "streaming-message",
                           createdAt: new Date(),
                           updatedAt: new Date(),
-                          sender: MessageSenderSchema.enum.AGENT,
+                          sender: MessageSenderSchema.enum.SYSTEM,
                           chatSessionId: selectedSessionId!,
                           content: data.content
                         }
@@ -179,10 +179,6 @@ const ChatInput: React.FC<ChatInputProps> = ({ children, formClassName, textarea
       void handleSubmit(onSubmit)();
     }
   };
-
-  const addContext = () => {
-    console.log("add context");
-  }
 
   return (
     <form 

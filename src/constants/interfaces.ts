@@ -1,4 +1,5 @@
 import { type File, type Folder, type Workspace } from "@prisma/client";
+import { type ChatProvider } from "./types";
 
 export interface BaseProps {
   children?: React.ReactNode;
@@ -83,8 +84,8 @@ export interface ChatInputForm {
 }
 
 export interface ChatModel {
-  value: string;
   name: string;
+  value: ChatProvider;
 }
 
 export interface ChatSessionCardProps extends BaseProps {
