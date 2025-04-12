@@ -63,20 +63,25 @@ model VerificationToken {
 
 model Folder {
   id             String    @id @default(cuid())
-  name           String
-  size           Float
-  workspaceId    String
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @default(now()) @updatedAt
-  parentFolderId String?
+  lastAccessed   DateTime? @default(now())
+
+  name           String
+  size           Float
   hasSubfolders  Boolean   @default(false)
-  workspaceName  String
   itemType       String    @default("folder")
   image          String?
-  lastAccessed   DateTime? @default(now())
-  files          File[]
+  
+  workspaceId    String
+  workspaceName  String
+  
+  parentFolderId String?
   parentFolder   Folder?   @relation("ParentChild", fields: [parentFolderId], references: [id], onDelete: Cascade)
+  
+  files          File[]
   subfolders     Folder[]  @relation("ParentChild")
+  
   Workspace      Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
   @@index([id])
@@ -85,18 +90,21 @@ model Folder {
 
 model File {
   id            String    @id @default(cuid())
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @default(now()) @updatedAt
+  lastAccessed  DateTime? @default(now())
+  
   name          String
   size          Float
   type          String
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @default(now()) @updatedAt
-  folderId      String?
-  workspaceId   String
-  folderName    String?
-  workspaceName String
   itemType      String    @default("file")
   image         String?
-  lastAccessed  DateTime? @default(now())
+
+  folderId      String?
+  folderName    String?
+  workspaceId   String
+  workspaceName String
+  
   folder        Folder?   @relation(fields: [folderId], references: [id], onDelete: Cascade)
   Workspace     Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
@@ -107,17 +115,20 @@ model File {
 
 model Workspace {
   id            String    @id @default(cuid())
-  name          String
-  userId        String
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @default(now()) @updatedAt
+  lastAccessed  DateTime? @default(now())
+
+  name          String
+  image         String?
   hasSubfolders Boolean   @default(false)
   itemType      String    @default("workspace")
-  image         String?
-  lastAccessed  DateTime? @default(now())
+  
   files         File[]
   folders       Folder[]
+
   user          User      @relation(fields: [userId], references: [id])
+  userId        String
 
   @@index([id])
   @@index([userId])

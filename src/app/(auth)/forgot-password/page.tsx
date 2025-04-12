@@ -1,16 +1,14 @@
 "use client"
 
-import type React from "react"
-
-import Link from "next/link"
-import { useState } from "react"
-import { Input } from "~/components/ui/input"
 import { Button } from "~/components/ui/button"
-import { PromptifyLogo } from "~/components/share/promptify-logo"
-import { forgotPasswordSchema, type ForgotPasswordInput } from "~/lib/validations/auth"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
+import { forgotPasswordSchema, type ForgotPasswordInput } from "~/constants/types"
 import { FormAnimationWrapper } from "~/components/share/form-animation-wrapper"
+import { Input } from "~/components/ui/input"
+import Link from "next/link"
+import { PromptifyLogo } from "~/components/share/promptify-logo"
+import { useForm } from "react-hook-form"
+import { useState } from "react"
+import { zodResolver } from "@hookform/resolvers/zod"
 
 export default function ForgotPassword() {
   const [isSubmitting, setIsSubmitting] = useState(false)
