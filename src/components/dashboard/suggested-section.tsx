@@ -39,6 +39,8 @@ export function SuggestedSection({ title, type, files = [], folders = [], worksp
                 id={workspace.id}
                 name={workspace.name}
                 date={workspace.createdAt.toDateString()}
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+                numberOfFiles={workspace.files.length}
               />
             ))
           ) : (

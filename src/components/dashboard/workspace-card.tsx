@@ -11,10 +11,11 @@ interface WorkspaceCardProps {
   id: string
   name: string
   date: string
+  numberOfFiles: number
   // type: "personal" | "shared"
 }
 
-export function WorkspaceCard({ id, name, date }: WorkspaceCardProps) {
+export function WorkspaceCard({ id, name, date, numberOfFiles }: WorkspaceCardProps) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const utils = api.useUtils();
 
@@ -60,6 +61,7 @@ export function WorkspaceCard({ id, name, date }: WorkspaceCardProps) {
         title="Delete Workspace"
         description={`Are you sure you want to delete "${name}"? This action cannot be undone.`}
       />
+
       <Card className="border p-4">
         <Link href={`/workspace/${id}`} className="block">
           <div className="grid grid-cols-2 gap-2 mb-4">
@@ -69,7 +71,11 @@ export function WorkspaceCard({ id, name, date }: WorkspaceCardProps) {
             <div className="h-16 border rounded"></div>
           </div>
           <h3 className="font-medium">{name}</h3>
-          <p className="text-xs text-gray-500">{date}</p>
+          <div className="flex items-center gap-2">
+            <p className="text-xs text-gray-500">{numberOfFiles} files</p>
+            <div className="h-1 w-1 bg-gray-500 rounded-full"></div>
+            <p className="text-xs text-gray-500">{date}</p>
+          </div>
         </Link>
         <div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity">
           <DropdownMenu>
