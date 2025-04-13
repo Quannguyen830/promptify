@@ -18,13 +18,13 @@ const ChatBubble = ({ className, content, variant }: ChatBubbleProps) => {
   const { data: session } = useSession();
   const firstLetter = session?.user?.email?.[0]?.toUpperCase() ?? '';
 
-  const USER_BUBBLE_STYLE = "p-2 pl-0 flex flex-row items-center gap-2 rounded-lg";
+  const USER_BUBBLE_STYLE = "p-2 pl-0 flex flex-row gap-2 rounded-lg";
   const AGENT_BUBBLE_STYLE = "p-2 w-full border-2 bg-black/10 rounded-lg";
 
   return (
     <>
       {variant === MessageSenderSchema.enum.SYSTEM ? (
-        <div className={`markdown-body max-w-[100vh-548px] ${AGENT_BUBBLE_STYLE} ${className}`}>
+        <div className={`word-wrap markdown-body max-w-[100vh-548px] ${AGENT_BUBBLE_STYLE} ${className}`}>
           <Markdown
             remarkPlugins={[remarkGfm]}
             rehypePlugins={[rehypeHighlight]}
@@ -38,7 +38,7 @@ const ChatBubble = ({ className, content, variant }: ChatBubbleProps) => {
             <AvatarFallback>{firstLetter}</AvatarFallback>
           </Avatar>
           
-          <p>{content}</p>
+          <p className="max-w-full break-all">{content}</p>
         </div>
       )}
     </>
