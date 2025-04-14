@@ -9,7 +9,6 @@ import {
 } from "~/components/ui/dialog"
 import { Input } from "~/components/ui/input"
 import { Button } from "~/components/ui/button"
-import { useSession } from "next-auth/react"
 import { api } from "~/trpc/react"
 import { useRef, useState, useEffect } from "react"
 
@@ -20,13 +19,12 @@ interface NewFolderDialogProps {
 }
 
 export function NewWorkspaceDialog({ open, onOpenChange, onClose }: NewFolderDialogProps) {
-  const { data: session } = useSession();
   const utils = api.useUtils();
   const [workspaceName, setWorkspaceName] = useState("")
   const inputRef = useRef<HTMLInputElement>(null)
 
   const createNewWorkspace = api.workspace.createNewWorkspace.useMutation({
-    onMutate: () => {
+    onMutate: (data) => {
       void utils.workspace.listWorkspaceByUserId.cancel();
 
       const previousWorkspaces = utils.workspace.listWorkspaceByUserId.getData();
@@ -36,8 +34,8 @@ export function NewWorkspaceDialog({ open, onOpenChange, onClose }: NewFolderDia
 
         return [...prev, {
           id: "new-workspace",
-          name: workspaceName,
-          userId: session?.user.id ?? "",
+          name: data.workspaceName,
+          userId: "temp-user-id",
           files: [],
           folders: [],
           createdAt: new Date(),
@@ -71,14 +69,11 @@ export function NewWorkspaceDialog({ open, onOpenChange, onClose }: NewFolderDia
   const handleCreate = async () => {
     if (workspaceName.trim()) {
       try {
-        if (session != null) {
-          onClose();
+        onClose();
 
-          await createNewWorkspace.mutateAsync({
-            userId: session.user.id,
-            workspaceName: workspaceName
-          });
-        }
+        await createNewWorkspace.mutateAsync({
+          workspaceName: workspaceName
+        });
       } catch (error) {
         console.log("File upload failed:", error)
       }
