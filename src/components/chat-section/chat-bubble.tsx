@@ -18,13 +18,11 @@ const ChatBubble = ({ className, content, variant }: ChatBubbleProps) => {
   const { data: session } = useSession();
   const firstLetter = session?.user?.email?.[0]?.toUpperCase() ?? '';
 
-  const USER_BUBBLE_STYLE = "p-2 pl-0 flex flex-row gap-2 rounded-lg";
-  const AGENT_BUBBLE_STYLE = "p-2 w-full border-2 bg-black/10 rounded-lg";
-
   return (
     <>
       {variant === MessageSenderSchema.enum.SYSTEM ? (
-        <div className={`word-wrap markdown-body max-w-[100vh-548px] ${AGENT_BUBBLE_STYLE} ${className}`}>
+        // For agent
+        <div className={`markdown-body p-2 bg-black/10 rounded-lg ${className}`}>
           <Markdown
             remarkPlugins={[remarkGfm]}
             rehypePlugins={[rehypeHighlight]}
@@ -33,12 +31,13 @@ const ChatBubble = ({ className, content, variant }: ChatBubbleProps) => {
           </Markdown>
         </div>
       ) : (
-        <div className={`${USER_BUBBLE_STYLE} ${className}`}>
+        // For user
+        <div className={`p-2 pl-0 flex flex-row gap-2 rounded-lg ${className}`}>
           <Avatar className="h-8 w-8">
             <AvatarFallback>{firstLetter}</AvatarFallback>
           </Avatar>
           
-          <p className="max-w-full break-all">{content}</p>
+          <p className="flex items-center break-all">{content}</p>
         </div>
       )}
     </>

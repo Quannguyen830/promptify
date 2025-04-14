@@ -100,7 +100,7 @@
 
 /* Markdown styling override using Tailwind classes */
 .markdown-body {
-  @apply text-sm text-gray-800 leading-relaxed break-words break-all max-w-[100vh-556px];
+  @apply text-sm text-gray-800 leading-relaxed;
 }
 
 .markdown-body p {

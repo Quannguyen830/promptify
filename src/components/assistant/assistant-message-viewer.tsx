@@ -6,6 +6,7 @@ import { useChat } from "../chat-section/chat-store";
 import { type BaseProps } from "~/constants/interfaces";
 import Loading from "../share/loading-spinner";
 import MessageViewer from "../chat-section/message-viewer";
+import { ScrollArea } from "@radix-ui/react-scroll-area";
 
 
 
@@ -20,7 +21,7 @@ const AssistantMessageViewer: React.FC<BaseProps> = ({ className }) => {
   }
 
   return (
-    <div className={`flex flex-col overflow-y-auto pr-2 rounded-[8px] h-full items-center ${className}`}>
+    <ScrollArea className={`flex flex-col overflow-y-auto rounded-[8px] h-full items-center ${className}`}>
       {!selectedSessionId ? (
         <div className="flex flex-1 flex-col justify-center items-center">
           <h2 className="text-[42px] font-bold">Hi {data?.user.name ?? "user"}</h2>
@@ -29,7 +30,7 @@ const AssistantMessageViewer: React.FC<BaseProps> = ({ className }) => {
       ) : (
         <MessageViewer className="flex flex-col h-full gap-2 items-start w-full"/>
       )}
-    </div>
+    </ScrollArea>
   )
 }
 export default AssistantMessageViewer;
