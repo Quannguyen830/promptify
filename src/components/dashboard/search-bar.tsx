@@ -77,6 +77,7 @@ export function SearchBar() {
           className="w-full bg-secondary pl-10 pr-4 rounded-md border-none focus-visible:ring-1"
         />
       </div>
+      
       {showSuggestions && (
         <div className="absolute mt-2 w-full bg-background rounded-lg border shadow-lg z-50 overflow-hidden">
           <ScrollArea className="max-h-[400px]">

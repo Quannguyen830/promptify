@@ -164,4 +164,20 @@ export const fileRouter = createTRPCRouter({
 
       return newFile.id;
     }),
+
+  getAllFileNamesWithWorkspace: protectedProcedure
+    .query(async ({ ctx }) => {
+      return await ctx.db.file.findMany({
+        where: {
+          Workspace: {
+            userId: ctx.session.user.id
+          }
+        },
+        select: {
+          id: true,
+          name: true,
+          workspaceName: true,
+        }        
+      });  
+    })
 })

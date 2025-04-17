@@ -6,6 +6,7 @@ import { Button } from "~/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select";
 import { type ChatModel } from "~/constants/interfaces";
 import { ChatProviderSchema } from "~/constants/types";
+import FileSelectorMenu from "./input-context/file-selector-menu";
 
 
 export const chatModels: ChatModel[] = [
@@ -26,7 +27,6 @@ const AssistantInputToolbar = () => {
   } = useChat();
   
   const handleChatProviderSelect = (provider: ChatModel) => {
-    console.log(provider)
     setChatProvider(provider.value);
   }
 
@@ -63,6 +63,8 @@ const AssistantInputToolbar = () => {
         <Button variant="ghost" className="p-2">
           <Upload className="h-6" />
         </Button>
+
+        <FileSelectorMenu />
       </div>
     </div>
   )

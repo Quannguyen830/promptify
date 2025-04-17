@@ -22,7 +22,7 @@ const ChatBubble = ({ className, content, variant }: ChatBubbleProps) => {
     <>
       {variant === MessageSenderSchema.enum.SYSTEM ? (
         // For agent
-        <div className={`markdown-body p-2 bg-black/10 rounded-lg ${className}`}>
+        <div className={`markdown-body break-all p-2 bg-black/10 rounded-lg ${className}`}>
           <Markdown
             remarkPlugins={[remarkGfm]}
             rehypePlugins={[rehypeHighlight]}
