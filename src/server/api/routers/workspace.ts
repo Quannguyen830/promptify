@@ -5,15 +5,14 @@ import { GuestUser } from "~/constants/interfaces";
 export const workspaceRouter = createTRPCRouter({
   createNewWorkspace: protectedProcedure
     .input(z.object({
-      userId: z.string(),
       workspaceName: z.string(),
     }))
     .mutation(async ({ input, ctx }) => {
-      const { userId, workspaceName } = input;
+      const { workspaceName } = input;
 
       const newWorkspace = await ctx.db.workspace.create({
         data: {
-          userId: userId,
+          userId: ctx.session.user.id,
           name: workspaceName,
         }
       });
