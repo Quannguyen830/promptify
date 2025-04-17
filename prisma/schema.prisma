@@ -97,8 +97,9 @@ model File {
   name          String
   size          Float
   type          String
-  itemType      String    @default("file")
+  content       String?
   image         String?
+  itemType      String    @default("file")
 
   folderId      String?
   folderName    String?
