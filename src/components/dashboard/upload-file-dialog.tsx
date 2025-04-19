@@ -49,7 +49,7 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
       void utils.folder.getFolderContentByFolderId.cancel()
 
       const parent = currentParent ?? selectedParent
-      if (!parent) return {}
+      if (!parent || !selectedFile) return {}
 
       const previousWorkspaces = utils.workspace.listWorkspaceByUserId.getData()
       const previousWorkspace = parent.itemType === 'workspace'
@@ -61,13 +61,13 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
 
       const newFile = {
         id: "new-file",
-        name: selectedFile?.name ?? "",
-        size: selectedFile?.size ?? 0,
-        type: selectedFile?.type ?? "",
+        name: selectedFile.name,
+        size: selectedFile.size,
+        type: selectedFile.type,
         createdAt: new Date(),
         updatedAt: new Date(),
         lastAccessed: null,
-        itemType: "file",
+        itemType: "file" as const,
         workspaceId: parent.itemType === 'workspace'
           ? parent.id
           : (parent as Folder).workspaceId,

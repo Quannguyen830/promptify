@@ -25,7 +25,7 @@ export default function FilePage() {
   return (
     <div className="flex flex-col h-screen w-full">
       {
-        fetchedFile?.type === "pdf" ? (
+        fetchedFile?.type === "application/pdf" ? (
           <PdfPage documentLink={fetchedFile.signedUrl} />
         ) : (
           <TextEditorPage
