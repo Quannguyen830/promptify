@@ -14,7 +14,6 @@ const AssistantInputToolbar = () => {
 
 
         <div className="flex flex-row items-center gap-4 h-full px-3">
-          {/* create custom component for adding image and download */}
           <Button variant="ghost" className="p-2">
             <ImageIcon className="h-6" />
           </Button>

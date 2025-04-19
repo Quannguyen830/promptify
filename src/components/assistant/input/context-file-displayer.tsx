@@ -5,7 +5,8 @@ import { useChat } from "~/components/chat-section/chat-store";
 
 const ContextFileDisplayer = () => {
   const {
-    contextFileIds
+    contextFileIds,
+    removeContextFileId
   } = useChat();
   
   return (
@@ -14,7 +15,7 @@ const ContextFileDisplayer = () => {
         <div className="flex max-w-80" key={index}>
           <p className="truncate">{file.name}</p>
           
-          <button className="">
+          <button onClick={() => removeContextFileId(file.id)} className="">
             <X className="h-4" />
           </button>
         </div>

@@ -21,7 +21,7 @@ const AssistantMessageViewer: React.FC<BaseProps> = ({ className }) => {
   }
 
   return (
-    <ScrollArea className={`flex flex-col overflow-y-auto rounded-[8px] h-full items-center ${className}`}>
+    <ScrollArea className={`flex flex-col overflow-y-auto pr-1 h-full items-center ${className}`}>
       {!selectedSessionId ? (
         <div className="flex flex-1 flex-col justify-center items-center">
           <h2 className="text-[42px] font-bold">Hi {data?.user.name ?? "user"}</h2>
