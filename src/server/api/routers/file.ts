@@ -88,7 +88,7 @@ export const fileRouter = createTRPCRouter({
         if (file.type === "application/pdf") {
           return { 
             message: "Get successful", 
-            type: 'pdf',
+            type: file.type,
             signedUrl: signedUrl,
             workspaceId: file.workspaceId,
             workspaceName: file.workspaceName,
@@ -100,7 +100,7 @@ export const fileRouter = createTRPCRouter({
         } else if(file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
           return {
             message: "Get successful",
-            type: "docx",
+            type: file.type,
             signedUrl: signedUrl,
             workspaceId: file.workspaceId,
             workspaceName: file.workspaceName,

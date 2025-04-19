@@ -14,7 +14,7 @@ import Link from 'next/link'
 import { useState } from 'react'
 import { DeleteWarningDialog } from './delete-warning-dialog'
 
-export function FileCard({ id, title, date, image, fileType }: FileCardProps) {
+export function FileCard({ id, title, date, fileType }: FileCardProps) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const utils = api.useUtils();
 
@@ -123,7 +123,7 @@ export function FileCard({ id, title, date, image, fileType }: FileCardProps) {
         <Link href={`/file/${id}`}>
           <div className="relative aspect-[1.6] w-full rounded-lg p-2">
             <div className='bg-gray-200 w-full h-full rounded-lg'></div>
-            {fileType === 'application/pdf' && (
+            {fileType == 'application/pdf' && (
               <div className="absolute top-4 left-4 p-1 rounded-md">
                 <Image
                   src={"/icon/pdf-icon.svg"}
@@ -133,7 +133,7 @@ export function FileCard({ id, title, date, image, fileType }: FileCardProps) {
                 />
               </div>
             )}
-            {fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' && (
+            {fileType == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' && (
               <div className="absolute top-4 left-4 p-1 rounded-md">
                 <Image
                   src={"/icon/docx-icon.svg"}

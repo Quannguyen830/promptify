@@ -1,18 +1,16 @@
 import * as React from "react"
 import { ScrollArea } from "~/components/ui/scroll-area"
-import { Input } from "~/components/ui/input"
-import { Search, Briefcase, ChevronRight } from "lucide-react"
 import { Fragment, useEffect, useState } from "react"
 import { api } from "~/trpc/react"
 import { type Folder, type Workspace } from "@prisma/client"
 import { MyDrive, type FolderHistoryItem } from "~/constants/interfaces"
+import { ChevronRight, Briefcase } from "lucide-react"
 
 interface WorkspaceSelectorProps {
   onSelect: (workspace: Workspace | Folder) => void
 }
 
 export function WorkspaceSelector({ onSelect }: WorkspaceSelectorProps) {
-  const [searchQuery, setSearchQuery] = useState("");
   const [folderHistory, setFolderHistory] = useState<FolderHistoryItem[]>([MyDrive]);
   const [workspaceOrFolderList, setWorkspaceOrFolderList] = useState<Workspace[] | Folder[]>([]);
   const [allFolders, setAllFolders] = useState<Folder[]>([])
@@ -86,15 +84,6 @@ export function WorkspaceSelector({ onSelect }: WorkspaceSelectorProps) {
 
   return (
     <div className="space-y-4">
-      <div className="relative">
-        <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-        <Input
-          placeholder="Search workspaces"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-8"
-        />
-      </div>
       {folderHistory.length > 0 && (
         <div className="flex items-center gap-1 text-sm text-muted-foreground">
           {folderHistory.map((item, index) => (
