@@ -40,9 +40,9 @@ export const sendMessageWithContext = async (message: string, context: ClientMes
 }
 
 // Send and get msg with context but can stream
-export const sendMessageWithContextStreaming = async (message: string, context: ClientMessage[], model: ChatProvider) => {
+export const sendMessageWithContextStreaming = async (message: string, context: ClientMessage[], model: ChatProvider, contextFilesContent: string) => {
   const contextString = JSON.stringify(context);
-  const promptWithContext = `Previous conversation context:\n${contextString}\n\nCurrent message: ${message}`;
+  const promptWithContext = `Context that the user want to based the output on:\n${contextFilesContent} \nPrevious conversation context:\n${contextString}\n\nCurrent message: ${message}`;
   const result = streamText({
     model: chatProviders[model],
     prompt: promptWithContext,

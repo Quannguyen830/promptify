@@ -4,16 +4,17 @@ import {
   type SubmitHandler,
   useForm
 } from "react-hook-form";
-import { SendHorizonal } from "lucide-react";
+
 import { api } from "~/trpc/react";
 import { useState } from "react";
 
 import { type BaseProps, type ChatInputForm } from "~/constants/interfaces";
+import { MessageSenderSchema } from "~/constants/types";
 
+import { SendHorizonal } from "lucide-react";
 import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
 import { ChatState, useChat } from "./chat-store";
-import { MessageSenderSchema } from "~/constants/types";
 
 interface ChatInputProps extends BaseProps {
   formClassName?: string;
@@ -32,6 +33,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ formClassName, textareaClassName 
     selectedSessionId,
     isStreaming,
     chatProvider,
+    contextFileIds,
     setChatState,
     setSelectedSessionId,
     setIsStreaming,
@@ -101,7 +103,8 @@ const ChatInput: React.FC<ChatInputProps> = ({ formClassName, textareaClassName 
       chatSessionId: selectedSessionId ?? "",
       content: userMessage,
       context: utils.chat.getChatSessionById.getData({ id: selectedSessionId ?? "" })?.messages ?? [],
-      model: chatProvider
+      model: chatProvider,
+      contextFiles: contextFileIds
     },
     {
       onData(data) {

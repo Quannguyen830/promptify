@@ -50,86 +50,109 @@ export const ChatRouter = createTRPCRouter({
     }),
 
   streamAgentResponse: publicProcedure
-  .input(z.object({
-    chatSessionId: z.string(),
-    content: z.string(),
-    context: z.array(z.object({
+    .input(z.object({
+      chatSessionId: z.string(),
       content: z.string(),
-      sender: MessageSenderSchema
-    })),
-    model: ChatProviderSchema
-  }))
-  .subscription(async ({ input, ctx }) => {
-    const { chatSessionId, content, context, model } = input;
-        
-    return observable<{ content: string, done: boolean }>((emit) => {
-      // Define an abort controller to cancel the stream if needed
-      const abortController = new AbortController();
-      const signal = abortController.signal;
-      
-      // Start the streaming process asynchronously
-      (async () => {
-        try {
-          // Get streaming response
-          const result = await sendMessageWithContextStreaming(content, context, model);
-          let accumulatedResponse = '';
+      context: z.array(z.object({
+        content: z.string(),
+        sender: MessageSenderSchema
+      })),
+      model: ChatProviderSchema,
+      contextFiles: z.array(z.object({
+        id: z.string(),
+        name: z.string()
+      }))
+    }))
+    .subscription(async ({ input, ctx }) => {
+      const { chatSessionId, content, context, model, contextFiles } = input;
+
+      const fileIds = contextFiles.map(file => file.id);
+      let contextFileContent = "";
+
+      if (contextFiles.length !== 0) {
+        const files = await ctx.db.file.findMany({
+          where: {
+            id: { 
+              in: fileIds
+            }
+          },
+          select: {
+            content: true
+          }
+        })
+        contextFileContent = files.map(f => f.content).join("\n");
+      }
+
+      console.log("Context File Content: ", contextFileContent);
           
-          // Process each chunk as it comes in
-          for await (const chunk of result.textStream) {
-            // Check if the subscription has been cancelled
-            if (signal.aborted) {
-              console.log('Streaming was aborted');
-              break;
+      return observable<{ content: string, done: boolean }>((emit) => {
+        // Define an abort controller to cancel the stream if needed
+        const abortController = new AbortController();
+        const signal = abortController.signal;
+        
+        // Start the streaming process asynchronously
+        (async () => {
+          try {
+            // Get streaming response
+            const result = await sendMessageWithContextStreaming(content, context, model, contextFileContent);
+            let accumulatedResponse = '';
+            
+            // Process each chunk as it comes in
+            for await (const chunk of result.textStream) {
+              // Check if the subscription has been cancelled
+              if (signal.aborted) {
+                console.log('Streaming was aborted');
+                break;
+              }
+              
+              accumulatedResponse += chunk;
+              
+              // Emit each chunk to the client
+              emit.next({
+                content: chunk,
+                done: false
+              });
             }
             
-            accumulatedResponse += chunk;
-            
-            // Emit each chunk to the client
-            emit.next({
-              content: chunk,
-              done: false
-            });
+            // Only save to DB and complete if not aborted
+            if (!signal.aborted) {
+              // Save the complete response to the database when streaming is done
+              await ctx.db.message.create({
+                data: {
+                  chatSessionId: chatSessionId,
+                  content: accumulatedResponse,
+                  sender: MessageSenderSchema.enum.SYSTEM
+                }
+              });
+              
+              // Signal that we're done streaming
+              emit.next({
+                content: '',
+                done: true
+              });
+              
+              emit.complete();
+            }
+          } catch (error) {
+            console.error('Error streaming response:', error);
+            if (!signal.aborted) {
+              emit.error(error);
+            }
           }
-          
-          // Only save to DB and complete if not aborted
-          if (!signal.aborted) {
-            // Save the complete response to the database when streaming is done
-            await ctx.db.message.create({
-              data: {
-                chatSessionId: chatSessionId,
-                content: accumulatedResponse,
-                sender: MessageSenderSchema.enum.SYSTEM
-              }
-            });
-            
-            // Signal that we're done streaming
-            emit.next({
-              content: '',
-              done: true
-            });
-            
-            emit.complete();
-          }
-        } catch (error) {
+        })().catch(error => {
           console.error('Error streaming response:', error);
           if (!signal.aborted) {
             emit.error(error);
           }
-        }
-      })().catch(error => {
-        console.error('Error streaming response:', error);
-        if (!signal.aborted) {
-          emit.error(error);
-        }
+        });
+        
+        // Return the teardown logic function
+        return () => {
+          console.log('Subscription ended, cleaning up resources');
+          abortController.abort();
+        };
       });
-      
-      // Return the teardown logic function
-      return () => {
-        console.log('Subscription ended, cleaning up resources');
-        abortController.abort();
-      };
-    });
-  }),
+    }),
 
 
   // save user message. Use with existing ChatSession
