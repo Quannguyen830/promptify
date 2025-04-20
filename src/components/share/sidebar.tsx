@@ -120,7 +120,7 @@ export function Sidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {workspaces.map((workspace) => (
+        {/* {workspaces.map((workspace) => (
           <SidebarGroup key={workspace.id} className="py-2 border-b">
             <SidebarGroupContent>
               <button
@@ -143,7 +143,7 @@ export function Sidebar() {
               )}
             </SidebarGroupContent>
           </SidebarGroup>
-        ))}
+        ))} */}
 
         <SidebarGroup className="mt-4">
           <SidebarGroupContent>

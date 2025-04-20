@@ -46,7 +46,7 @@ export default function PdfPage({ documentLink }: { documentLink: string }) {
         <PdfViewerComponent
           id="container"
           documentPath={documentLink}
-          resourceUrl="https://cdn.syncfusion.com/ej2/26.2.11/dist/ej2-pdfviewer-lib"
+          resourceUrl={process.env.NEXT_PUBLIC_PDF_WEB_SERVER_URL}
           style={{ height: '100%' }}
           toolbarSettings={{
             toolbarItems: [

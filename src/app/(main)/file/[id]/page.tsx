@@ -9,7 +9,7 @@ import PdfPage from "~/components/file-editor/pdf-page"
 import { registerLicense } from '@syncfusion/ej2-base';
 
 if (typeof window !== 'undefined') {
-  registerLicense("Ngo9BigBOggjHTQxAR8/V1NMaF5cXmBCf1FpRmJGdld5fUVHYVZUTXxaS00DNHVRdkdmWXxccHZUQ2VcWUNxVko=");
+  registerLicense(process.env.NEXT_PUBLIC_SYNCFUSION_LICENSE_KEY ?? '');
 }
 
 export default function FilePage() {
@@ -25,7 +25,7 @@ export default function FilePage() {
   return (
     <div className="flex flex-col h-screen w-full">
       {
-        fetchedFile?.type === "pdf" ? (
+        fetchedFile?.type === "application/pdf" ? (
           <PdfPage documentLink={fetchedFile.signedUrl} />
         ) : (
           <TextEditorPage

@@ -29,6 +29,7 @@ export interface FileCardProps {
   date: string
   subtitle: string
   image: string
+  fileType: string
 }
 
 interface Root {
@@ -63,6 +64,18 @@ export interface TreeItem {
   name: string
   type: 'folder' | 'file'
   children?: TreeItem[]
+}
+
+// SEARCH SECTION
+
+export interface SearchResult {
+  _source: {
+    content: string;
+    key: string;
+  };
+  highlight?: {
+    content: string[];
+  };
 }
 
 // CHAT SECTION

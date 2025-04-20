@@ -74,7 +74,8 @@ export const fileRouter = createTRPCRouter({
           workspaceName: true,
           folderId: true,
           folderName: true,
-        }
+          name: true
+        } 
       })
 
       if (!file) {
@@ -93,22 +94,26 @@ export const fileRouter = createTRPCRouter({
         if (file.type === "application/pdf") {
           return { 
             message: "Get successful", 
-            type: 'pdf',
+            type: file.type,
             signedUrl: signedUrl,
             workspaceId: file.workspaceId,
             workspaceName: file.workspaceName,
             folderId: file.folderId,
-            folderName: file.folderName
+            folderName: file.folderName,
+            name: file.name,
+            id: file.id
           };
         } else if(file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
           return {
             message: "Get successful",
-            type: "docx",
+            type: file.type,
             signedUrl: signedUrl,
             workspaceId: file.workspaceId,
             workspaceName: file.workspaceName,
             folderId: file.folderId,
-            folderName: file.folderName
+            folderName: file.folderName,
+            name: file.name,
+            id: file.id
           }
         }
       }
