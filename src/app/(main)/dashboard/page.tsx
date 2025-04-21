@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 'use client'
 
 import { SuggestedSection } from "~/components/dashboard/suggested-section"
@@ -14,7 +13,9 @@ import { Tabs, TabsContent } from "~/components/ui/tabs"
 export default function Page() {
   const { resetHistory, addFile, addFolder, resetCurrentParent, addWorkspace } = useDashboardStore();
 
-  const { data: fetchedWorkspaces, isLoading, error } = api.workspace.listWorkspaceByUserId.useQuery();
+  const { data: fetchedWorkspaces, isLoading, error } = api.workspace.listWorkspaceByUserId.useQuery(undefined, {
+    refetchOnMount: true
+  });
 
   useEffect(() => {
     resetHistory();
