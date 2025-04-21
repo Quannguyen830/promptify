@@ -3,7 +3,7 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { type BaseProps } from "~/constants/interfaces";
 import { Button } from "../../ui/button";
-import SearchCard from "./search-card";
+// import SearchCard from "./search-card";
 import { useRef, useState } from "react";
 import { type SearchResult } from "~/constants/interfaces";
 
@@ -12,7 +12,7 @@ interface SearchCarouselProps extends BaseProps {
   results: SearchResult[];
 }
 
-const SearchCarousel: React.FC<SearchCarouselProps> = ({ className, title, results }) => {
+const SearchCarousel: React.FC<SearchCarouselProps> = ({ className, title }) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [showLeftButton, setShowLeftButton] = useState(false);
   const [showRightButton, setShowRightButton] = useState(true);
@@ -25,15 +25,15 @@ const SearchCarousel: React.FC<SearchCarouselProps> = ({ className, title, resul
     container.scrollBy({ left: scrollAmount, behavior: "smooth" });
   };
 
-  const handleScroll = () => {
-    const container = scrollContainerRef.current;
-    if (!container) return;
+  // const handleScroll = () => {
+  //   const container = scrollContainerRef.current;
+  //   if (!container) return;
 
-    setShowLeftButton(container.scrollLeft > 0);
-    setShowRightButton(
-      container.scrollLeft < container.scrollWidth - container.clientWidth
-    );
-  };
+  //   setShowLeftButton(container.scrollLeft > 0);
+  //   setShowRightButton(
+  //     container.scrollLeft < container.scrollWidth - container.clientWidth
+  //   );
+  // };
 
   return (
     <div className={`flex flex-col gap-4 ${className}`}>
@@ -50,7 +50,7 @@ const SearchCarousel: React.FC<SearchCarouselProps> = ({ className, title, resul
           </Button>
         )}
 
-        <div
+        {/* <div
           ref={scrollContainerRef}
           className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth px-1"
           onScroll={handleScroll}
@@ -58,7 +58,7 @@ const SearchCarousel: React.FC<SearchCarouselProps> = ({ className, title, resul
           {results.map((result, index) => (
             <SearchCard key={index} className="flex-shrink-0" result={result} />
           ))}
-        </div>
+        </div> */}
 
         {showRightButton && (
           <Button
