@@ -67,6 +67,7 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
         createdAt: new Date(),
         updatedAt: new Date(),
         lastAccessed: null,
+        content: "",
         itemType: "file" as const,
         workspaceId: parent.itemType === 'workspace'
           ? parent.id
@@ -169,7 +170,6 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
         const arrayBuffer = await selectedFile.arrayBuffer()
         const uint8Array = new Uint8Array(arrayBuffer)
 
-        // Generate thumbnail - now using the imported function
         const thumbnail = await generateThumbnail(selectedFile)
 
         const uploadPayload = {
@@ -177,7 +177,8 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
           fileSize: selectedFile.size.toString(),
           fileType: selectedFile.type,
           fileBuffer: uint8Array,
-          image: thumbnail, // This will now contain the proper thumbnail
+          image: thumbnail,
+          content: "",
           workspaceId: parent.itemType === 'workspace'
             ? parent.id
             : (parent as Folder).workspaceId,
