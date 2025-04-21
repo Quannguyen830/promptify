@@ -1,11 +1,12 @@
 'use client'
 
-import { DocumentEditorContainerComponent, Toolbar, type ToolbarItem, type CustomToolbarItemModel } from '@syncfusion/ej2-react-documenteditor';
+import { DocumentEditorContainerComponent, Toolbar, type ToolbarItem, type CustomToolbarItemModel, Inject } from '@syncfusion/ej2-react-documenteditor';
 import type { ClickEventArgs } from '@syncfusion/ej2-navigations';
 import { useRef, useEffect, useState } from 'react';
 import { SelectFileDialog } from './select-file-dialog';
 import { api } from '~/trpc/react';
 import { useRouter } from 'next/navigation';
+import { type ItemModel } from '@syncfusion/ej2-navigations';
 
 DocumentEditorContainerComponent.Inject(Toolbar);
 
@@ -16,6 +17,14 @@ interface TextEditorProps {
   workspaceName: string;
   folderName?: string | undefined;
 }
+
+// Define a custom type that combines both ItemModel and our custom properties
+type CustomToolbarItem = ItemModel & {
+  tooltipText?: string;
+  prefixIcon?: string;
+  text?: string;
+  id?: string;
+};
 
 export default function TextEditorPage({
   documentName,
@@ -134,51 +143,50 @@ export default function TextEditorPage({
     }
   }, [documentName]);
 
-  const customToolbarItems = [
+  const customToolbarItems: (CustomToolbarItem | string)[] = [
     {
       prefixIcon: "e-icons e-file-new",
       tooltipText: "New Document",
       text: onWrapText("New"),
-      id: "New"
+      id: "New",
+      type: 'Button'
     },
     {
       prefixIcon: "e-icons e-folder-open",
       tooltipText: "Open Document",
       text: onWrapText("Open"),
-      id: "Open"
+      id: "Open",
+      type: 'Button'
     },
+    { type: 'Separator', template: '<div class="e-toolbar-separator ml-4"></div>' },
     'Undo',
     'Redo',
-    'Separator',
+    { type: 'Separator', template: '<div class="e-toolbar-separator ml-4"></div>' },
     'Image',
     'Table',
-    'Hyperlink',
+    {
+      prefixIcon: 'e-icons e-link',
+      tooltipText: 'Link',
+      text: onWrapText('Link'),
+      id: 'Link',
+      type: 'Button'
+    },
     'Bookmark',
     'TableOfContents',
-    'Separator',
+    { type: 'Separator', template: '<div class="e-toolbar-separator ml-4"></div>' },
     'Header',
     'Footer',
     'PageSetup',
     'PageNumber',
     'Break',
-    'InsertFootnote',
-    'InsertEndnote',
-    'Separator',
+    { type: 'Separator', template: '<div class="e-toolbar-separator ml-4"></div>' },
     'Find',
-    'Separator',
-    // 'Comments',
-    // 'TrackChanges',
-    // 'Separator',
-    // 'LocalClipboard',
-    // 'RestrictEditing',
-    // 'Separator',
-    // 'FormFields',
-    // 'UpdateFields',
-    // 'ContentControl'
+    'Comments',
+    'TrackChanges',
   ];
 
   return (
-    <div className="h-full w-[calc(100vw-208px)]">
+    <div className="h-full w-[calc(100vw-208px)] bg-white">
       <DocumentEditorContainerComponent
         id="container"
         height='100%'
@@ -188,7 +196,34 @@ export default function TextEditorPage({
         toolbarItems={customToolbarItems as (CustomToolbarItemModel | ToolbarItem)[]}
         toolbarClick={handleToolbarClick}
         contentChange={handleContentChange}
-      />
+        style={{
+          backgroundColor: 'white',
+          '--toolbar-background': 'white',
+          '--toolbar-btn-hover': '#f5f5f5',
+          '--content-background': 'white',
+          '--toolbar-btn-text-color': '#333',
+          '--toolbar-separator-border': '#E0E0E0',
+          '--toolbar-btn-bg': 'transparent',
+        } as React.CSSProperties}
+      >
+        <style jsx global>{`
+          .e-toolbar .e-toolbar-items {
+            justify-content: center;
+            width: 100%;
+          }
+          .e-toolbar .e-toolbar-items .e-toolbar-item {
+            margin: 0 2px;
+          }
+          .e-toolbar .e-toolbar-items .e-toolbar-separator {
+            height: 40px;
+            border-right: 1px solid var(--toolbar-separator-border);
+          }
+          .e-tab-text {
+            color: #333;
+          }
+        `}</style>
+        <Inject services={[Toolbar]} />
+      </DocumentEditorContainerComponent>
 
       <SelectFileDialog
         open={isUploadDialogOpen}
