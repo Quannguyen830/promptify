@@ -6,7 +6,7 @@ import { SearchBar } from "./search-bar"
 export function Navbar() {
   return (
     <header className="flex items-center justify-between bg-background border-b h-16 ">
-      <div className="flex-1 max-w-4xl">
+      <div className="flex-1">
         <SearchBar />
       </div>
 

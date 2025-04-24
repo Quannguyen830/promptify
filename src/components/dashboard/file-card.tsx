@@ -1,5 +1,5 @@
 import { MoreVertical } from 'lucide-react'
-import { Card, CardContent, CardHeader } from "~/components/ui/card"
+import { Card, CardContent } from "~/components/ui/card"
 import { Button } from "~/components/ui/button"
 import {
   DropdownMenu,
@@ -14,7 +14,7 @@ import Link from 'next/link'
 import { useState } from 'react'
 import { DeleteWarningDialog } from './delete-warning-dialog'
 
-export function FileCard({ id, title, date, image, subtitle }: FileCardProps) {
+export function FileCard({ id, title, date, fileType }: FileCardProps) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const utils = api.useUtils();
 
@@ -121,26 +121,34 @@ export function FileCard({ id, title, date, image, subtitle }: FileCardProps) {
 
       <Card className="overflow-hidden hover:bg-accent/5 cursor-pointer transition-colors shadow-none">
         <Link href={`/file/${id}`}>
-          <div className="relative aspect-[1.6] w-full rounded-lg">
-            <Image
-              src={image}
-              alt={title}
-              fill
-              className="object-cover p-3 rounded-[20px]"
-            />
-            <Image
-              src={"/icon/pdf-icon.svg"}
-              alt="PDF icon"
-              width={40}
-              height={40}
-              className="absolute top-4 left-4"
-            />
+          <div className="relative aspect-[1.6] w-full rounded-lg p-2">
+            <div className='bg-gray-200 w-full h-full rounded-lg'></div>
+            {fileType == 'application/pdf' && (
+              <div className="absolute top-4 left-4 p-1 rounded-md">
+                <Image
+                  src={"/icon/pdf-icon.svg"}
+                  alt="PDF icon"
+                  width={40}
+                  height={40}
+                />
+              </div>
+            )}
+            {fileType == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' && (
+              <div className="absolute top-4 left-4 p-1 rounded-md">
+                <Image
+                  src={"/icon/docx-icon.svg"}
+                  alt="DOCX icon"
+                  width={40}
+                  height={40}
+                />
+              </div>
+            )}
             <DropdownMenu>
               <DropdownMenuTrigger asChild onClick={(e) => e.preventDefault()}>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="absolute top-2 right-2 h-8 w-8 hover:bg-background/80"
+                  className="absolute top-4 right-4 h-8 w-8 hover:bg-background/90"
                 >
                   <MoreVertical className="h-4 w-4" />
                 </Button>
@@ -158,11 +166,19 @@ export function FileCard({ id, title, date, image, subtitle }: FileCardProps) {
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
-          <CardContent className="p-4">
+          <CardContent className="p-4 flex flex-col gap-2">
             <h3 className="font-medium leading-none">{title}</h3>
-            <p className="text-sm text-muted-foreground mt-2">
-              {date}
-            </p>
+            <div className="flex items-center justify-between gap-2 mt-2">
+              <p className="text-sm text-muted-foreground">
+                {date}
+              </p>
+              <Image
+                src="/icon/collab-icon.svg"
+                alt="Collaborators"
+                width={56}
+                height={24}
+              />
+            </div>
           </CardContent>
         </Link>
       </Card>

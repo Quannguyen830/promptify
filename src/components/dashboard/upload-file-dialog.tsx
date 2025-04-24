@@ -12,27 +12,12 @@ import { api } from "~/trpc/react"
 import { useDashboardStore } from "./dashboard-store"
 import { type Folder, type Workspace } from "@prisma/client"
 import { WorkspaceSelector } from "./workspace-selector-dialog"
+import { generateThumbnail } from "~/lib/utils/generateThumbnail"
 
 interface UploadFileDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   onClose: () => void
-}
-
-async function generateThumbnail(file: File): Promise<string | null> {
-  try {
-    if (file.type === 'application/pdf') {
-
-    }
-    else if (file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
-
-    }
-
-    return null;
-  } catch (error) {
-    console.error('Error generating thumbnail:', error);
-    return null;
-  }
 }
 
 export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDialogProps) {
@@ -64,7 +49,7 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
       void utils.folder.getFolderContentByFolderId.cancel()
 
       const parent = currentParent ?? selectedParent
-      if (!parent) return {}
+      if (!parent || !selectedFile) return {}
 
       const previousWorkspaces = utils.workspace.listWorkspaceByUserId.getData()
       const previousWorkspace = parent.itemType === 'workspace'
@@ -76,13 +61,14 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
 
       const newFile = {
         id: "new-file",
-        name: selectedFile?.name ?? "",
-        size: selectedFile?.size ?? 0,
-        type: selectedFile?.type ?? "",
+        name: selectedFile.name,
+        size: selectedFile.size,
+        type: selectedFile.type,
         createdAt: new Date(),
         updatedAt: new Date(),
         lastAccessed: null,
-        itemType: "file",
+        content: "",
+        itemType: "file" as const,
         workspaceId: parent.itemType === 'workspace'
           ? parent.id
           : (parent as Folder).workspaceId,
@@ -184,7 +170,6 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
         const arrayBuffer = await selectedFile.arrayBuffer()
         const uint8Array = new Uint8Array(arrayBuffer)
 
-        // Generate thumbnail
         const thumbnail = await generateThumbnail(selectedFile)
 
         const uploadPayload = {
@@ -193,6 +178,7 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
           fileType: selectedFile.type,
           fileBuffer: uint8Array,
           image: thumbnail,
+          content: "",
           workspaceId: parent.itemType === 'workspace'
             ? parent.id
             : (parent as Folder).workspaceId,
@@ -234,7 +220,7 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
 
   return (
     <Dialog open={open} onOpenChange={handleDialogOpenChange}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-[450px]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Upload className="h-5 w-5" />
