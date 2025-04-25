@@ -21,7 +21,7 @@ const requestSchema = z.object({
 
 export async function POST(req: NextRequest) {
   try {
-    const json = req.json();
+    const json: unknown = await req.json();
     const input = requestSchema.parse(json);
 
     const { content, context, model, contextFiles } = input;
@@ -42,13 +42,19 @@ export async function POST(req: NextRequest) {
       })
       contextFileContent = files.map(f => f.content).join("\n");
     }
-    const result = await sendMessageWithContextStreaming(content, context, model, contextFileContent);
+    const { textStream } = await sendMessageWithContextStreaming(content, context, model, contextFileContent);
     
-    return result.toDataStreamResponse();
+    return new NextResponse(textStream, {
+      headers: {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive'
+      },
+    });
   } catch (error) {
     console.error(error);
     return NextResponse.json(
-      { error: 'Invalid request or streaming error' },
+      { error: '   request or streaming error' },
       { status: 400 }
     );
   }

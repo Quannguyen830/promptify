@@ -15,6 +15,7 @@ import { SendHorizonal } from "lucide-react";
 import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
 import { ChatState, useChat } from "./chat-store";
+import { useStreamChatMutation } from "~/hooks/use-stream-chat";
 
 interface ChatInputProps extends BaseProps {
   formClassName?: string;
@@ -41,6 +42,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ formClassName, textareaClassName 
   
   const utils = api.useUtils();
   const [userMessage, setUserMessage] = useState<string>("");
+  const { mutateAsync, isPending, error } = useStreamChatMutation();
   
   const createSession = api.chat.createChatSession.useMutation({
     onMutate(data) {
@@ -174,6 +176,28 @@ const ChatInput: React.FC<ChatInputProps> = ({ formClassName, textareaClassName 
       });
     }
     // setIsStreaming(true); 
+    
+    const stream = await mutateAsync({
+      chatSessionId: selectedSessionId!, 
+      content: inputMessage,
+      context: [], // Add your context if needed
+      model: 'gemini-2.0-flash',
+      contextFiles: [], // Add your files if needed
+    });
+
+    const reader = stream.getReader();
+    const decoder = new TextDecoder();
+    let done = false;
+
+    while (!done) {
+      const { value, done: streamDone } = await reader.read();
+      done = streamDone;
+      
+      if (value) {
+        const chunk = decoder.decode(value, { stream: true });
+        console.log(chunk);
+      }
+    }
 
   }
 
