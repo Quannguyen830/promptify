@@ -6,7 +6,6 @@ import {
 } from "react-hook-form";
 
 import { api } from "~/trpc/react";
-import { useState } from "react";
 
 import { type BaseProps, type ChatInputForm } from "~/constants/interfaces";
 import { MessageSenderSchema } from "~/constants/types";
@@ -15,6 +14,7 @@ import { SendHorizonal } from "lucide-react";
 import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
 import { ChatState, useChat } from "./chat-store";
+import { useStreamChatMutation } from "~/hooks/use-stream-chat";
 
 interface ChatInputProps extends BaseProps {
   formClassName?: string;
@@ -31,16 +31,14 @@ const ChatInput: React.FC<ChatInputProps> = ({ formClassName, textareaClassName 
 
   const {
     selectedSessionId,
-    isStreaming,
     chatProvider,
     contextFileIds,
     setChatState,
     setSelectedSessionId,
-    setIsStreaming,
   } = useChat();
-
+  
   const utils = api.useUtils();
-  const [userMessage, setUserMessage] = useState<string>("");
+  const { mutateAsync } = useStreamChatMutation();
   
   const createSession = api.chat.createChatSession.useMutation({
     onMutate(data) {
@@ -98,63 +96,67 @@ const ChatInput: React.FC<ChatInputProps> = ({ formClassName, textareaClassName 
     }
   });
 
-  api.chat.streamAgentResponse.useSubscription(
-    {
-      chatSessionId: selectedSessionId ?? "",
-      content: userMessage,
+  const handleStreaming = async (inputMessage: string) => {
+    if (!selectedSessionId) return;
+
+    const stream = await mutateAsync({
+      chatSessionId: selectedSessionId, 
+      content: inputMessage,
       context: utils.chat.getChatSessionById.getData({ id: selectedSessionId ?? "" })?.messages ?? [],
       model: chatProvider,
-      contextFiles: contextFileIds
-    },
-    {
-      onData(data) {
-        if (data.done) {
-          setIsStreaming(false);
-          void utils.chat.getChatSessionById.invalidate();
-        } else {
-          void utils.chat.getChatSessionById.cancel({ id: selectedSessionId ?? "" });
+      contextFiles: contextFileIds,
+    });
 
-          utils.chat.getChatSessionById.setData(
-            { id: selectedSessionId ?? "" },
-            (session) => {
-              if (!session?.messages || session.messages.length === 0) return;
-          
-              const lastMessage = session.messages[session.messages.length - 1];
-          
-              return {
-                ...session,
-                messages:
-                  lastMessage!.sender === "USER"
-                    ? [
-                        ...session.messages,
-                        {
-                          id: "streaming-message",
-                          createdAt: new Date(),
-                          updatedAt: new Date(),
-                          sender: MessageSenderSchema.enum.SYSTEM,
-                          chatSessionId: selectedSessionId!,
-                          content: data.content
-                        }
-                      ]
-                    : session.messages.map((msg, index) =>
-                        index === session.messages.length - 1
-                          ? { ...msg, content: msg.content + data.content, updatedAt: new Date() }
-                          : msg
-                      )
-              };
-            }
-          );
-        }
-      },
-      enabled: isStreaming
+    const reader = stream.getReader();
+    const decoder = new TextDecoder();
+    let done = false;
+    
+    while (!done) {
+      const { value, done: streamDone } = await reader.read();
+      done = streamDone;
+      
+      if (value) {
+        const chunk = decoder.decode(value, { stream: true });
+        
+        void utils.chat.getChatSessionById.cancel({ id: selectedSessionId ?? "" });
+        utils.chat.getChatSessionById.setData(
+          { id: selectedSessionId ?? "" },
+          (session) => {
+            if (!session?.messages || session.messages.length === 0) return;
+        
+            const lastMessage = session.messages[session.messages.length - 1];
+        
+            return {
+              ...session,
+              messages:
+                lastMessage!.sender === "USER"
+                  ? [
+                      ...session.messages,
+                      {
+                        id: "streaming-message",
+                        createdAt: new Date(),
+                        updatedAt: new Date(),
+                        sender: MessageSenderSchema.enum.SYSTEM,
+                        chatSessionId: selectedSessionId,
+                        content: chunk
+                      }
+                    ]
+                  : session.messages.map((msg, index) =>
+                      index === session.messages.length - 1
+                        ? { ...msg, content: msg.content + chunk, updatedAt: new Date() }
+                        : msg
+                    )
+            };
+          }
+        );
+      }
     }
-  );
+  }
  
   const onSubmit: SubmitHandler<ChatInputForm> = async (data) => { 
     const inputMessage = data.message;
 
     if (inputMessage.trim() === "") return;
-    setUserMessage(inputMessage);
 
     reset();
         
@@ -172,7 +174,8 @@ const ChatInput: React.FC<ChatInputProps> = ({ formClassName, textareaClassName 
         sender: "USER"
       });
     }
-    setIsStreaming(true); 
+    
+    await handleStreaming(inputMessage);
   }
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {

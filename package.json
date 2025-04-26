@@ -10,8 +10,6 @@
     "db:migrate": "prisma migrate deploy",
     "db:push": "prisma db push",
     "db:studio": "prisma studio",
-    "dev:ws": "concurrently \"next dev --turbo\" \"tsx watch src/server/wss.ts\"",
-    "wss": "ts-node src/server/wss.ts",
     "dev": "next dev --turbo",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,mdx}\" --cache",
     "format:write": "prettier --write \"**/*.{ts,tsx,js,jsx,mdx}\" --cache",
@@ -90,7 +88,6 @@
     "superjson": "^2.2.1",
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7",
-    "ws": "^8.18.0",
     "zod": "^3.23.3",
     "zustand": "^5.0.3"
   },
