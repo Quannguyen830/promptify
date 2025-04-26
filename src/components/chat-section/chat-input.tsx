@@ -100,6 +100,74 @@ const ChatInput: React.FC<ChatInputProps> = ({ formClassName, textareaClassName 
     }
   });
 
+  const handleStreaming = async (inputMessage: string) => {
+    if (!selectedSessionId) return;
+
+    const stream = await mutateAsync({
+      chatSessionId: selectedSessionId, 
+      content: inputMessage,
+      context: utils.chat.getChatSessionById.getData({ id: selectedSessionId ?? "" })?.messages ?? [],
+      model: chatProvider,
+      contextFiles: contextFileIds,
+    });
+
+    const reader = stream.getReader();
+    const decoder = new TextDecoder();
+    let done = false;
+    let fullResponse = "";
+
+    
+    while (!done) {
+      const { value, done: streamDone } = await reader.read();
+      done = streamDone;
+      
+      if (value) {
+        const chunk = decoder.decode(value, { stream: true });
+        fullResponse += chunk;
+        
+        void utils.chat.getChatSessionById.cancel({ id: selectedSessionId ?? "" });
+        utils.chat.getChatSessionById.setData(
+          { id: selectedSessionId ?? "" },
+          (session) => {
+            if (!session?.messages || session.messages.length === 0) return;
+        
+            const lastMessage = session.messages[session.messages.length - 1];
+        
+            return {
+              ...session,
+              messages:
+                lastMessage!.sender === "USER"
+                  ? [
+                      ...session.messages,
+                      {
+                        id: "streaming-message",
+                        createdAt: new Date(),
+                        updatedAt: new Date(),
+                        sender: MessageSenderSchema.enum.SYSTEM,
+                        chatSessionId: selectedSessionId,
+                        content: chunk
+                      }
+                    ]
+                  : session.messages.map((msg, index) =>
+                      index === session.messages.length - 1
+                        ? { ...msg, content: msg.content + chunk, updatedAt: new Date() }
+                        : msg
+                    )
+            };
+          }
+        );
+      }
+    }
+    // if (done) {
+    //   console.log("Streaming done");
+    //   await createMessage.mutateAsync({
+    //     chatSessionId: selectedSessionId,
+    //     content: fullResponse,
+    //     sender: "SYSTEM"
+    //   });
+    // }
+  }
+
   // api.chat.streamAgentResponse.useSubscription(
   //   {
   //     chatSessionId: selectedSessionId ?? "",
@@ -175,30 +243,8 @@ const ChatInput: React.FC<ChatInputProps> = ({ formClassName, textareaClassName 
         sender: "USER"
       });
     }
-    // setIsStreaming(true); 
     
-    const stream = await mutateAsync({
-      chatSessionId: selectedSessionId!, 
-      content: inputMessage,
-      context: [], // Add your context if needed
-      model: 'gemini-2.0-flash',
-      contextFiles: [], // Add your files if needed
-    });
-
-    const reader = stream.getReader();
-    const decoder = new TextDecoder();
-    let done = false;
-
-    while (!done) {
-      const { value, done: streamDone } = await reader.read();
-      done = streamDone;
-      
-      if (value) {
-        const chunk = decoder.decode(value, { stream: true });
-        console.log(chunk);
-      }
-    }
-
+    await handleStreaming(inputMessage);
   }
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {

@@ -10,7 +10,7 @@ export const DEFAULT_GEMINI_INSTRUCTION="Answer the question shortly, 5 sentence
 export const GENERATE_TITLE_INSTRUCTION="Generate a concise, one-sentence title that summarizes the key topic of the following question: ";
 
 
-const chatProviders = {
+export const chatProviders = {
   "gemini-2.0-flash": google("models/gemini-2.0-flash"),
   "claude-3-haiku-20240307": anthropic('claude-3-haiku-20240307'),
   "gpt-4o": openai("gpt-4o"),

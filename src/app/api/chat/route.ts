@@ -1,8 +1,9 @@
+import { smoothStream, streamText } from "ai";
 import { NextResponse, type NextRequest } from "next/server";
 import { z } from "zod";
 import { ChatProviderSchema, MessageSenderSchema } from "~/constants/types";
 import { db } from "~/server/db";
-import { sendMessageWithContextStreaming } from "~/server/services/llm-service";
+import { chatProviders } from "~/server/services/llm-service";
 
 const requestSchema = z.object({
   chatSessionId: z.string(),
@@ -24,7 +25,7 @@ export async function POST(req: NextRequest) {
     const json: unknown = await req.json();
     const input = requestSchema.parse(json);
 
-    const { content, context, model, contextFiles } = input;
+    const { chatSessionId, content, context, model, contextFiles } = input;
 
     const fileIds = contextFiles.map(file => file.id);
     let contextFileContent = "";
@@ -42,19 +43,40 @@ export async function POST(req: NextRequest) {
       })
       contextFileContent = files.map(f => f.content).join("\n");
     }
-    const { textStream } = await sendMessageWithContextStreaming(content, context, model, contextFileContent);
-    
-    return new NextResponse(textStream, {
+
+    const contextString = JSON.stringify(context);
+    const promptWithContext = `Context that the user want to based the output on:\n${contextFileContent} \nPrevious conversation context:\n${contextString}\n\nCurrent message: ${content}`;
+    const { textStream } = streamText({
+      model: chatProviders[model],
+      prompt: promptWithContext,
+      experimental_transform: smoothStream(),
+      async onFinish({ text, response }) {
+        
+        console.log("TEXT", text);
+        console.log("REPONSE", response)
+        await db.message.create({
+          data: {
+            chatSessionId: chatSessionId,
+            content: text,
+            sender: MessageSenderSchema.enum.SYSTEM
+          }
+        })
+      }
+    })
+  
+    const response = new NextResponse(textStream, {
       headers: {
         'Content-Type': 'text/event-stream',
         'Cache-Control': 'no-cache',
         'Connection': 'keep-alive'
       },
     });
+
+    return response;
   } catch (error) {
     console.error(error);
     return NextResponse.json(
-      { error: '   request or streaming error' },
+      { error: 'Request setup or streaming initiation error' },
       { status: 400 }
     );
   }
