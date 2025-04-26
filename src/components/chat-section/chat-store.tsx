@@ -18,9 +18,6 @@ interface ChatStore {
   selectedSessionId: string | null;
   setSelectedSessionId: (session: string) => void;
 
-  isStreaming: boolean;
-  setIsStreaming: (value: boolean) => void;
-
   chatProvider: ChatProvider;
   setChatProvider: (provider: ChatProvider) => void;
 
@@ -41,14 +38,6 @@ export const useChat = create<ChatStore>((set) => ({
   selectedSessionId: null,
   setSelectedSessionId: (id) => {
     set(() => ({ selectedSessionId: id }));
-  },
-
-  isStreaming: false,
-  setIsStreaming(value) {
-    set(() => ({ 
-      isStreaming: value,
-      streamingMessage: ""
-    }))
   },
 
   chatProvider: ChatProviderSchema.Enum["gemini-2.0-flash"],
