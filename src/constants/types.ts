@@ -80,3 +80,4 @@ export const signUpSchema = z.object({
 export type SignInInput = z.infer<typeof signInSchema>
 export type SignUpInput = z.infer<typeof signUpSchema>
 export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>
+

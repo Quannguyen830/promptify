@@ -1,12 +1,10 @@
-import { number, z } from "zod";
+import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { deleteFileFromS3, uploadFileToS3 } from "~/server/services/s3-service";
 import { s3Bucket, s3Client } from "~/config/S3-client";
 import { GetObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-
-// if fileSize is smaller than this => file content be saved in postgres instead of vector db 
-const FILE_SIZE_BYTE_LIMIT=10000000 
+import { contentExtractionTask } from "~/trigger/content-extraction";
 
 export const fileRouter = createTRPCRouter({
   uploadFile: protectedProcedure
@@ -37,11 +35,14 @@ export const fileRouter = createTRPCRouter({
           folderName: folderName
         }
       })
-
-      if (parseFloat(fileSize) > FILE_SIZE_BYTE_LIMIT) {
-        // unimplemented vector db upload
-        return newFile.id; 
-      } 
+      
+      const extractionResult = await contentExtractionTask.trigger({
+        fileId: newFile.id,
+        fileBuffer: fileBuffer,
+        fileSize: fileSize,
+        fileType: fileType
+      })
+      console.log("extractionResult", extractionResult);
       
       await uploadFileToS3(buffer, newFile.id, fileType)
     }),
