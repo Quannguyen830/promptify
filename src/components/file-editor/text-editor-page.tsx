@@ -36,6 +36,7 @@ export default function TextEditorPage({
   const containerRef = useRef<DocumentEditorContainerComponent>(null);
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
   const [contentChanged, setContentChanged] = useState(false);
+  const [suggestion, setSuggestion] = useState<string | null>(null);
   const router = useRouter();
 
   const updateFile = api.file.updateFileByFileId.useMutation();
@@ -83,7 +84,7 @@ export default function TextEditorPage({
             }
           })();
         }
-      }, 1000);
+      }, 10000);
     }
 
     return () => {
@@ -95,9 +96,100 @@ export default function TextEditorPage({
 
   const handleContentChange = (): void => {
     setContentChanged(true);
+    void handleAutoComplete();
   };
 
-  const handleToolbarClick = (args: ClickEventArgs): void => {
+  const handleAutoComplete = async (): Promise<void> => {
+    if (!containerRef.current) return;
+
+    const editor = containerRef.current.documentEditor;
+    // const startPosition = editor.selection.start;
+
+    // if (!startPosition?.paragraph) return;
+
+    // const fullText = editor.selection.text ?? '';
+    // const textUpToCursor = fullText.substring(0, startPosition.offset);
+
+    try {
+      // Use placeholder suggestion instead of LLM
+      const placeholderSuggestion = " [placeholder suggestion]";
+      setSuggestion(placeholderSuggestion);
+
+      // Handle Tab key to accept suggestion
+      editor.keyDown = (args: KeyboardEvent) => {
+        if (args.key === 'Tab' && suggestion) {
+          args.preventDefault();
+          editor.editor.insertText(suggestion);
+          setSuggestion(null);
+          setContentChanged(true);
+        }
+      };
+    } catch (error) {
+      console.error('Error in auto-complete:', error);
+      setSuggestion(null);
+    }
+  };
+
+  // Add styles for suggestion overlay
+  useEffect(() => {
+    if (!containerRef.current || !suggestion) return;
+
+    const editor = containerRef.current.documentEditor;
+    const suggestionElement = document.createElement('div');
+    suggestionElement.className = 'text-suggestion';
+    suggestionElement.textContent = suggestion;
+    suggestionElement.style.cssText = `
+      position: absolute;
+      color: #6b7280;
+      pointer-events: none;
+      z-index: 100;
+    `;
+
+    // Position suggestion after cursor
+    const caret = editor.selection.caret;
+if (caret) {
+  // Extract position from the caret element
+    const caretRect = caret.getBoundingClientRect();
+    const editorRect = editor.element.getBoundingClientRect();
+    
+    // Get the current text node's position
+    // This helps account for bullet points and indentation
+    const selection = window.getSelection();
+    let offsetAdjustment = 0;
+    
+    if (selection && selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0);
+      const textRect = range.getBoundingClientRect();
+      // Use the text position instead of caret when available
+      if (textRect.width > 0) {
+        offsetAdjustment = textRect.left - caretRect.left;
+      }
+    }
+  
+  // Position right after the caret with adjustments
+    suggestionElement.style.position = 'absolute';
+    
+    // Adjust horizontal position - place directly after text content, not just caret
+    suggestionElement.style.left = `${caretRect.left - editorRect.left + offsetAdjustment}px`;
+    
+    // Adjust vertical position - align with the text baseline
+    suggestionElement.style.top = `${caretRect.bottom - editorRect.top + 58}px`;
+    
+    // Match text styling from the document
+    const documentStyles = window.getComputedStyle(editor.element.querySelector('.e-de-content') || editor.element);
+    suggestionElement.style.lineHeight = documentStyles.lineHeight;
+    suggestionElement.style.fontFamily = documentStyles.fontFamily;
+    suggestionElement.style.fontSize = documentStyles.fontSize;
+  }
+
+    editor.element.appendChild(suggestionElement);
+
+    return () => {
+      suggestionElement.remove();
+    };
+  }, [suggestion]);
+
+  const handleToolbarClick = async (args: ClickEventArgs): Promise<void> => {
     if (containerRef.current) {
       switch (args.item.id) {
         case 'Open':
@@ -144,6 +236,7 @@ export default function TextEditorPage({
   }, [documentName]);
 
   const customToolbarItems: (CustomToolbarItem | string)[] = [
+    { type: 'Separator', template: '<div class="e-toolbar-separator ml-4"></div>' },
     {
       prefixIcon: "e-icons e-file-new",
       tooltipText: "New Document",
@@ -183,6 +276,7 @@ export default function TextEditorPage({
     'Find',
     'Comments',
     'TrackChanges',
+    { type: 'Separator', template: '<div class="e-toolbar-separator ml-4"></div>' },
   ];
 
   return (
@@ -220,6 +314,11 @@ export default function TextEditorPage({
           }
           .e-tab-text {
             color: #333;
+          }
+          .text-suggestion {
+            font-family: inherit;
+            font-size: inherit;
+            opacity: 0.6;
           }
         `}</style>
         <Inject services={[Toolbar]} />
