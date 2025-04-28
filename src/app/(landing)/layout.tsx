@@ -1,15 +1,18 @@
 import "~/styles/globals.css";
+import { TRPCReactProvider } from "~/trpc/react";
 
 export default function LandingPageLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className="w-screen h-screen font-general">
-        <main className="h-full w-full">
-          {children}
-        </main>
-      </body>
-    </html>
+    <TRPCReactProvider>
+      <html lang="en" suppressHydrationWarning>
+        <body className="w-screen h-screen font-general">
+          <main className="h-full w-full overflow-hidden">
+            {children}
+          </main>
+        </body>
+      </html>
+    </TRPCReactProvider>
   );
 }

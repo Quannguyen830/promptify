@@ -164,3 +164,11 @@ enum MessageSender {
   USER
   SYSTEM @map("AGENT")
 }
+
+
+// WAITLIST
+model Waitlist {
+  id  String  @id @default(cuid())
+  createdAt DateTime @default(now())
+  email String
+}

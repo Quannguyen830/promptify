@@ -1,6 +1,4 @@
 import { type BaseProps } from "~/constants/interfaces";
-import PrimaryButton from "./button/primary-button";
-import SecondaryButton from "./button/secondary-button";
 import Image from "next/image";
 
 export default function Navbar({ className } : BaseProps) {
@@ -10,13 +8,13 @@ export default function Navbar({ className } : BaseProps) {
       
       {/* routing */}
       <div className="flex h-full justify-center gap-2">
-        <PrimaryButton className="w-40">
+        {/* <PrimaryButton className="w-40">
           <p>Join our waitlist</p>
-        </PrimaryButton>
+        </PrimaryButton> */}
 
-        <SecondaryButton className="w-40">
+        {/* <SecondaryButton className="w-40">
           <p>Contact us</p>
-        </SecondaryButton>
+        </SecondaryButton> */}
       </div>
     </nav>
   )

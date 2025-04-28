@@ -11,7 +11,7 @@ export const workspaceRouter = createTRPCRouter({
       const { workspaceName } = input;
 
       const newWorkspace = await ctx.db.workspace.create({
-        data: {
+        data: { 
           userId: ctx.session.user.id,
           name: workspaceName,
         }

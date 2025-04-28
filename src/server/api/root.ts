@@ -3,6 +3,7 @@ import { fileRouter } from "./routers/file";
 import { ChatRouter } from "./routers/chat";
 import { workspaceRouter } from "./routers/workspace";
 import { folderRouter } from "./routers/folder";
+import { waitlistRouter } from "./routers/waitlist";
 
 /**
  * This is the primary router for your server.
@@ -14,6 +15,7 @@ export const appRouter = createTRPCRouter({
   chat: ChatRouter,
   workspace: workspaceRouter,
   folder: folderRouter,
+  waitlist: waitlistRouter
 });
 
 // export type definition of API
