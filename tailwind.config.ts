@@ -9,9 +9,13 @@ export default {
   		fontFamily: {
   			sans: [
   				'var(--font-geist-sans)',
-                    ...fontFamily.sans
-                ]
+					...fontFamily.sans
+				],
+				general: ['GeneralSans-Regular', ...fontFamily.sans],
   		},
+			backgroundImage: {
+        'instagram': 'linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888)',
+      },
   		borderRadius: {
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',

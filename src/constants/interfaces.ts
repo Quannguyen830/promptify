@@ -7,7 +7,7 @@ export interface BaseProps {
 }
 
 export interface ButtonProps extends BaseProps {
-  onClick: () => void;
+  onClick?: () => void;
 }
 
 export const GuestUser = {
