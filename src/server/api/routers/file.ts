@@ -6,8 +6,8 @@ import { GetObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 export const fileRouter = createTRPCRouter({
-  uploadFile: protectedProcedure
-    .input(z.object({
+  uploadMultipleFiles: protectedProcedure
+    .input(z.array(z.object({
       fileName: z.string(),
       fileSize: z.string(),
       fileType: z.string(),
@@ -17,27 +17,32 @@ export const fileRouter = createTRPCRouter({
       folderId: z.string().optional(),
       workspaceName: z.string(),
       folderName: z.string().optional(),
-    }))
+    })))
     .mutation(async ({ input, ctx }) => {
-      const { fileName, fileSize, fileType, fileBuffer, workspaceId, folderId, workspaceName, folderName } = input;
-      const buffer = Buffer.from(fileBuffer);
+      const results = [];
+      
+      for (const file of input) {
+        const { fileName, fileSize, fileType, fileBuffer, workspaceId, folderId, workspaceName, folderName } = file;
+        const buffer = Buffer.from(fileBuffer);
 
-      const newFile = await ctx.db.file.create({
-        data: {
-          name: fileName,
-          size: parseFloat(fileSize),
-          type: fileType,
-          image: input.image,
-          workspaceId: workspaceId,
-          folderId: folderId,
-          workspaceName: workspaceName,
-          folderName: folderName
-        }
-      })
+        const newFile = await ctx.db.file.create({
+          data: {
+            name: fileName,
+            size: parseFloat(fileSize),
+            type: fileType,
+            image: file.image,
+            workspaceId: workspaceId,
+            folderId: folderId,
+            workspaceName: workspaceName,
+            folderName: folderName
+          }
+        });
 
-      await uploadFileToS3(buffer, newFile.id, fileType)
+        await uploadFileToS3(buffer, newFile.id, fileType);
+        results.push(newFile);
+      }
 
-      return newFile.id;
+      return results;
     }),
 
   deleteFileByFileId: protectedProcedure
