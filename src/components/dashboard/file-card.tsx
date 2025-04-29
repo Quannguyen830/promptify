@@ -123,6 +123,12 @@ export function FileCard({ id, title, date, fileType }: FileCardProps) {
         <Link href={`/file/${id}`}>
           <div className="relative aspect-[1.6] w-full rounded-lg p-2">
             <div className='bg-gray-200 w-full h-full rounded-lg'></div>
+              {/* <Image
+                src={"https://th.bing.com/th?id=OIF.5p2KNyj%2bQDURxBqRIcubSw&rs=1&pid=ImgDetMain"}
+                alt={title}
+                fill
+                className="object-cover"
+              /> */}
             {fileType == 'application/pdf' && (
               <div className="absolute top-4 left-4 p-1 rounded-md">
                 <Image
