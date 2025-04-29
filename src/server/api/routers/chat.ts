@@ -74,6 +74,9 @@ export const ChatRouter = createTRPCRouter({
   getAllChatSessions: protectedProcedure
     .query(async ({ ctx }) => {
       const response = await ctx.db.chatSession.findMany({
+        where: {
+          userId: ctx.session.user.id
+        },
         select: {
           id: true,
           name: true,
@@ -96,6 +99,9 @@ export const ChatRouter = createTRPCRouter({
   getAllChatSessionsId: protectedProcedure
     .query(async ({ ctx }) => {
       const response = await ctx.db.chatSession.findMany({
+        where: {
+          userId: ctx.session.user.id
+        },
         select: {
           id: true,
           name: true
