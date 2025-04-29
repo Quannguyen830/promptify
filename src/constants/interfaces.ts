@@ -66,6 +66,14 @@ export interface TreeItem {
   children?: TreeItem[]
 }
 
+export interface FileUploadStatus {
+  file: File;
+  progress: number;
+  uploading: boolean;
+  error: boolean;
+  fileSize: string;
+}
+
 // SEARCH SECTION
 
 export interface SearchResult {

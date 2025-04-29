@@ -8,7 +8,7 @@ import { FolderPlus, ArrowLeft } from "lucide-react"
 import { useEffect, useRef, useState, type ChangeEvent } from "react"
 import { type Folder, type Workspace } from "@prisma/client"
 import { api } from "~/trpc/react"
-import { useDashboardStore } from "./dashboard-store"
+import { useDashboardStore } from "../dashboard/dashboard-store"
 import { WorkspaceSelector } from "./workspace-selector-dialog"
 
 interface NewFolderDialogProps {

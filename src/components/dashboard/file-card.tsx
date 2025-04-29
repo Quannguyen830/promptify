@@ -12,7 +12,7 @@ import { type FileCardProps } from '~/constants/interfaces'
 import { api } from '~/trpc/react'
 import Link from 'next/link'
 import { useState } from 'react'
-import { DeleteWarningDialog } from './delete-warning-dialog'
+import { DeleteWarningDialog } from '../upload/delete-warning-dialog'
 
 export function FileCard({ id, title, date, fileType }: FileCardProps) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
@@ -173,7 +173,7 @@ export function FileCard({ id, title, date, fileType }: FileCardProps) {
             </DropdownMenu>
           </div>
           <CardContent className="p-4 flex flex-col gap-2">
-            <h3 className="font-medium leading-none">{title}</h3>
+            <h3 className="font-medium leading-none truncate" title={title}>{title}</h3>
             <div className="flex items-center justify-between gap-2 mt-2">
               <p className="text-sm text-muted-foreground">
                 {date}

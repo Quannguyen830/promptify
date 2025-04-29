@@ -1,5 +1,5 @@
 import { Plus } from "lucide-react"
-import { NewItemDialog } from "./new-item-diaplog"
+import { NewItemDialog } from "../upload/new-item-diaplog"
 import { Button } from "../ui/button"
 import { SearchBar } from "./search-bar"
 

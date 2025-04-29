@@ -9,9 +9,9 @@ import { useEffect, useState } from 'react'
 import { Navbar } from "~/components/dashboard/navbar"
 import Loading from "~/components/share/loading-spinner"
 import type { File, Folder } from "@prisma/client"
-import { UploadFileDialog } from "~/components/dashboard/upload-file-dialog"
+import { UploadFileDialog } from "~/components/upload/upload-file-dialog"
 import { WorkspaceTabContainer } from "~/components/dashboard/workspace-tab-container"
-import { NewFolderDialog } from "~/components/dashboard/new-folder-dialog"
+import { NewFolderDialog } from "~/components/upload/new-folder-dialog"
 
 export default function WorkspacePage() {
   const { id } = useParams<{ id: string }>();

@@ -83,7 +83,7 @@ export function NewWorkspaceDialog({ open, onOpenChange, onClose }: NewFolderDia
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[320px]">
+      <DialogContent className="sm:max-w-[350px]">
         <DialogHeader>
           <DialogTitle>New workspace</DialogTitle>
         </DialogHeader>
