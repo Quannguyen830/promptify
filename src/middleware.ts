@@ -5,6 +5,7 @@ const publicPaths = [
   "/sign-in",
   "/sign-up",
   "/forgot-password",
+  "/"
 ];
 
 export function middleware(request: NextRequest) {
@@ -15,7 +16,9 @@ export function middleware(request: NextRequest) {
   const token = request.cookies.get(process.env.NODE_ENV === 'production' ? '__Secure-authjs.session-token' : 'authjs.session-token')?.value;
 
   if (isPublicPath && token) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+    if (pathname !== "/") {
+      return NextResponse.redirect(new URL("/dashboard", request.url));
+    }
   }
 
   if (!isPublicPath && !token) {

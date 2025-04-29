@@ -26,7 +26,7 @@ export const contentExtractionTask = schemaTask({
         case "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
           extractedContent = await extractTextFromDocx(payload.fileBuffer);
         case "application/pdf":
-          extractedContent = await extractTextFromPdf(payload.fileBuffer);     
+          // extractedContent = await extractTextFromPdf(payload.fileBuffer);     
       }
 
       // Upload content to Supabase
@@ -61,10 +61,10 @@ export const contentExtractionTask = schemaTask({
 //   return data.text.trim();
 // }
 
-// async function extractTextFromDocx(docxData: Uint8Array): Promise<string> {
-//   const buffer = Buffer.from(docxData);
+async function extractTextFromDocx(docxData: Uint8Array): Promise<string> {
+  const buffer = Buffer.from(docxData);
 
-//   const { value } = await extractRawText({ buffer });
-//   return value;
-// }
+  const { value } = await extractRawText({ buffer });
+  return value;
+}
 
