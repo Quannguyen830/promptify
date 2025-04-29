@@ -19,7 +19,7 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "postinstall": "prisma generate && npm run copy:prisma",
-    "copy:prisma": "cp node_modules/.prisma/client/libquery_engine-debian-openssl-3.0.x.so.node node_modules/@prisma/client/"
+    "copy:prisma": "cpx node_modules/.prisma/client/libquery_engine-debian-openssl-3.0.x.so.node node_modules/@prisma/client/"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^1.2.4",
