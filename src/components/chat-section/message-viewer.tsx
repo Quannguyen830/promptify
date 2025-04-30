@@ -33,7 +33,7 @@ const MessageViewer: React.FC<BaseProps> = ({ className }) => {
   }
 
   return (
-    <div className={`w-full ${className}`}>
+    <div className={`flex items-center w-full pt-1 ${className}`}>
       {chatSession?.messages.map((message, index) => (
         <ChatBubble content={message.content} key={index} variant={message.sender} />
       ))}

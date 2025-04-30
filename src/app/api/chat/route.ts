@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
       prompt: promptWithContext,
       experimental_transform: smoothStream(),
       async onFinish({ text, response }) {
-        
+
         console.log("TEXT", text);
         console.log("REPONSE", response)
         await db.message.create({

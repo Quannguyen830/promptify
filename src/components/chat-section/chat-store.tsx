@@ -11,6 +11,8 @@ interface ContextFile {
   name: string;
 }
 
+const FALL_BACK_CHAT_MODEL="gemini-2.5-flash-preview-04-17"
+
 interface ChatStore {
   chatState: ChatState;
   setChatState: (newState: ChatState) => void;
@@ -40,7 +42,7 @@ export const useChat = create<ChatStore>((set) => ({
     set(() => ({ selectedSessionId: id }));
   },
 
-  chatProvider: ChatProviderSchema.Enum["gemini-2.0-flash"],
+  chatProvider: ChatProviderSchema.Enum[FALL_BACK_CHAT_MODEL],
   setChatProvider(provider) {
     set(() => ({ chatProvider: provider }))
   },

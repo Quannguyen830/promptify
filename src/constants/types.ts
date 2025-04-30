@@ -8,7 +8,8 @@ import { z } from "zod";
 // CHAT
 export const ChatProviderSchema = z.enum([
   "gemini-2.0-flash",
-  "claude-3-haiku-20240307"
+  "gemini-2.5-flash-preview-04-17",
+  "claude-3-haiku-20240307",
 ]);
 export type ChatProvider = z.infer<typeof ChatProviderSchema>; 
 

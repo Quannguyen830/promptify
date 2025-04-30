@@ -12,6 +12,7 @@ export const GENERATE_TITLE_INSTRUCTION="Generate a concise, one-sentence title 
 
 export const chatProviders = {
   "gemini-2.0-flash": google("models/gemini-2.0-flash"),
+  "gemini-2.5-flash-preview-04-17": google("gemini-2.5-flash-preview-04-17"),
   "claude-3-haiku-20240307": anthropic('claude-3-haiku-20240307'),
   "gpt-4o": openai("gpt-4o"),
 }

@@ -15,7 +15,14 @@ export const ChatRouter = createTRPCRouter({
       
       if (!ctx.session.user.id) return;
 
-      const chatName = await generateChatTitle(content);
+      let chatName: string;
+
+      try {
+        chatName = await generateChatTitle(content);
+      } catch (err) {
+        console.error("generateChatTitle failed:", err);
+        chatName = "New Chat"; // fallback title
+      }
       
       const response = await ctx.db.chatSession.create({
         data: {
