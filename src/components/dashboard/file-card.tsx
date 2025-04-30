@@ -12,7 +12,7 @@ import { type FileCardProps } from '~/constants/interfaces'
 import { api } from '~/trpc/react'
 import Link from 'next/link'
 import { useState } from 'react'
-import { DeleteWarningDialog } from './delete-warning-dialog'
+import { DeleteWarningDialog } from '../upload/delete-warning-dialog'
 
 export function FileCard({ id, title, date, fileType }: FileCardProps) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
@@ -123,6 +123,12 @@ export function FileCard({ id, title, date, fileType }: FileCardProps) {
         <Link href={`/file/${id}`}>
           <div className="relative aspect-[1.6] w-full rounded-lg p-2">
             <div className='bg-gray-200 w-full h-full rounded-lg'></div>
+              {/* <Image
+                src={"https://th.bing.com/th?id=OIF.5p2KNyj%2bQDURxBqRIcubSw&rs=1&pid=ImgDetMain"}
+                alt={title}
+                fill
+                className="object-cover"
+              /> */}
             {fileType == 'application/pdf' && (
               <div className="absolute top-4 left-4 p-1 rounded-md">
                 <Image
@@ -167,7 +173,7 @@ export function FileCard({ id, title, date, fileType }: FileCardProps) {
             </DropdownMenu>
           </div>
           <CardContent className="p-4 flex flex-col gap-2">
-            <h3 className="font-medium leading-none">{title}</h3>
+            <h3 className="font-medium leading-none truncate" title={title}>{title}</h3>
             <div className="flex items-center justify-between gap-2 mt-2">
               <p className="text-sm text-muted-foreground">
                 {date}

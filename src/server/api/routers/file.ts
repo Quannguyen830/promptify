@@ -7,8 +7,8 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { contentExtractionTask } from "~/trigger/content-extraction";
 
 export const fileRouter = createTRPCRouter({
-  uploadFile: protectedProcedure
-    .input(z.object({
+  uploadMultipleFiles: protectedProcedure
+    .input(z.array(z.object({
       fileName: z.string(),
       fileSize: z.string(),
       fileType: z.string(),
@@ -18,33 +18,32 @@ export const fileRouter = createTRPCRouter({
       folderId: z.string().optional(),
       workspaceName: z.string(),
       folderName: z.string().optional(),
-    }))
+    })))
     .mutation(async ({ input, ctx }) => {
-      const { fileName, fileSize, fileType, fileBuffer, workspaceId, folderId, workspaceName, folderName } = input;
-      const buffer = Buffer.from(fileBuffer);
+      const results = [];
+      
+      for (const file of input) {
+        const { fileName, fileSize, fileType, fileBuffer, workspaceId, folderId, workspaceName, folderName } = file;
+        const buffer = Buffer.from(fileBuffer);
 
-      const newFile = await ctx.db.file.create({
-        data: {
-          name: fileName,
-          size: parseFloat(fileSize),
-          type: fileType,
-          image: input.image,
-          workspaceId: workspaceId,
-          folderId: folderId,
-          workspaceName: workspaceName,
-          folderName: folderName
-        }
-      })
-      
-      const extractionResult = await contentExtractionTask.trigger({
-        fileId: newFile.id,
-        fileBuffer: fileBuffer,
-        fileSize: fileSize,
-        fileType: fileType
-      })
-      console.log("extractionResult", extractionResult);
-      
-      await uploadFileToS3(buffer, newFile.id, fileType)
+        const newFile = await ctx.db.file.create({
+          data: {
+            name: fileName,
+            size: parseFloat(fileSize),
+            type: fileType,
+            image: file.image,
+            workspaceId: workspaceId,
+            folderId: folderId,
+            workspaceName: workspaceName,
+            folderName: folderName
+          }
+        });
+
+        await uploadFileToS3(buffer, newFile.id, fileType);
+        results.push(newFile);
+      }
+
+      return results;
     }),
 
   deleteFileByFileId: protectedProcedure
@@ -76,7 +75,7 @@ export const fileRouter = createTRPCRouter({
           folderId: true,
           folderName: true,
           name: true
-        } 
+        }
       })
 
       if (!file) {
@@ -88,13 +87,13 @@ export const fileRouter = createTRPCRouter({
         Key: input.fileId
       };
 
-      const result = await s3Client.send(new GetObjectCommand(getParam));    
+      const result = await s3Client.send(new GetObjectCommand(getParam));
       const signedUrl = await getSignedUrl(s3Client, new GetObjectCommand(getParam), { expiresIn: 24 * 60 * 60 });
 
       if (result.Body) {
         if (file.type === "application/pdf") {
-          return { 
-            message: "Get successful", 
+          return {
+            message: "Get successful",
             type: file.type,
             signedUrl: signedUrl,
             workspaceId: file.workspaceId,
@@ -104,7 +103,7 @@ export const fileRouter = createTRPCRouter({
             name: file.name,
             id: file.id
           };
-        } else if(file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
+        } else if (file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
           return {
             message: "Get successful",
             type: file.type,
@@ -119,9 +118,9 @@ export const fileRouter = createTRPCRouter({
         }
       }
 
-      return { 
-        message: "No content found", 
-        body: "No content found" 
+      return {
+        message: "No content found",
+        body: "No content found"
       };
     }),
 
@@ -140,7 +139,7 @@ export const fileRouter = createTRPCRouter({
         }
       })
 
-      if(file) {
+      if (file) {
         await uploadFileToS3(buffer, file.id, file.type)
 
         return file.id;
@@ -150,7 +149,7 @@ export const fileRouter = createTRPCRouter({
     }),
 
   createEmptyFile: protectedProcedure
-    .input(z.object({ 
+    .input(z.object({
       workspaceId: z.string(),
       folderId: z.string().optional(),
       workspaceName: z.string(),
@@ -158,7 +157,7 @@ export const fileRouter = createTRPCRouter({
     }))
     .mutation(async ({ input, ctx }) => {
       const { workspaceId, folderId, workspaceName, folderName } = input;
-      
+
       const newFile = await ctx.db.file.create({
         data: {
           name: "Untitled Document.docx",
@@ -189,7 +188,7 @@ export const fileRouter = createTRPCRouter({
           id: true,
           name: true,
           workspaceName: true,
-        }        
-      });  
+        }
+      });
     })
 })
