@@ -1,12 +1,8 @@
 "use client"
 
 import mammoth from 'mammoth'
-import { createCanvas } from 'canvas'
 import JSZip from 'jszip'
 import * as pdfjsLib from 'pdfjs-dist'
-
-// Initialize PDF.js
-pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`
 
 // Constants
 const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
@@ -23,32 +19,6 @@ class ThumbnailError extends Error {
   }
 }
 
-// Thumbnail styling
-interface ThumbnailOptions {
-  width: number
-  height: number
-  backgroundColor: string
-  textColor: string
-}
-
-const DEFAULT_OPTIONS: ThumbnailOptions = {
-  width: 400,
-  height: 300,
-  backgroundColor: '#ffffff',
-  textColor: '#333333'
-}
-
-function createBaseCanvas(options: Partial<ThumbnailOptions> = {}) {
-  const merged = { ...DEFAULT_OPTIONS, ...options }
-  const canvas = createCanvas(merged.width, merged.height)
-  const ctx = canvas.getContext('2d')
-  
-  ctx.fillStyle = merged.backgroundColor
-  ctx.fillRect(0, 0, canvas.width, canvas.height)
-  
-  return { canvas, ctx, options: merged }
-}
-
 // File handlers
 type ThumbnailGenerator = (file: File) => Promise<string | null>
 
@@ -59,96 +29,53 @@ interface FileHandler {
 
 async function generatePdfThumbnail(file: File): Promise<string | null> {
   try {
-    const { canvas, ctx } = createBaseCanvas()
+    // Return a base64 encoded SVG for PDF files
+    const svgContent = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300">
+        <rect x="160" y="20" width="80" height="100" fill="#f40f02" />
+        <text x="200" y="80" font-family="Arial" font-size="24" font-weight="bold" fill="white" text-anchor="middle">PDF</text>
+        <text x="200" y="140" font-family="Arial" font-size="14" fill="#333333" text-anchor="middle">${file.name}</text>
+        <text x="200" y="160" font-family="Arial" font-size="14" fill="#333333" text-anchor="middle">${(file.size / (1024 * 1024)).toFixed(2)} MB</text>
+      </svg>
+    `;
     
-    // Create a simple PDF preview with icon
-    ctx.fillStyle = '#f40f02' // PDF red color
-    ctx.fillRect(canvas.width/2 - 40, 20, 80, 100)
-    
-    // Add white "PDF" text
-    ctx.fillStyle = '#ffffff'
-    ctx.font = 'bold 24px Arial'
-    ctx.textAlign = 'center'
-    ctx.fillText('PDF', canvas.width/2, 80)
-    
-    // Add file name below
-    ctx.fillStyle = DEFAULT_OPTIONS.textColor
-    ctx.font = '14px Arial'
-    ctx.fillText(file.name, canvas.width/2, 140)
-    
-    // Add file size
-    const sizeMB = (file.size / (1024 * 1024)).toFixed(2)
-    ctx.fillText(`${sizeMB} MB`, canvas.width/2, 160)
-
-    return canvas.toDataURL('image/png')
+    return `data:image/svg+xml;base64,${btoa(svgContent)}`;
   } catch (error) {
     console.error('PDF processing error:', error)
-    throw new ThumbnailError(
-      'Failed to generate PDF thumbnail',
-      'PDF_PROCESSING_ERROR'
-    )
+    return null
   }
 }
 
 async function generateDocxThumbnail(file: File): Promise<string | null> {
   try {
     const arrayBuffer = await file.arrayBuffer()
-    const zip = await JSZip.loadAsync(arrayBuffer)
     
-    // Try to find first image
-    const imageEntries = Object.keys(zip.files)
-      .filter(path => path.startsWith('word/media/'))
-    
-    if (imageEntries.length > 0 && imageEntries[0]) {
-      const imageFile = zip.file(imageEntries[0])
-      if (imageFile) {
-        const imageData = await imageFile.async('base64')
-        return `data:image/png;base64,${imageData}`
-      }
+    // Try to extract text from DOCX
+    let text = "";
+    try {
+      const result = await mammoth.extractRawText({ arrayBuffer })
+      text = result.value.substring(0, 100) + (result.value.length > 100 ? "..." : "");
+    } catch (err) {
+      console.error("Error extracting text:", err);
+      text = "Document preview not available";
     }
-
-    // Fallback to text preview
-    const { canvas, ctx } = createBaseCanvas()
-    const result = await mammoth.extractRawText({ arrayBuffer })
-    const text = result.value.substring(0, 500)
     
-    ctx.fillStyle = DEFAULT_OPTIONS.textColor
-    ctx.font = '14px Arial'
-    ctx.textBaseline = 'top'
+    // Create SVG with text preview
+    const svgContent = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300">
+        <rect width="400" height="300" fill="#ffffff" />
+        <rect x="160" y="20" width="80" height="100" fill="#2b579a" />
+        <text x="200" y="80" font-family="Arial" font-size="24" font-weight="bold" fill="white" text-anchor="middle">DOCX</text>
+        <text x="200" y="140" font-family="Arial" font-size="14" fill="#333333" text-anchor="middle">${file.name}</text>
+        <text x="200" y="180" font-family="Arial" font-size="12" fill="#333333" text-anchor="middle">${text}</text>
+      </svg>
+    `;
     
-    // Type assertion for ctx since we know it's compatible
-    const lines = wrapText(ctx as unknown as CanvasRenderingContext2D, text, canvas.width - 40)
-    lines.forEach((line, index) => {
-      ctx.fillText(line, 20, 40 + (index * 16))
-    })
-
-    return canvas.toDataURL('image/png')
+    return `data:image/svg+xml;base64,${btoa(svgContent)}`;
   } catch (error) {
     console.error('DOCX processing error:', error)
-    throw new ThumbnailError('Failed to generate DOCX thumbnail', 'DOCX_PROCESSING_ERROR')
+    return null
   }
-}
-
-// Helper functions
-function wrapText(ctx: CanvasRenderingContext2D, text: string, maxWidth: number): string[] {
-  const words = text.split(' ')
-  const lines: string[] = []
-  let currentLine = ''
-
-  for (const word of words) {
-    const testLine = currentLine ? `${currentLine} ${word}` : word
-    const metrics = ctx.measureText(testLine)
-    
-    if (metrics.width > maxWidth && currentLine) {
-      lines.push(currentLine)
-      currentLine = word
-    } else {
-      currentLine = testLine
-    }
-  }
-
-  if (currentLine) lines.push(currentLine)
-  return lines.slice(0, 15)
 }
 
 const handlers: FileHandler[] = [
@@ -170,7 +97,22 @@ async function generateThumbnail(file: File): Promise<string | null> {
     const bytes = new Uint8Array(await file.slice(0, 4).arrayBuffer())
     const handler = handlers.find(h => h.test(bytes))
     
-    if (!handler) return null
+    if (!handler) {
+      // Generic thumbnail for unsupported file types
+      const fileExtension = file.name.split('.').pop()?.toUpperCase() || 'FILE';
+      const svgContent = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300">
+          <rect width="400" height="300" fill="#ffffff" />
+          <rect x="160" y="20" width="80" height="100" fill="#888888" />
+          <text x="200" y="80" font-family="Arial" font-size="24" font-weight="bold" fill="white" text-anchor="middle">${fileExtension}</text>
+          <text x="200" y="140" font-family="Arial" font-size="14" fill="#333333" text-anchor="middle">${file.name}</text>
+          <text x="200" y="160" font-family="Arial" font-size="14" fill="#333333" text-anchor="middle">${(file.size / (1024 * 1024)).toFixed(2)} MB</text>
+        </svg>
+      `;
+      
+      return `data:image/svg+xml;base64,${btoa(svgContent)}`;
+    }
+    
     return await handler.handle(file)
   } catch (error) {
     console.error('Thumbnail generation failed:', error)

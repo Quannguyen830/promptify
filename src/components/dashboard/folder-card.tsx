@@ -10,7 +10,7 @@ import {
 import Link from "next/link"
 import { api } from '~/trpc/react'
 import { useState } from 'react'
-import { DeleteWarningDialog } from './delete-warning-dialog'
+import { DeleteWarningDialog } from '../upload/delete-warning-dialog'
 
 interface FolderCardProps {
   id: string

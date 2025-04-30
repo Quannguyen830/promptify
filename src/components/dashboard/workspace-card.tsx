@@ -4,7 +4,7 @@ import { Button } from "~/components/ui/button"
 import { Card } from "~/components/ui/card"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "~/components/ui/dropdown-menu"
 import { api } from "~/trpc/react"
-import { DeleteWarningDialog } from "./delete-warning-dialog"
+import { DeleteWarningDialog } from "../upload/delete-warning-dialog"
 import { useState } from "react"
 
 interface WorkspaceCardProps {

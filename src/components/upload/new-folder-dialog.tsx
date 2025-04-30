@@ -8,7 +8,7 @@ import { FolderPlus, ArrowLeft } from "lucide-react"
 import { useEffect, useRef, useState, type ChangeEvent } from "react"
 import { type Folder, type Workspace } from "@prisma/client"
 import { api } from "~/trpc/react"
-import { useDashboardStore } from "./dashboard-store"
+import { useDashboardStore } from "../dashboard/dashboard-store"
 import { WorkspaceSelector } from "./workspace-selector-dialog"
 
 interface NewFolderDialogProps {
@@ -175,7 +175,7 @@ export function NewFolderDialog({ open, onOpenChange, onClose }: NewFolderDialog
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <FolderPlus className="h-5 w-5" />

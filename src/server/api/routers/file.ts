@@ -7,8 +7,8 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { contentExtractionTask } from "~/trigger/content-extraction";
 
 export const fileRouter = createTRPCRouter({
-  uploadFile: protectedProcedure
-    .input(z.object({
+  uploadMultipleFiles: protectedProcedure
+    .input(z.array(z.object({
       fileName: z.string(),
       fileSize: z.string(),
       fileType: z.string(),
@@ -18,10 +18,13 @@ export const fileRouter = createTRPCRouter({
       folderId: z.string().optional(),
       workspaceName: z.string(),
       folderName: z.string().optional(),
-    }))
+    })))
     .mutation(async ({ input, ctx }) => {
-      const { fileName, fileSize, fileType, fileBuffer, workspaceId, folderId, workspaceName, folderName } = input;
-      const buffer = Buffer.from(fileBuffer);
+      const results = [];
+      
+      for (const file of input) {
+        const { fileName, fileSize, fileType, fileBuffer, workspaceId, folderId, workspaceName, folderName } = file;
+        const buffer = Buffer.from(fileBuffer);
 
       const newFile = await ctx.db.file.create({
         data: {
