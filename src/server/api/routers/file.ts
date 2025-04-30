@@ -39,6 +39,12 @@ export const fileRouter = createTRPCRouter({
           }
         });
 
+        await contentExtractionTask.trigger({ 
+          fileId: newFile.id,
+          fileType: fileType,
+          fileSize: fileSize,
+          fileBuffer: buffer
+        })
         await uploadFileToS3(buffer, newFile.id, fileType);
         results.push(newFile);
       }
