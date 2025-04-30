@@ -1,7 +1,6 @@
 import { Upload } from "lucide-react"
 import { type ChangeEvent } from "react"
 
-// File Drop Zone Component
 interface FileDropZoneProps {
   isDragging: boolean;
   onDragEnter: (e: React.DragEvent) => void;
