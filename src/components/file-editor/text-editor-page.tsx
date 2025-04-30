@@ -176,7 +176,7 @@ if (caret) {
     suggestionElement.style.top = `${caretRect.bottom - editorRect.top + 58}px`;
     
     // Match text styling from the document
-    const documentStyles = window.getComputedStyle(editor.element.querySelector('.e-de-content') || editor.element);
+    const documentStyles = window.getComputedStyle(editor.element.querySelector('.e-de-content') ?? editor.element);
     suggestionElement.style.lineHeight = documentStyles.lineHeight;
     suggestionElement.style.fontFamily = documentStyles.fontFamily;
     suggestionElement.style.fontSize = documentStyles.fontSize;
