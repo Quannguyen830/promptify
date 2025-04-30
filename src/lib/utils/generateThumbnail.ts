@@ -99,7 +99,7 @@ async function generateThumbnail(file: File): Promise<string | null> {
     
     if (!handler) {
       // Generic thumbnail for unsupported file types
-      const fileExtension = file.name.split('.').pop()?.toUpperCase() || 'FILE';
+      const fileExtension = file.name.split('.').pop()?.toUpperCase() ?? 'FILE';
       const svgContent = `
         <svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300">
           <rect width="400" height="300" fill="#ffffff" />

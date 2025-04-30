@@ -14,7 +14,7 @@ export function LocationDisplay({ selectedParent }: LocationDisplayProps) {
       <div className="flex items-center gap-2 text-sm mt-2">
         <span>Home</span>
         <ArrowLeft className="h-3 w-3 rotate-180" />
-        <span>{selectedParent?.name || "Select location"}</span>
+        <span>{selectedParent?.name ?? "Select location"}</span>
       </div>
     </div>
   );
