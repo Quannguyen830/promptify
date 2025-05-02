@@ -1,6 +1,7 @@
-import AssistantInput from "~/components/assistant/input/assistant-input";
 import AssistantMessageViewer from "~/components/assistant/assistant-message-viewer";
 import AssistantSidebar from "~/components/assistant/assistant-sidebar";
+import AssistantInput from "~/components/assistant/input/assistant-input";
+import AssistantInputToolbar from "~/components/assistant/input/assistant-input-toolbar";
 
 export default function AssistantPage() {
   return (
@@ -13,7 +14,12 @@ export default function AssistantPage() {
 
         {/* message viewer */}
         <AssistantMessageViewer />
-        <AssistantInput className="flex-none h-[161px] justify-end"/>
+
+        <div className={`flex flex-col justify-end gap-2 h-[161px] box-border w-full bg-gray-50 rounded-sm p-3`}>
+          <AssistantInputToolbar />
+          <AssistantInput />
+        </div>
+
       </div>
 
       <AssistantSidebar />

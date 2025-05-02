@@ -1,15 +1,15 @@
-import { type ChatSessionCardProps } from "~/constants/interfaces";
+import { type ChatTopicCardProps } from "~/constants/interfaces";
 import { Button } from "../ui/button";
-import { ChatState, useChat } from "./chat-store";
+import { ChatState, useChatStore } from "./chat-store";
 import { Ellipsis, FileText } from "lucide-react";
 
 
-export const ChatSessionCard = ({children, className, id} : ChatSessionCardProps) => {  
+export const ChatTopicCard = ({children, className, id} : ChatTopicCardProps) => {  
   const { 
     selectedSessionId,
     setChatState,
     setSelectedSessionId
-  } = useChat();
+  } = useChatStore();
   
   const handleClick = () => { 
     setChatState(ChatState.SESSION_SELECTED);
@@ -26,4 +26,4 @@ export const ChatSessionCard = ({children, className, id} : ChatSessionCardProps
     </Button>
   );
 }
-export default ChatSessionCard;
+export default ChatTopicCard;

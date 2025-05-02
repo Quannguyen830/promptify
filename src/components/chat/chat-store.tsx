@@ -28,7 +28,7 @@ interface ChatStore {
   removeContextFileId: (fileId: string) => void;
   resetContextFileIds: () => void;
 }
-export const useChat = create<ChatStore>((set) => ({
+export const useChatStore = create<ChatStore>((set) => ({
   chatState: ChatState.SESSION_LISTING,
   setChatState: (newState) => {
     if (newState === ChatState.SESSION_LISTING) {

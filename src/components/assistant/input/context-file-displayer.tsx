@@ -1,13 +1,13 @@
 "use client";
 
 import { X } from "lucide-react";
-import { useChat } from "~/components/chat/chat-store";
+import { useChatStore } from "~/components/chat/chat-store";
 
 const ContextFileDisplayer = () => {
   const {
     contextFileIds,
     removeContextFileId
-  } = useChat();
+  } = useChatStore();
   
   return (
     <div className="flex gap-2">

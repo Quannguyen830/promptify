@@ -96,7 +96,7 @@ export interface ChatModel {
   value: ChatProvider;
 }
 
-export interface ChatSessionCardProps extends BaseProps {
+export interface ChatTopicCardProps extends BaseProps {
   id: string;
   title?: string; // TODO: consider rename to id
   variant?: string;

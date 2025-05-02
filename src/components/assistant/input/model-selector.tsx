@@ -1,6 +1,6 @@
 "use client";
 
-import { useChat } from "~/components/chat/chat-store";
+import { useChatStore } from "~/components/chat/chat-store";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select";
 
 import { type ChatModel } from "~/constants/interfaces";
@@ -21,7 +21,7 @@ export const chatModels: ChatModel[] = [
 const ModelSelector = () => {
   const {
     setChatProvider
-  } = useChat();
+  } = useChatStore();
   
   const handleChatProviderSelect = (provider: ChatModel) => {
     setChatProvider(provider.value);

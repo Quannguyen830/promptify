@@ -2,7 +2,7 @@
 
 import { FilePlus2, Search } from "lucide-react";
 import { useState } from "react";
-import { useChat } from "~/components/chat/chat-store";
+import { useChatStore } from "~/components/chat/chat-store";
 
 import { Button } from "~/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from "~/components/ui/dropdown-menu";
@@ -15,7 +15,7 @@ import { api } from "~/trpc/react";
 export default function FileSelectorMenu() {  
   const {
     addContextFileId
-  } = useChat();
+  } = useChatStore();
 
   const { data: files } = api.file.getAllFileNamesWithWorkspace.useQuery(undefined, {
     refetchOnMount: false,

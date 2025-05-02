@@ -1,7 +1,7 @@
 "use client";
 
 import { useSession } from "next-auth/react";
-import { ChatState, useChat } from "../chat/chat-store";
+import { ChatState, useChatStore } from "../chat/chat-store";
 
 import { type BaseProps } from "~/constants/interfaces";
 import Loading from "../share/loading-spinner";
@@ -18,7 +18,7 @@ const AssistantMessageViewer: React.FC<BaseProps> = ({ className }) => {
   const {
     chatState,
     selectedSessionId
-  } = useChat();
+  } = useChatStore();
 
   const { data: chatSession, isLoading } = api.chat.getChatSessionById.useQuery(
     {
@@ -49,8 +49,6 @@ const AssistantMessageViewer: React.FC<BaseProps> = ({ className }) => {
           <p>Start by asking anything below.</p>
         </div>
       ) : (
-        // <MessageViewer className="flex flex-col h-full gap-2 items-start w-full"/>
-
         <div className="flex flex-col h-full gap-2 items-start w-full pt-1 ">
           {chatSession?.messages.map((message, index) => (
             <ChatBubble content={message.content} key={index} variant={message.sender} />

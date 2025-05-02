@@ -7,9 +7,9 @@ import { SidebarGroup, SidebarGroupContent, SidebarGroupLabel } from "../ui/side
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible";
 
 import { api } from "~/trpc/react";
-import ChatSessionCard from "../chat/chat-session-card";
+import ChatTopicCard from "../chat/chat-topic-card";
 import Loading from "../share/loading-spinner";
-import { ChatState, useChat } from "../chat/chat-store";
+import { ChatState, useChatStore } from "../chat/chat-store";
 
 
 const AssistantTopicListing: React.FC<BaseProps> = ({ className }) => {
@@ -17,7 +17,7 @@ const AssistantTopicListing: React.FC<BaseProps> = ({ className }) => {
   const {
     setChatState,
     setSelectedSessionId,
-  } = useChat();
+  } = useChatStore();
   
   const { data: topics, isLoading } = api.chat.getAllChatSessionsId.useQuery();
   const createSession = api.chat.createChatSessionWithoutInitMessage.useMutation({
@@ -69,13 +69,13 @@ const AssistantTopicListing: React.FC<BaseProps> = ({ className }) => {
                 <Loading className="h-full py-4" />
               ) : (
                 topics!.map((topic, index: number) => (
-                  <ChatSessionCard
+                  <ChatTopicCard
                     id={topic.id}
                     key={index}
                     className="w-full"
                   >
                     {topic.name}
-                  </ChatSessionCard>
+                  </ChatTopicCard>
                 ))
               )}
             </SidebarGroupContent>
