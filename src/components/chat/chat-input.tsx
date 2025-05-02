@@ -46,17 +46,6 @@ const ChatInput: React.FC<ChatInputProps> = ({ formClassName, textareaClassName 
       setSelectedSessionId(data.id);
       setChatState(ChatState.SESSION_SELECTED);
 
-      utils.chat.getAllChatSessionsId.setData(
-        undefined,
-        (sessions) => [
-          ...sessions ?? [],
-          {
-            id: data.id,
-            name: "New Chat",
-          }
-        ]
-      )
-
       utils.chat.getChatSessionById.setData(
         { id: data.id }, 
         (session) => {
@@ -77,6 +66,18 @@ const ChatInput: React.FC<ChatInputProps> = ({ formClassName, textareaClassName 
           };
         }
       )
+      
+      utils.chat.getAllChatSessionsId.setData(
+        undefined,
+        (sessions) => [
+          ...sessions ?? [],
+          {
+            id: data.id,
+            name: "New Chat",
+          }
+        ]
+      )
+
     },
     onSettled(data) {
       void utils.chat.getChatSessionById.invalidate({ id: data?.id })

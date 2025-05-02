@@ -22,7 +22,7 @@ const ChatBubble = ({ className, content, variant }: ChatBubbleProps) => {
     <>
       {variant === MessageSenderSchema.enum.SYSTEM ? (
         // For agent
-        <div className={`markdown-body break-all p-2 bg-black/10 rounded-lg max-w-4xl ${className}`}>
+        <div className={`markdown-body p-2 bg-black/10 rounded-lg max-w-4xl ${className}`}>
           <Markdown
             remarkPlugins={[remarkGfm]}
             rehypePlugins={[rehypeHighlight]}
@@ -32,12 +32,14 @@ const ChatBubble = ({ className, content, variant }: ChatBubbleProps) => {
         </div>
       ) : (
         // For user
-        <div className={`ring-1 p-2 pl-0 flex flex-row w-full max-w-4xl gap-2 rounded-lg ${className}`}>
+        <div className={`p-2 flex flex-row w-full max-w-4xl gap-2 rounded-lg ${className}`}>
           <Avatar className="h-8 w-8">
             <AvatarFallback>{firstLetter}</AvatarFallback>
           </Avatar>
           
-          <p className="max-w-[848px] break-words whitespace-pre-wrap">{content}</p>
+          <p className="max-w-[848px] justify-center break-words whitespace-pre-wrap">
+            {content}
+          </p>
         </div>
       )}
     </>
