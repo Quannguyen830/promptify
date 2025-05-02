@@ -46,7 +46,16 @@ const ChatInput: React.FC<ChatInputProps> = ({ formClassName, textareaClassName 
       setSelectedSessionId(data.id);
       setChatState(ChatState.SESSION_SELECTED);
 
-      
+      utils.chat.getAllChatSessionsId.setData(
+        undefined,
+        (sessions) => [
+          ...sessions ?? [],
+          {
+            id: data.id,
+            name: "New Chat",
+          }
+        ]
+      )
 
       utils.chat.getChatSessionById.setData(
         { id: data.id }, 
@@ -67,17 +76,6 @@ const ChatInput: React.FC<ChatInputProps> = ({ formClassName, textareaClassName 
             ]
           };
         }
-        // (sessions) => [
-        //   ...sessions ?? [],
-        //   {
-        //     id: data.id,
-        //     name: "New Chat",
-        //     messages: [{
-        //         content: data.firstMessageContent,
-        //         sender: data.sender
-        //     }]
-        //   }
-        // ]
       )
     },
     onSettled(data) {
@@ -127,6 +125,8 @@ const ChatInput: React.FC<ChatInputProps> = ({ formClassName, textareaClassName 
       contextFiles: contextFileIds,
     });
 
+    console.log("STREAM_CP 1: ", stream);
+
     const reader = stream.getReader();
     const decoder = new TextDecoder();
     let done = false;
@@ -138,11 +138,11 @@ const ChatInput: React.FC<ChatInputProps> = ({ formClassName, textareaClassName 
       if (value) {
         const chunk = decoder.decode(value, { stream: true });
         
-        await utils.chat.getChatSessionById.cancel({ id: sessionId });
+        void utils.chat.getChatSessionById.cancel({ id: sessionId });
         utils.chat.getChatSessionById.setData(
           { id: sessionId },
           (session) => {
-            if (!session?.messages || session.messages.length === 0) return;
+            if (!session?.messages) return;
         
             const lastMessage = session.messages[session.messages.length - 1];
         
@@ -171,6 +171,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ formClassName, textareaClassName 
         );
       }
     }
+    console.log("STREAMING ENDED")
   }
  
   const onSubmit: SubmitHandler<ChatInputForm> = async (data) => { 

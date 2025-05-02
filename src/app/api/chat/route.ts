@@ -54,6 +54,7 @@ export async function POST(req: NextRequest) {
 
         console.log("TEXT", text);
         console.log("REPONSE", response)
+        
         await db.message.create({
           data: {
             chatSessionId: chatSessionId,
