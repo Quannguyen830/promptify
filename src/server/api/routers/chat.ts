@@ -7,11 +7,12 @@ import { generateChatTitle } from "~/server/services/llm-service";
 export const ChatRouter = createTRPCRouter({
   createChatSession: protectedProcedure
     .input(z.object({
+      id: z.string().cuid2(),
       firstMessageContent: z.string(),
       sender: MessageSenderSchema,
     }))
     .mutation(async ({ input, ctx }) => {
-      const { firstMessageContent: content, sender } = input;
+      const { firstMessageContent: content, sender, id } = input;
       
       if (!ctx.session.user.id) return;
 
@@ -26,6 +27,7 @@ export const ChatRouter = createTRPCRouter({
       
       const response = await ctx.db.chatSession.create({
         data: {
+          id: id,
           name: chatName,
           userId: ctx.session.user.id,
           messages: {

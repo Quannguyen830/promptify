@@ -1,7 +1,7 @@
 "use client";
 
 import { X } from "lucide-react";
-import { useChat } from "~/components/chat-section/chat-store";
+import { useChat } from "~/components/chat/chat-store";
 
 const ContextFileDisplayer = () => {
   const {

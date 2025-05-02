@@ -1,8 +1,8 @@
 import { api } from "~/trpc/react"
 import { type BaseProps } from "~/constants/interfaces";
-import { ChatState, useChat } from "./chat-store"
+import { ChatState, useChat } from "../chat/chat-store"
 
-import ChatBubble from "./chat-bubble";
+import ChatBubble from "../chat/chat-bubble";
 import Loading from "../share/loading-spinner";
 import { useEffect, useRef } from "react";
 

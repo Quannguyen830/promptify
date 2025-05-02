@@ -1,7 +1,7 @@
 "use client";
 
 import Loading from "../share/loading-spinner";
-import ChatSessionCard from "./chat-session-card";
+import ChatSessionCard from "../chat/chat-session-card";
 
 import { api } from "~/trpc/react";
 

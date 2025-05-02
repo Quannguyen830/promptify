@@ -2,7 +2,7 @@
 
 import { FilePlus2, Search } from "lucide-react";
 import { useState } from "react";
-import { useChat } from "~/components/chat-section/chat-store";
+import { useChat } from "~/components/chat/chat-store";
 
 import { Button } from "~/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from "~/components/ui/dropdown-menu";
@@ -17,7 +17,11 @@ export default function FileSelectorMenu() {
     addContextFileId
   } = useChat();
 
-  const { data: files } = api.file.getAllFileNamesWithWorkspace.useQuery();
+  const { data: files } = api.file.getAllFileNamesWithWorkspace.useQuery(undefined, {
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+    refetchOnWindowFocus: false
+  });
   const [searchInput, setSearchInput] = useState<string>("");
 
   if (!files) return null;

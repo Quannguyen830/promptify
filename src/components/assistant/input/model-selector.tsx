@@ -1,6 +1,6 @@
 "use client";
 
-import { useChat } from "~/components/chat-section/chat-store";
+import { useChat } from "~/components/chat/chat-store";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select";
 
 import { type ChatModel } from "~/constants/interfaces";

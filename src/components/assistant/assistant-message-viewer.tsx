@@ -1,7 +1,7 @@
 "use client";
 
 import { useSession } from "next-auth/react";
-import { useChat } from "../chat-section/chat-store";
+import { useChat } from "../chat/chat-store";
 
 import { type BaseProps } from "~/constants/interfaces";
 import Loading from "../share/loading-spinner";

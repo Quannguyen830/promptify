@@ -1,7 +1,6 @@
 import { type BaseProps } from "~/constants/interfaces";
 import AssistantInputToolbar from "./assistant-input-toolbar";
-
-import ChatInput from "~/components/chat-section/chat-input";
+import ChatInput from "~/components/chat/chat-input";
 
 
 const AssistantInput: React.FC<BaseProps> = ({ className }) => {

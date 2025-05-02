@@ -1,8 +1,8 @@
-import ChatInput from "./chat-input";
+import ChatInput from "../chat/chat-input";
 import { Button } from "../ui/button";
 import { ArrowLeft } from "lucide-react";
 import { ChatSessionListing } from "./chat-session-listing";
-import { ChatState, useChat } from "./chat-store";
+import { ChatState, useChat } from "../chat/chat-store";
 import MessageViewer from "./message-viewer";
 
 export function ChatSection() {

@@ -7,9 +7,9 @@ import { SidebarGroup, SidebarGroupContent, SidebarGroupLabel } from "../ui/side
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible";
 
 import { api } from "~/trpc/react";
-import ChatSessionCard from "../chat-section/chat-session-card";
+import ChatSessionCard from "../chat/chat-session-card";
 import Loading from "../share/loading-spinner";
-import { ChatState, useChat } from "../chat-section/chat-store";
+import { ChatState, useChat } from "../chat/chat-store";
 
 
 const AssistantTopicListing: React.FC<BaseProps> = ({ className }) => {
@@ -64,7 +64,7 @@ const AssistantTopicListing: React.FC<BaseProps> = ({ className }) => {
           </SidebarGroupLabel>
 
           <CollapsibleContent>
-            <SidebarGroupContent>
+            <SidebarGroupContent className="overflow-y-auto h-80">
               {isLoading ? (
                 <Loading className="h-full py-4" />
               ) : (

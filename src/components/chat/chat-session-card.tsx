@@ -1,5 +1,3 @@
-"use client";
-
 import { type ChatSessionCardProps } from "~/constants/interfaces";
 import { Button } from "../ui/button";
 import { ChatState, useChat } from "./chat-store";

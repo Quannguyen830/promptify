@@ -9,6 +9,7 @@ import { api } from "~/trpc/react";
 
 import { type BaseProps, type ChatInputForm } from "~/constants/interfaces";
 import { MessageSenderSchema } from "~/constants/types";
+import { createId } from '@paralleldrive/cuid2';
 
 import { SendHorizonal } from "lucide-react";
 import { Textarea } from "../ui/textarea";
@@ -42,26 +43,45 @@ const ChatInput: React.FC<ChatInputProps> = ({ formClassName, textareaClassName 
   
   const createSession = api.chat.createChatSession.useMutation({
     onMutate(data) {
+      setSelectedSessionId(data.id);
       setChatState(ChatState.SESSION_SELECTED);
 
-      utils.chat.getAllChatSessions.setData(
-        undefined, 
-        (sessions) => [
-          ...sessions ?? [],
-          {
-            id: crypto.randomUUID(),
-            name: "New Chat",
-            messages: [{
-                content: data.firstMessageContent,
-                sender: data.sender
-            }]
-          }
-        ]
+      
+
+      utils.chat.getChatSessionById.setData(
+        { id: data.id }, 
+        (session) => {
+          if (!session) return undefined;
+          return {
+            ...session, 
+            messages: [
+              ...(session.messages ?? []),
+              {
+                id: "temp-id",
+                createdAt: new Date(),
+                updatedAt: new Date(),
+                sender: data.sender,
+                chatSessionId: data.id,
+                content: data.firstMessageContent
+              }
+            ]
+          };
+        }
+        // (sessions) => [
+        //   ...sessions ?? [],
+        //   {
+        //     id: data.id,
+        //     name: "New Chat",
+        //     messages: [{
+        //         content: data.firstMessageContent,
+        //         sender: data.sender
+        //     }]
+        //   }
+        // ]
       )
     },
     onSettled(data) {
-      if (data) setSelectedSessionId(data.id);
-
+      void utils.chat.getChatSessionById.invalidate({ id: data?.id })
       void utils.chat.getAllChatSessionsId.invalidate();
     }
   });
@@ -79,7 +99,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ formClassName, textareaClassName 
             messages: [
               ...(session.messages ?? []),
               {
-                id: crypto.randomUUID(),
+                id: "temp-id",
                 createdAt: new Date(),
                 updatedAt: new Date(),
                 sender: data.sender,
@@ -96,13 +116,13 @@ const ChatInput: React.FC<ChatInputProps> = ({ formClassName, textareaClassName 
     }
   });
 
-  const handleStreaming = async (inputMessage: string) => {
-    if (!selectedSessionId) return;
-
+  const handleStreaming = async (inputMessage: string, sessionId: string) => {
+    console.log("STREAMING STARTED")
+    
     const stream = await mutateAsync({
-      chatSessionId: selectedSessionId, 
+      chatSessionId: sessionId, 
       content: inputMessage,
-      context: utils.chat.getChatSessionById.getData({ id: selectedSessionId ?? "" })?.messages ?? [],
+      context: utils.chat.getChatSessionById.getData({ id: sessionId })?.messages ?? [],
       model: chatProvider,
       contextFiles: contextFileIds,
     });
@@ -118,9 +138,9 @@ const ChatInput: React.FC<ChatInputProps> = ({ formClassName, textareaClassName 
       if (value) {
         const chunk = decoder.decode(value, { stream: true });
         
-        void utils.chat.getChatSessionById.cancel({ id: selectedSessionId ?? "" });
+        await utils.chat.getChatSessionById.cancel({ id: sessionId });
         utils.chat.getChatSessionById.setData(
-          { id: selectedSessionId ?? "" },
+          { id: sessionId },
           (session) => {
             if (!session?.messages || session.messages.length === 0) return;
         
@@ -137,7 +157,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ formClassName, textareaClassName 
                         createdAt: new Date(),
                         updatedAt: new Date(),
                         sender: MessageSenderSchema.enum.SYSTEM,
-                        chatSessionId: selectedSessionId,
+                        chatSessionId: sessionId,
                         content: chunk
                       }
                     ]
@@ -161,21 +181,24 @@ const ChatInput: React.FC<ChatInputProps> = ({ formClassName, textareaClassName 
     reset();
         
     if (!selectedSessionId) { 
-      setChatState(ChatState.SESSION_SELECTED);
+      const newSessionId = createId();
+      console.log("CHECKPOINT 1: ", newSessionId)
 
       await createSession.mutateAsync({
+        id: newSessionId,
         firstMessageContent: inputMessage,
         sender: "USER"
-      });      
+      });
+      console.log("CHECKPOINT 2")
+      await handleStreaming(inputMessage, newSessionId);
     } else {      
       await createMessage.mutateAsync({
         chatSessionId: selectedSessionId,
         content: inputMessage,
         sender: "USER"
       });
+      await handleStreaming(inputMessage, selectedSessionId);
     }
-    
-    await handleStreaming(inputMessage);
   }
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
