@@ -14,6 +14,7 @@ import { FileUploadStatus } from "~/constants/interfaces"
 import { FileDropZone } from "./file-drop-zone"
 import { LocationDisplay } from "./location-display"
 import { FileList } from "./file-list-area"
+import { useToast } from "~/hooks/use-toast"
 
 interface UploadFileDialogProps {
   open: boolean
@@ -28,6 +29,7 @@ const formatFileSize = (bytes: number): string => {
 };
 
 export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDialogProps) {
+  const { toast } = useToast()
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
   const [fileUploadStatuses, setFileUploadStatuses] = useState<FileUploadStatus[]>([])
   const [isUploading, setIsUploading] = useState(false)
@@ -85,12 +87,28 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
         void utils.folder.getFolderContentByFolderId.invalidate({ folderId: parent.id })
       }
       
+      // Show success toast
+      toast({
+        title: "Files uploaded",
+        description: `${selectedFiles.length} file${selectedFiles.length > 1 ? 's' : ''} uploaded successfully`,
+        variant: "success", // Custom variant we'll create
+        className: "p-4", // Add more padding
+      })
+      
       // Reset upload state after successful upload
       setIsUploading(false)
     },
     onError: (error) => {
       console.error("Upload error:", error)
       setIsUploading(false)
+      
+      // Show error toast
+      toast({
+        title: "Upload failed",
+        description: "There was an error uploading your files",
+        variant: "destructive",
+        className: "p-4", // Add more padding
+      })
       
       // Mark all files as error
       setFileUploadStatuses(prev => 

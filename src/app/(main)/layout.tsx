@@ -3,6 +3,7 @@ import "~/styles/globals.css";
 import { SidebarProvider } from "~/components/ui/sidebar";
 import { TRPCReactProvider } from "~/trpc/react";
 import { SessionProvider } from "next-auth/react";
+import { Toaster } from "~/components/ui/toaster";
 
 import { GeistSans } from "geist/font/sans";
 import { Sidebar } from "~/components/share/sidebar";
@@ -31,6 +32,7 @@ export default function AuthenticatedLayout({
                   {children}
                 </main>
               </div>
+              <Toaster />
             </SidebarProvider>
           </SessionProvider>
         </TRPCReactProvider>
