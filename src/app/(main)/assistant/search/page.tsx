@@ -14,7 +14,7 @@ export default function SearchPage() {
         </hgroup>
 
         <SearchViewer />
-        <AssistantInput className="flex-none h-[161px] justify-end" />
+        <AssistantInput />
       </div>
 
       <AssistantSidebar />
