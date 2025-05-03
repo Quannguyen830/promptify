@@ -17,7 +17,7 @@ import { Button } from "../../ui/button";
 import { ChatState, useChatStore } from "../../chat/chat-store";
 import { useStreamChatMutation } from "~/hooks/use-stream-chat";
 
-import { useChat } from '@ai-sdk/react';
+import { useChat } from "@ai-sdk/react";
 
 const AssistantInput: React.FC = () => {
   const {
@@ -26,6 +26,7 @@ const AssistantInput: React.FC = () => {
     reset
   } = useForm<ChatInputForm>()
 
+  
   const utils = api.useUtils();
   const { mutateAsync } = useStreamChatMutation();
   const {
@@ -113,6 +114,7 @@ const AssistantInput: React.FC = () => {
   const handleStreaming = async (inputMessage: string, sessionId: string) => {
     console.log("STREAMING STARTED")
     
+    // fetch the server api
     const stream = await mutateAsync({
       chatSessionId: sessionId, 
       content: inputMessage,
@@ -169,8 +171,6 @@ const AssistantInput: React.FC = () => {
     }
     console.log("STREAMING ENDED")
   }
-  
-  const { messages } = useChat();
 
   const onSubmit: SubmitHandler<ChatInputForm> = async (data) => { 
     const inputMessage = data.message;
@@ -200,14 +200,6 @@ const AssistantInput: React.FC = () => {
     }
   }
 
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    // shift + enter for new line
-    if (event.key === 'Enter' && !event.shiftKey) {
-      event.preventDefault();
-      void handleSubmit(onSubmit)();
-    }
-  };
-
   return (
     <form 
       onSubmit={handleSubmit(onSubmit)} 
@@ -215,8 +207,14 @@ const AssistantInput: React.FC = () => {
     >
       <Textarea 
         {...register("message")} 
+        onKeyDown={async event => {
+          // shift + enter for new line
+          if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault();
+            await handleSubmit(onSubmit)();
+          }
+        }}
         placeholder="Ask me anything"
-        onKeyDown={handleKeyDown}
         className="focus-visible:ring-0 resize-none border-none shadow-none p-0"
       />
       <Button variant={"ghost"} type="submit" className="p-2 fill-black stroke-black">

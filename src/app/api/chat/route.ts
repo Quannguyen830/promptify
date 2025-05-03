@@ -15,7 +15,7 @@ const requestSchema = z.object({
   model: ChatProviderSchema,
   contextFiles: z.array(z.object({
     id: z.string(),
-    name: z.string()
+  name: z.string()
   }))
 });
 
@@ -23,6 +23,7 @@ const requestSchema = z.object({
 export async function POST(req: NextRequest) {
   try {
     const json: unknown = await req.json();
+    console.log("REQUEST", json);
     const input = requestSchema.parse(json);
 
     const { chatSessionId, content, context, model, contextFiles } = input;
@@ -46,6 +47,7 @@ export async function POST(req: NextRequest) {
 
     const contextString = JSON.stringify(context);
     const promptWithContext = `Context that the user want to based the output on:\n${contextFileContent} \nPrevious conversation context:\n${contextString}\n\nCurrent message: ${content}`;
+    
     const result = streamText({
       model: chatProviders[model],
       prompt: promptWithContext,
@@ -55,6 +57,7 @@ export async function POST(req: NextRequest) {
         console.log("TEXT", text);
         console.log("REPONSE", response)
         
+        // persist after stream
         await db.message.create({
           data: {
             chatSessionId: chatSessionId,
@@ -64,18 +67,16 @@ export async function POST(req: NextRequest) {
         })
       }
     })
-
-    return result.toDataStreamResponse();
   
-    // const response = new NextResponse(textStream, {
-    //   headers: {
-    //     'Content-Type': 'text/event-stream',
-    //     'Cache-Control': 'no-cache',
-    //     'Connection': 'keep-alive'
-    //   },
-    // });
+    const response = new NextResponse(result.textStream, {
+      headers: {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive'
+      },
+    });
 
-    // return response;
+    return response;
   } catch (error) {
     console.error(error);
     return NextResponse.json(

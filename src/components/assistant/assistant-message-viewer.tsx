@@ -11,9 +11,8 @@ import { api } from "~/trpc/react";
 import ChatBubble from "../chat/chat-bubble";
 
 
-
 const AssistantMessageViewer: React.FC<BaseProps> = ({ className }) => {
-  const { data, status } = useSession();
+  const { data } = useSession();
   const bottomRef = useRef<HTMLDivElement>(null);
   const {
     chatState,
@@ -49,12 +48,14 @@ const AssistantMessageViewer: React.FC<BaseProps> = ({ className }) => {
           <p>Start by asking anything below.</p>
         </div>
       ) : (
-        <div className="flex flex-col h-full gap-2 items-start w-full pt-1 ">
-          {chatSession?.messages.map((message, index) => (
-            <ChatBubble content={message.content} key={index} variant={message.sender} />
-          ))}
-          
-          <div ref={bottomRef} className=""/>
+        <div>
+          <div className="flex flex-col h-full gap-2 items-start w-[896px] pt-1 ">
+            {chatSession?.messages.map((message, index) => (
+              <ChatBubble content={message.content} key={index} variant={message.sender} />
+            ))}
+            
+            <div ref={bottomRef} className=""/>
+          </div>
         </div>
       )}
     </ScrollArea>
