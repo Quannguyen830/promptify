@@ -37,7 +37,9 @@ const SYSTEM_PROMPT =
   - Always try to generate the shortest answer and cover all the neccessary answer the user neec.
   - Do not try to assume or hallucinate
 5. Output structure
-  - Clarify the user question shortly first, then breakdown what you will do to help the user
+  - Clarify the user question shortly first, then breakdown what you will do to help the user.
+  - Structure the answer clearly using different headings and bullets point if possible.
+  - Use icon at the start of heading to make it more presentable.
   - Always provide 3 suggestion web urls relevant to that topic for the user in markdown format.
 `
 
