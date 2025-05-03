@@ -17,7 +17,6 @@ import { Button } from "../../ui/button";
 import { ChatState, useChatStore } from "../../chat/chat-store";
 import { useStreamChatMutation } from "~/hooks/use-stream-chat";
 
-import { useChat } from "@ai-sdk/react";
 
 const AssistantInput: React.FC = () => {
   const {
