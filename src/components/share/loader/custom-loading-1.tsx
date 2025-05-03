@@ -2,14 +2,14 @@ import React from 'react'
 
 export default function CustomLoading1() {
   return (
-    <div className="flex flex-row gap-2">
+    <div className="flex-col gap-4 w-full flex items-center justify-center">
       <div
-        style={{
-          backgroundImage:
-            'conic-gradient(from 0deg, violet, indigo 30%, blue 50%, green 60%, yellow 70%, orange 80%, red 100%)',
-        }}
-        className="w-10 h-10 rounded-full bg-radial bg-gradient-to-tr animate-spin [animation-delay:.7s]"
-      ></div>
+        className="w-20 h-20 border-4 border-transparent text-blue-400 text-4xl animate-spin flex items-center justify-center border-t-blue-400 rounded-full"
+      >
+        <div
+          className="w-16 h-16 border-4 border-transparent text-red-400 text-2xl animate-spin flex items-center justify-center border-t-red-400 rounded-full"
+        ></div>
+      </div>
     </div>
   )
 }
