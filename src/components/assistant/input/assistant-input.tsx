@@ -42,38 +42,20 @@ const AssistantInput: React.FC = () => {
       setSelectedSessionId(data.id);
       setChatState(ChatState.SESSION_SELECTED);
 
-      utils.chat.getChatSessionById.setData(
-        { id: data.id }, 
-        (session) => {
-          if (!session) return undefined;
-          return {
-            ...session, 
-            messages: [
-              ...(session.messages ?? []),
-              {
-                id: "temp-id",
-                createdAt: new Date(),
-                updatedAt: new Date(),
-                sender: data.sender,
-                chatSessionId: data.id,
-                content: data.firstMessageContent
-              }
-            ]
-          };
-        }
-      )
-      
-      utils.chat.getAllChatSessionsId.setData(
-        undefined,
+      utils.chat.getAllChatSessions.setData(
+        undefined, 
         (sessions) => [
           ...sessions ?? [],
           {
             id: data.id,
             name: "New Chat",
+            messages: [{
+                content: data.firstMessageContent,
+                sender: data.sender
+            }]
           }
         ]
       )
-
     },
     onSettled(data) {
       void utils.chat.getChatSessionById.invalidate({ id: data?.id })
@@ -108,6 +90,7 @@ const AssistantInput: React.FC = () => {
     },
     onSettled() {
       void utils.chat.getChatSessionById.invalidate({ id: selectedSessionId! });
+      void utils.chat.getAllChatSessionsId.invalidate();
     }
   });
 
@@ -180,22 +163,24 @@ const AssistantInput: React.FC = () => {
     reset();
         
     if (!selectedSessionId) { 
+      // for "New topic" btn and chat directly without selecting a topic
       const newSessionId = createId();
-      console.log("CHECKPOINT 1: ", newSessionId)
 
       await createSession.mutateAsync({
         id: newSessionId,
         firstMessageContent: inputMessage,
         sender: "USER"
       });
-      console.log("CHECKPOINT 2")
+
       await handleStreaming(inputMessage, newSessionId);
-    } else {      
+    } else { 
+      // if topic is selected  
       await createMessage.mutateAsync({
         chatSessionId: selectedSessionId,
         content: inputMessage,
         sender: "USER"
       });
+
       await handleStreaming(inputMessage, selectedSessionId);
     }
   }

@@ -51,7 +51,7 @@ export const ChatRouter = createTRPCRouter({
     .mutation(async ({ ctx }) => {
       return await ctx.db.chatSession.create({
         data: {
-          name: "Untilted",
+          name: "New chat",
           userId: ctx.session.user.id
         }
       });
@@ -71,11 +71,30 @@ export const ChatRouter = createTRPCRouter({
       // save user message to db
       const result = await ctx.db.message.create({
         data: {
-          chatSessionId: chatSessionId,
-          content: content,
-          sender: sender,
+          chatSessionId,
+          content,
+          sender,
         },
       });
+      
+      // Fire-and-forget: non-blocking background update
+      ctx.db.chatSession.findUnique({
+        where: { id: chatSessionId },
+        select: { name: true },
+      })
+        .then(async (chatSession) => {
+          if (chatSession?.name === "New chat") {
+            const title = await generateChatTitle(content);
+            await ctx.db.chatSession.update({
+              where: { id: chatSessionId },
+              data: { name: title },
+            });
+          }
+        })
+        .catch((err) => {
+          console.error("Failed to rename chat session", err);
+        });
+      
       return result;
     }),
     

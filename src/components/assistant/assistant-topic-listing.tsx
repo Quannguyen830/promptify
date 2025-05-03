@@ -30,7 +30,7 @@ const AssistantTopicListing: React.FC<BaseProps> = ({ className }) => {
           ...sessions ?? [],
           {
             id: crypto.randomUUID(),
-            name: "Untitled",
+            name: "New chat",
           }
         ]
       )
