@@ -1,5 +1,5 @@
 import { GeistSans } from "geist/font/sans";
-import { PromptifyLogo } from "~/components/share/promptify-logo"
+import { AuthLogo } from "~/components/share/auth-logo";
 import "~/styles/globals.css";
 
 export default function UnauthenticatedLayout({
@@ -11,7 +11,7 @@ export default function UnauthenticatedLayout({
         <div className="min-h-screen bg-white">
           <div className="w-full border-b border-gray-200">
             <div className="container mx-auto px-4 py-4">
-              <PromptifyLogo className="h-8 w-auto" />
+              <AuthLogo className="h-8 w-auto" />
             </div>
           </div>
 

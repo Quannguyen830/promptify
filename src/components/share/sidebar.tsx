@@ -32,7 +32,7 @@ export function Sidebar() {
     { name: 'AI Assistant', icon: FileText, href: '/assistant' },
   ], []);
   const quickAccess = useMemo(() => [
-    { name: 'Recent', icon: Clock, href: '/recents' },
+    { name: 'Recent', icon: Clock, href: '/recent' },
     { name: 'Starred', icon: Star, href: '/starred' },
     { name: 'Deleted', icon: Trash2, href: '/deleted' },
   ], []);

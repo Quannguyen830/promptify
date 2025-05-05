@@ -69,7 +69,7 @@ export function FolderBreadcrumb({ items }: FolderBreadcrumbProps) {
           ) : (
             <Link
               href={item.href}
-              className="px-2 py-1 rounded-sm hover:text-foreground transition-colors"
+              className="pr-2 py-1 rounded-sm hover:text-foreground transition-colors"
               onClick={() => handleClick(item.href)}
             >
               {item.label}

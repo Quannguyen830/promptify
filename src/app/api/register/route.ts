@@ -26,12 +26,21 @@ export async function POST(req: Request) {
 
     const hashedPassword = await hash(password, 12)
 
-    await db.user.create({
+    const newUser = await db.user.create({
       data: {
         email: email,
         password: hashedPassword,
         name: `${firstName} ${lastName}`,
       },
+    })
+
+    await db.workspace.create({
+      data: {
+        name: "Your First Workspace",
+        userId: newUser.id,
+        hasSubfolders: false,
+        itemType: "workspace"
+      }
     })
 
     return NextResponse.json(

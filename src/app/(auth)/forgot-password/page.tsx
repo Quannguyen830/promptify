@@ -5,7 +5,6 @@ import { forgotPasswordSchema, type ForgotPasswordInput } from "~/constants/type
 import { FormAnimationWrapper } from "~/components/share/form-animation-wrapper"
 import { Input } from "~/components/ui/input"
 import Link from "next/link"
-import { PromptifyLogo } from "~/components/share/promptify-logo"
 import { useForm } from "react-hook-form"
 import { useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
