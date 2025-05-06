@@ -48,48 +48,6 @@ export const folderRouter = createTRPCRouter({
       return newFolder.id;
     }),
 
-  listFolderByUserId: protectedProcedure
-    .query(async ({ ctx }) => {
-      const folders = await ctx.db.folder.findMany({
-        where: {
-          Workspace: {
-            userId: ctx.session.user.id ?? GuestUser.id
-          }
-        }
-      })
-
-      return folders;
-    }),
-
-  listRootFoldersByWorkspaceId: protectedProcedure
-    .input(z.object({
-      workspaceId: z.string()
-    }))
-    .query(async ({ input, ctx }) => {
-      const folders = await ctx.db.folder.findMany({
-        where: {
-          workspaceId: input.workspaceId,
-          parentFolderId: null
-        }
-      });
-
-      return folders;
-    }),
-
-  listFolderByParentsFolderId: protectedProcedure
-    .input(z.object({
-      parentsFolderId: z.string()
-    }))
-    .query(({ input, ctx }) => {
-      const folders = ctx.db.folder.findMany({
-        where: {
-          parentFolderId: input.parentsFolderId
-        }
-      })
-
-      return folders;
-    }),
-
   deleteFolderByFolderId: protectedProcedure
     .input(z.object({ folderId: z.string() }))
     .mutation(async ({ input, ctx }) => {
@@ -116,5 +74,25 @@ export const folderRouter = createTRPCRouter({
       });
 
       return folder;
+    }),
+
+  updateFolderByFolderId: protectedProcedure
+    .input(z.object({
+      folderId: z.string(),
+      folderName: z.string().optional()
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const { folderId, folderName } = input;
+
+      const updatedFolder = await ctx.db.folder.update({
+        where: {
+          id: folderId
+        },
+        data: {
+          name: folderName
+        }
+      });
+
+      return updatedFolder.id;
     })
 })

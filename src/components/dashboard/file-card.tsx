@@ -11,12 +11,27 @@ import Image from "next/image"
 import { type FileCardProps } from '~/constants/interfaces'
 import { api } from '~/trpc/react'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { DeleteWarningDialog } from '../upload/delete-warning-dialog'
+import { RenameDialog } from '../upload/rename-dialog'
+import { useToast } from "~/hooks/use-toast"
+import { copyToClipboard } from "~/lib/utils/copy-to-clipboard"
+
 
 export function FileCard({ id, title, date, fileType }: FileCardProps) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [showRenameDialog, setShowRenameDialog] = useState(false)
+  const [dropdownOpen, setDropdownOpen] = useState(false)
   const utils = api.useUtils();
+  const { toast } = useToast()
+
+  const updateFile = api.file.updateFileByFileId.useMutation({
+    onSuccess: () => {
+      void utils.workspace.listWorkspaceByUserId.invalidate()
+      void utils.workspace.getWorkspaceByWorkspaceId.invalidate()
+      void utils.folder.getFolderContentByFolderId.invalidate()
+    }
+  })
 
   const { mutate: removeFile } = api.file.deleteFileByFileId.useMutation({
     onMutate: () => {
@@ -27,11 +42,9 @@ export function FileCard({ id, title, date, fileType }: FileCardProps) {
       const previousWorkspaces = utils.workspace.listWorkspaceByUserId.getData()
       const workspaces = previousWorkspaces ?? []
 
-      // Find the file to get its workspace and folder IDs
       const file = workspaces.flatMap(w => w.files).find(f => f.id === id)
       if (!file) return { previousWorkspaces }
 
-      // Store previous states
       const previousWorkspace = file.workspaceId
         ? utils.workspace.getWorkspaceByWorkspaceId.getData({ workspaceId: file.workspaceId })
         : undefined
@@ -39,7 +52,6 @@ export function FileCard({ id, title, date, fileType }: FileCardProps) {
         ? utils.folder.getFolderContentByFolderId.getData({ folderId: file.folderId })
         : undefined
 
-      // Update workspace view
       if (file.workspaceId) {
         utils.workspace.getWorkspaceByWorkspaceId.setData(
           { workspaceId: file.workspaceId },
@@ -50,7 +62,6 @@ export function FileCard({ id, title, date, fileType }: FileCardProps) {
         )
       }
 
-      // Update folder view
       if (file.folderId) {
         utils.folder.getFolderContentByFolderId.setData(
           { folderId: file.folderId },
@@ -61,7 +72,6 @@ export function FileCard({ id, title, date, fileType }: FileCardProps) {
         )
       }
 
-      // Update dashboard view
       utils.workspace.listWorkspaceByUserId.setData(
         undefined,
         (prev) => prev?.map(workspace => ({
@@ -77,6 +87,13 @@ export function FileCard({ id, title, date, fileType }: FileCardProps) {
       void utils.workspace.listWorkspaceByUserId.invalidate()
       void utils.workspace.getWorkspaceByWorkspaceId.invalidate()
       void utils.folder.getFolderContentByFolderId.invalidate()
+      
+      toast({
+        title: "File deleted",
+        description: `"${title}" deleted successfully`,
+        variant: "success",
+        className: "p-4",
+      })
     },
 
     onError: (error, variables, context) => {
@@ -99,14 +116,58 @@ export function FileCard({ id, title, date, fileType }: FileCardProps) {
           }
         }
       }
+      
+      toast({
+        title: "Deletion failed",
+        description: "There was an error deleting the file",
+        variant: "destructive",
+        className: "p-4",
+      })
     }
   });
   const handleRemove = () => {
+    setDropdownOpen(false)
     setShowDeleteDialog(true)
+  }
+
+  const handleRename = () => {
+    setDropdownOpen(false)
+    setShowRenameDialog(true)
+  }
+
+  const handleConfirmRename = (newFileName: string) => {
+    updateFile.mutate({ 
+      fileId: id, 
+      fileName: newFileName 
+    })
   }
 
   const handleConfirmDelete = () => {
     removeFile({ fileId: id })
+  }
+
+  const handleGetLink = async () => {
+    setDropdownOpen(false)
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || window.location.origin
+    const shareUrl = `${baseUrl}/file/${id}`
+    
+    const success = await copyToClipboard(shareUrl)
+    
+    if (success) {
+      toast({
+        title: "Link copied",
+        description: "File link copied to clipboard",
+        variant: "success",
+        className: "p-4",
+      })
+    } else {
+      toast({
+        title: "Copy failed",
+        description: "Failed to copy link to clipboard",
+        variant: "destructive",
+        className: "p-4",
+      })
+    }
   }
 
   return (
@@ -119,16 +180,19 @@ export function FileCard({ id, title, date, fileType }: FileCardProps) {
         description={`Are you sure you want to delete "${title}"? This action cannot be undone.`}
       />
 
+      <RenameDialog
+        open={showRenameDialog}
+        onOpenChange={setShowRenameDialog}
+        onConfirm={handleConfirmRename}
+        title="Rename File"
+        currentName={title}
+        itemType="file"
+      />
+
       <Card className="overflow-hidden hover:bg-accent/5 cursor-pointer transition-colors shadow-none">
         <Link href={`/file/${id}`}>
           <div className="relative aspect-[1.6] w-full rounded-lg p-2">
             <div className='bg-gray-200 w-full h-full rounded-lg'></div>
-              {/* <Image
-                src={"https://th.bing.com/th?id=OIF.5p2KNyj%2bQDURxBqRIcubSw&rs=1&pid=ImgDetMain"}
-                alt={title}
-                fill
-                className="object-cover"
-              /> */}
             {fileType == 'application/pdf' && (
               <div className="absolute top-4 left-4 p-1 rounded-md">
                 <Image
@@ -139,7 +203,7 @@ export function FileCard({ id, title, date, fileType }: FileCardProps) {
                 />
               </div>
             )}
-            {fileType == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' && (
+            {(fileType == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' || fileType == 'application/msword') && (
               <div className="absolute top-4 left-4 p-1 rounded-md">
                 <Image
                   src={"/icon/docx-icon.svg"}
@@ -149,7 +213,7 @@ export function FileCard({ id, title, date, fileType }: FileCardProps) {
                 />
               </div>
             )}
-            <DropdownMenu>
+            <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
               <DropdownMenuTrigger asChild onClick={(e) => e.preventDefault()}>
                 <Button
                   variant="ghost"
@@ -160,6 +224,16 @@ export function FileCard({ id, title, date, fileType }: FileCardProps) {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleRename();
+                }}>Rename</DropdownMenuItem>
+                <DropdownMenuItem onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  void handleGetLink();
+                }}>Get link</DropdownMenuItem>
                 <DropdownMenuItem
                   className='text-red-500'
                   onClick={(e) => {

@@ -9,8 +9,11 @@ import {
 } from "~/components/ui/dropdown-menu"
 import Link from "next/link"
 import { api } from '~/trpc/react'
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { DeleteWarningDialog } from '../upload/delete-warning-dialog'
+import { RenameDialog } from '../upload/rename-dialog'
+import { useToast } from "~/hooks/use-toast"
+import { copyToClipboard } from "~/lib/utils/copy-to-clipboard"
 
 interface FolderCardProps {
   id: string
@@ -21,7 +24,10 @@ interface FolderCardProps {
 
 export function FolderCard({ id, title, subtitle, icon }: FolderCardProps) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [showRenameDialog, setShowRenameDialog] = useState(false)
+  const [dropdownOpen, setDropdownOpen] = useState(false)
   const utils = api.useUtils();
+  const { toast } = useToast()
 
   const { mutate: removeFolder } = api.folder.deleteFolderByFolderId.useMutation({
     onMutate: () => {
@@ -32,11 +38,9 @@ export function FolderCard({ id, title, subtitle, icon }: FolderCardProps) {
       const previousWorkspaces = utils.workspace.listWorkspaceByUserId.getData()
       const workspaces = previousWorkspaces ?? []
 
-      // Find the folder to get its workspace and parent folder IDs
       const folder = workspaces.flatMap(w => w.folders).find(f => f.id === id)
       if (!folder) return { previousWorkspaces }
 
-      // Store previous states
       const previousWorkspace = folder.workspaceId
         ? utils.workspace.getWorkspaceByWorkspaceId.getData({ workspaceId: folder.workspaceId })
         : undefined
@@ -44,7 +48,6 @@ export function FolderCard({ id, title, subtitle, icon }: FolderCardProps) {
         ? utils.folder.getFolderContentByFolderId.getData({ folderId: folder.parentFolderId })
         : undefined
 
-      // Update workspace view
       if (folder.workspaceId) {
         utils.workspace.getWorkspaceByWorkspaceId.setData(
           { workspaceId: folder.workspaceId },
@@ -55,7 +58,6 @@ export function FolderCard({ id, title, subtitle, icon }: FolderCardProps) {
         )
       }
 
-      // Update parent folder view
       if (folder.parentFolderId) {
         utils.folder.getFolderContentByFolderId.setData(
           { folderId: folder.parentFolderId },
@@ -66,7 +68,6 @@ export function FolderCard({ id, title, subtitle, icon }: FolderCardProps) {
         )
       }
 
-      // Update dashboard view
       utils.workspace.listWorkspaceByUserId.setData(
         undefined,
         (prev) => prev?.map(workspace => ({
@@ -82,6 +83,13 @@ export function FolderCard({ id, title, subtitle, icon }: FolderCardProps) {
       void utils.workspace.listWorkspaceByUserId.invalidate()
       void utils.workspace.getWorkspaceByWorkspaceId.invalidate()
       void utils.folder.getFolderContentByFolderId.invalidate()
+      
+      toast({
+        title: "Folder deleted",
+        description: `"${title}" folder deleted successfully`,
+        variant: "success",
+        className: "p-4",
+      })
     },
 
     onError: (error, variables, context) => {
@@ -104,15 +112,82 @@ export function FolderCard({ id, title, subtitle, icon }: FolderCardProps) {
           }
         }
       }
+      
+      toast({
+        title: "Deletion failed",
+        description: "There was an error deleting the folder",
+        variant: "destructive",
+        className: "p-4",
+      })
+    }
+  });
+
+  const updateFolder = api.folder.updateFolderByFolderId.useMutation({
+    onSuccess: () => {
+      void utils.workspace.listWorkspaceByUserId.invalidate()
+      void utils.workspace.getWorkspaceByWorkspaceId.invalidate()
+      void utils.folder.getFolderContentByFolderId.invalidate()
+      
+      toast({
+        title: "Folder renamed",
+        description: "Folder renamed successfully",
+        variant: "success",
+        className: "p-4",
+      })
+    },
+    onError: () => {
+      toast({
+        title: "Rename failed",
+        description: "There was an error renaming the folder",
+        variant: "destructive",
+        className: "p-4",
+      })
     }
   });
 
   const handleRemove = () => {
+    setDropdownOpen(false)
     setShowDeleteDialog(true)
+  }
+
+  const handleRename = () => {
+    setDropdownOpen(false)
+    setShowRenameDialog(true)
+  }
+
+  const handleConfirmRename = (newName: string) => {
+    updateFolder.mutate({ 
+      folderId: id, 
+      folderName: newName 
+    })
   }
 
   const handleConfirmDelete = () => {
     removeFolder({ folderId: id })
+  }
+
+  const handleGetLink = async () => {
+    setDropdownOpen(false)
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || window.location.origin
+    const shareUrl = `${baseUrl}/folder/${id}`
+    
+    const success = await copyToClipboard(shareUrl)
+    
+    if (success) {
+      toast({
+        title: "Link copied",
+        description: "Folder link copied to clipboard",
+        variant: "success",
+        className: "p-4",
+      })
+    } else {
+      toast({
+        title: "Copy failed",
+        description: "Failed to copy link to clipboard",
+        variant: "destructive",
+        className: "p-4",
+      })
+    }
   }
 
   return (
@@ -123,6 +198,15 @@ export function FolderCard({ id, title, subtitle, icon }: FolderCardProps) {
         onConfirm={handleConfirmDelete}
         title="Delete Folder"
         description={`Are you sure you want to delete "${title}"? All contents within this folder will be permanently deleted. This action cannot be undone.`}
+      />
+
+      <RenameDialog
+        open={showRenameDialog}
+        onOpenChange={setShowRenameDialog}
+        onConfirm={handleConfirmRename}
+        title="Rename Folder"
+        currentName={title}
+        itemType="folder"
       />
 
       <Card className="group relative hover:bg-accent transition-colors">
@@ -142,7 +226,7 @@ export function FolderCard({ id, title, subtitle, icon }: FolderCardProps) {
           </div>
         </Link>
         <div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity">
-          <DropdownMenu>
+          <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="h-8 w-8">
                 <MoreVertical className="h-4 w-4" />
@@ -150,8 +234,14 @@ export function FolderCard({ id, title, subtitle, icon }: FolderCardProps) {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem>Share</DropdownMenuItem>
-              <DropdownMenuItem>Get link</DropdownMenuItem>
+              <DropdownMenuItem onClick={(e) => {
+                e.stopPropagation();
+                handleRename();
+              }}>Rename</DropdownMenuItem>
+              <DropdownMenuItem onClick={(e) => {
+                e.stopPropagation();
+                void handleGetLink();
+              }}>Get link</DropdownMenuItem>
               <DropdownMenuItem className='text-red-500' onClick={(e) => {
                 e.stopPropagation();
                 handleRemove();

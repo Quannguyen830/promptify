@@ -11,6 +11,7 @@ import { Input } from "~/components/ui/input"
 import { Button } from "~/components/ui/button"
 import { api } from "~/trpc/react"
 import { useRef, useState, useEffect } from "react"
+import { useToast } from "~/hooks/use-toast"
 
 interface NewFolderDialogProps {
   open: boolean
@@ -22,6 +23,7 @@ export function NewWorkspaceDialog({ open, onOpenChange, onClose }: NewFolderDia
   const utils = api.useUtils();
   const [workspaceName, setWorkspaceName] = useState("")
   const inputRef = useRef<HTMLInputElement>(null)
+  const { toast } = useToast()
 
   const createNewWorkspace = api.workspace.createNewWorkspace.useMutation({
     onMutate: (data) => {
@@ -52,9 +54,23 @@ export function NewWorkspaceDialog({ open, onOpenChange, onClose }: NewFolderDia
     },
     onSuccess: () => {
       void utils.workspace.listWorkspaceByUserId.invalidate();
+      
+      toast({
+        title: "Workspace created",
+        description: `"${workspaceName}" workspace created successfully`,
+        variant: "success",
+        className: "p-4",
+      })
     },
     onError: (error, variables, context) => {
       utils.workspace.listWorkspaceByUserId.setData(undefined, context?.previousWorkspaces);
+      
+      toast({
+        title: "Creation failed",
+        description: "There was an error creating your workspace",
+        variant: "destructive",
+        className: "p-4",
+      })
     }
   });
 
