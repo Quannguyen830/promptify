@@ -10,6 +10,7 @@ import { type Folder, type Workspace } from "@prisma/client"
 import { api } from "~/trpc/react"
 import { useDashboardStore } from "../dashboard/dashboard-store"
 import { WorkspaceSelector } from "./workspace-selector-dialog"
+import { useToast } from "~/hooks/use-toast"
 
 interface NewFolderDialogProps {
   open: boolean
@@ -26,6 +27,7 @@ export function NewFolderDialog({ open, onOpenChange, onClose }: NewFolderDialog
   const inputRef = useRef<HTMLInputElement>(null)
   const utils = api.useUtils()
   const currentParent = useDashboardStore((state) => state.currentParent)
+  const { toast } = useToast()
 
   // Reset state when dialog opens
   useEffect(() => {
@@ -129,6 +131,13 @@ export function NewFolderDialog({ open, onOpenChange, onClose }: NewFolderDialog
       } else if (parent.itemType === 'folder') {
         void utils.folder.getFolderContentByFolderId.invalidate({ folderId: parent.id })
       }
+      
+      toast({
+        title: "Folder created",
+        description: `"${folderName}" folder created successfully`,
+        variant: "success",
+        className: "p-4",
+      })
     },
 
     onError: (error, variables, context) => {
@@ -145,6 +154,13 @@ export function NewFolderDialog({ open, onOpenChange, onClose }: NewFolderDialog
           context.previousFolder
         )
       }
+      
+      toast({
+        title: "Creation failed",
+        description: "There was an error creating your folder",
+        variant: "destructive",
+        className: "p-4",
+      })
     }
   })
 

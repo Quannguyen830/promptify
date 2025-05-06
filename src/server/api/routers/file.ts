@@ -21,7 +21,7 @@ export const fileRouter = createTRPCRouter({
     })))
     .mutation(async ({ input, ctx }) => {
       const results = [];
-      
+
       for (const file of input) {
         const { fileName, fileSize, fileType, fileBuffer, workspaceId, folderId, workspaceName, folderName } = file;
         const buffer = Buffer.from(fileBuffer);
@@ -39,7 +39,7 @@ export const fileRouter = createTRPCRouter({
           }
         });
 
-        await contentExtractionTask.trigger({ 
+        await contentExtractionTask.trigger({
           fileId: newFile.id,
           fileType: fileType,
           fileSize: fileSize,
@@ -130,13 +130,14 @@ export const fileRouter = createTRPCRouter({
       };
     }),
 
-  updateFileByFileId: protectedProcedure
+  updateFileContentByFileId: protectedProcedure
     .input(z.object({
       fileId: z.string(),
       fileBuffer: z.instanceof(Uint8Array),
     }))
     .mutation(async ({ input, ctx }) => {
       const { fileId, fileBuffer } = input;
+
       const buffer = Buffer.from(fileBuffer);
 
       const file = await ctx.db.file.findUnique({
@@ -196,5 +197,26 @@ export const fileRouter = createTRPCRouter({
           workspaceName: true,
         }
       });
+    }),
+
+  updateFileByFileId: protectedProcedure
+    .input(z.object({
+      fileId: z.string(),
+      fileName: z.string().optional()
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const { fileId, fileName } = input;
+
+      const updatedFile = await ctx.db.file.update({
+        where: {
+          id: fileId
+        },
+        data: {
+          name: fileName
+        }
+      });
+
+      return updatedFile.id;
     })
+
 })

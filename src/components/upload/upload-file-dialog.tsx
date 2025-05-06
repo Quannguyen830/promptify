@@ -56,7 +56,6 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
     }
   }, [open, currentParent])
 
-  // Mutation for uploading multiple files
   const uploadMultipleFilesMutation = api.file.uploadMultipleFiles.useMutation({
     onMutate: () => {
       void utils.workspace.listWorkspaceByUserId.cancel()
@@ -87,30 +86,26 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
         void utils.folder.getFolderContentByFolderId.invalidate({ folderId: parent.id })
       }
       
-      // Show success toast
       toast({
         title: "Files uploaded",
         description: `${selectedFiles.length} file${selectedFiles.length > 1 ? 's' : ''} uploaded successfully`,
-        variant: "success", // Custom variant we'll create
-        className: "p-4", // Add more padding
+        variant: "success", 
+        className: "p-4", 
       })
       
-      // Reset upload state after successful upload
       setIsUploading(false)
     },
     onError: (error) => {
       console.error("Upload error:", error)
       setIsUploading(false)
       
-      // Show error toast
       toast({
         title: "Upload failed",
         description: "There was an error uploading your files",
         variant: "destructive",
-        className: "p-4", // Add more padding
+        className: "p-4",
       })
       
-      // Mark all files as error
       setFileUploadStatuses(prev => 
         prev.map(status => ({ ...status, error: true, uploading: false }))
       )
@@ -123,7 +118,6 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
       const fileArray = Array.from(files)
       setSelectedFiles(fileArray)
       
-      // Initialize upload status for each file
       setFileUploadStatuses(fileArray.map(file => ({
         file: file as unknown as FileUploadStatus['file'],
         progress: 0,
@@ -143,7 +137,6 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
   }
 
   const simulateFileProgress = () => {
-    // Simulate progress updates for each file
     const interval = setInterval(() => {
       setFileUploadStatuses(prev => {
         const allComplete = prev.every(status => status.progress >= 100)
@@ -202,18 +195,14 @@ export function UploadFileDialog({ open, onOpenChange, onClose }: UploadFileDial
         }
       }))
 
-      // Upload files
       await uploadMultipleFilesMutation.mutateAsync(filePayloads)
       
-      // Set all files to 100% progress
       setFileUploadStatuses(prev => 
         prev.map(status => ({ ...status, progress: 100, uploading: false }))
       )
       
-      // Clear the progress interval
       clearInterval(progressInterval)
       
-      // Close dialog after a short delay to show 100% completion
       setTimeout(() => {
         handleClose()
       }, 500)

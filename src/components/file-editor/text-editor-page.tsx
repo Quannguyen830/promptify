@@ -39,7 +39,7 @@ export default function TextEditorPage({
   const [suggestion, setSuggestion] = useState<string | null>(null);
   const router = useRouter();
 
-  const updateFile = api.file.updateFileByFileId.useMutation();
+  const updateFile = api.file.updateFileContentByFileId.useMutation();
   const createNewFile = api.file.createEmptyFile.useMutation({
     onSuccess: (newFileId) => {
       router.push(`/file/${newFileId}`);
