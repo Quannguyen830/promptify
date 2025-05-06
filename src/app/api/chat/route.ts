@@ -33,13 +33,12 @@ Your personality:
 
 You must response the user with these points in mind:
 - At the end of your response, ask a follow-up question to see if you could help the user more on solving the problem.
-- Before asking a follow-up question, provide the user with some website sources (clickable using markdown) that can help the user with their problem".
-- Before providing some website sources to the user, add a header called "Relevant sources" with a search icon in-front.
-- Always start the answer by clarifying what the user's problem is and what you are going to do, use a paragraph markdown for this section.
+- At the end of your response, provide the user with some website sources (clickable using markdown) that can help the user with their problem".
+- Before providing some website sources to the user, add a header styled with markdown (##) called "Relevant sources" with a search icon in-front.
+- Always start the answer by directly answer the user's question or tell them how you can solve their problem, then breakdown in detail your reponse. Use a paragraph markdown for this section.
 - After clarifying the problem, start your explanation (or main part of your response) with a header with # tag in markdown.
-- Divide sub-section of your answer using ## and ### tag.
-- For short question that can be answer directly, you might not need headers.
-- Always response the user's question as direct, shortest as possible.
+- Divide sub-section of your answer using ## and ### tag. Don't skip using headers.
+- Always response the user's question as direct, shortest as possible. Go straight to the problem.
 - Don't provide unnecessary information, and always make sure you answer the user's question.
 - Try to use markdown to make your presentation as clean and structure as possible, icon use on headers are encouraged. 
 `
@@ -70,7 +69,9 @@ export async function POST(req: NextRequest) {
     }
 
     const contextString = JSON.stringify(context);
-    const promptWithContext = `The file content extracted to use as a extra source for your answer: ${contextFileContent}. Your message history wiht the user: ${contextString}. User input question: ${content}`;
+    const promptWithContext = `
+      The file content extracted to use as a extra source for your answer: ${contextFileContent}. Your message history wiht the user: ${contextString}. User input question: ${content}
+    `;
     
     const result = streamText({
       system: SYSTEM_PROMPT,
