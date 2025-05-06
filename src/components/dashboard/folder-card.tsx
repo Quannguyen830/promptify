@@ -168,7 +168,7 @@ export function FolderCard({ id, title, subtitle, icon }: FolderCardProps) {
 
   const handleGetLink = async () => {
     setDropdownOpen(false)
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || window.location.origin
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? window.location.origin
     const shareUrl = `${baseUrl}/folder/${id}`
     
     const success = await copyToClipboard(shareUrl)

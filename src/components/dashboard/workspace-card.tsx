@@ -105,7 +105,7 @@ export function WorkspaceCard({ id, name, date }: WorkspaceCardProps) {
 
   const handleGetLink = async () => {
     setDropdownOpen(false)
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || window.location.origin
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? window.location.origin
     const shareUrl = `${baseUrl}/workspace/${id}`
     
     const success = await copyToClipboard(shareUrl)
