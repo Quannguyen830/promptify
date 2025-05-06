@@ -59,15 +59,14 @@ export const useChatStore = create<ChatStore>((set) => ({
       contextFileIds: state.contextFileIds.filter((file) => file.id !== fileId),
     })),
   resetContextFileIds: () => set({ contextFileIds: [] }),
-
 }))
 
 
-interface ChatSectionProvider {
+interface AssistantPanel {
   isOpen: boolean;
   toggleOpen: () => void;
 }
-export const useChatSectionProvider = create<ChatSectionProvider>((set) => ({
+export const useAssistantPanel = create<AssistantPanel>((set) => ({
   isOpen: false,
   toggleOpen: () => {
     set((state) => ({ isOpen: !state.isOpen }))

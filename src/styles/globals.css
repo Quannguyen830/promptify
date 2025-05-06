@@ -102,7 +102,7 @@
 
 /* Markdown styling override using Tailwind classes */
 .markdown-body {
-  @apply text-sm text-gray-800 leading-relaxed;
+  @apply text-base text-gray-800 leading-relaxed;
 }
 
 .markdown-body p {
@@ -128,9 +128,12 @@
 .markdown-body ol {
   @apply list-decimal list-inside mb-3;
 }
+.markdown-body ol li::marker {
+  font-weight: 700; 
+}
 
-.markdown-body li {
-  @apply mb-1;
+.markdown-body li > p {
+  @apply inline mb-1;
 }
 
 .markdown-body a {

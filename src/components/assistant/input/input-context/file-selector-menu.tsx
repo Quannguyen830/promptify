@@ -17,11 +17,7 @@ export default function FileSelectorMenu() {
     addContextFileId
   } = useChatStore();
 
-  const { data: files } = api.file.getAllFileNamesWithWorkspace.useQuery(undefined, {
-    refetchOnMount: false,
-    refetchOnReconnect: false,
-    refetchOnWindowFocus: false
-  });
+  const { data: files } = api.file.getAllFileNamesWithWorkspace.useQuery();
   const [searchInput, setSearchInput] = useState<string>("");
 
   if (!files) return null;
