@@ -3,14 +3,17 @@ import "~/styles/globals.css";
 import { SidebarProvider } from "~/components/ui/sidebar";
 import { TRPCReactProvider } from "~/trpc/react";
 import { SessionProvider } from "next-auth/react";
-import { Toaster } from "~/components/ui/toaster";
 
 import { GeistSans } from "geist/font/sans";
+
 import { Sidebar } from "~/components/share/sidebar";
+import { Toaster } from "~/components/ui/toaster";
+import AssistantPanelProvider from "~/components/assistant-panel/assistant-panel-provider";
 
 export default function AuthenticatedLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+
   return (
     <html lang="en" className={GeistSans.variable} suppressHydrationWarning>
       <body>
@@ -28,9 +31,9 @@ export default function AuthenticatedLayout({
               >
                 <Sidebar />
 
-                <main className='flex-1 w-full h-full'>
+                <AssistantPanelProvider>
                   {children}
-                </main>
+                </AssistantPanelProvider>
               </div>
               <Toaster />
             </SidebarProvider>

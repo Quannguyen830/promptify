@@ -1,6 +1,6 @@
 'use client'
 
-import { Home, FileText, ChevronDown, Clock, Star, Trash2, Airplay } from 'lucide-react'
+import { Home, FileText, Clock, Star, Trash2 } from 'lucide-react'
 import {
   Sidebar as SidebarCn,
   SidebarContent,
@@ -17,7 +17,6 @@ import Link from 'next/link'
 import { useMemo, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import { cn } from '~/lib/utils'
-import { WorkspaceTree } from './workspace-tree'
 import { useDashboardStore } from '~/components/dashboard/dashboard-store'
 import { type Workspace } from "@prisma/client"
 import { type TreeItem } from '~/constants/interfaces'
@@ -88,9 +87,9 @@ export function Sidebar() {
 
   return (
     <SidebarCn collapsible='icon' defaultValue={25}>
-      <SidebarHeader className='flex justify-between flex-row px-4 py-6'>
+      <SidebarHeader className='flex justify-between flex-row px-4 h-16 items-center'>
         <PromptifyLogo />
-        <SidebarTrigger />
+        <SidebarTrigger className='w-8' />
       </SidebarHeader>
 
       <SidebarContent className='px-4'>

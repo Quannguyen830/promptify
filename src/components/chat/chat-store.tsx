@@ -62,15 +62,4 @@ export const useChatStore = create<ChatStore>((set) => ({
 }))
 
 
-interface AssistantPanel {
-  isOpen: boolean;
-  toggleOpen: () => void;
-}
-export const useAssistantPanel = create<AssistantPanel>((set) => ({
-  isOpen: false,
-  toggleOpen: () => {
-    set((state) => ({ isOpen: !state.isOpen }))
-  }
-}))
-
 

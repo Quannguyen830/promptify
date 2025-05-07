@@ -280,7 +280,8 @@ if (caret) {
   ];
 
   return (
-    <div className="h-full w-[calc(100vw-208px)] bg-white">
+    // <div className="h-full w-[calc(100vw-208px)] bg-white">
+    <div className="h-full w-full bg-white">
       <DocumentEditorContainerComponent
         id="container"
         height='100%'

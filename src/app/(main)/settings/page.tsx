@@ -21,7 +21,7 @@ export default function SettingsPage() {
   const storagePercentage = (storageUsed / storageTotal) * 100
 
   return (
-    <div className="container space-y-8 pb-10">
+    <div className="container w-full space-y-8 pb-10">
       {/* Storage Section */}
       <Card>
         <CardHeader>

@@ -23,22 +23,20 @@ export default function FilePage() {
   if (error) return <div>Error: {error.message}</div>;
 
   return (
-    <div className="h-screen w-full">
-      <div className="flex flex-col h-screen">
-        {
-          fetchedFile?.type === "application/pdf" ? (
-            <PdfPage documentLink={fetchedFile.signedUrl} />
-          ) : (
-            <TextEditorPage
-              documentName={id}
-              workspaceId={fetchedFile?.workspaceId ?? ""}
-              workspaceName={fetchedFile?.workspaceName ?? ""}
-              folderId={fetchedFile?.folderId ?? undefined}
-              folderName={fetchedFile?.folderName ?? undefined}
-            />
-          )
-        }
-      </div>
+    <div className="flex flex-col h-full">
+      {
+        fetchedFile?.type === "application/pdf" ? (
+          <PdfPage documentLink={fetchedFile.signedUrl} />
+        ) : (
+          <TextEditorPage
+            documentName={id}
+            workspaceId={fetchedFile?.workspaceId ?? ""}
+            workspaceName={fetchedFile?.workspaceName ?? ""}
+            folderId={fetchedFile?.folderId ?? undefined}
+            folderName={fetchedFile?.folderName ?? undefined}
+          />
+        )
+      }
     </div>
   )
 }
