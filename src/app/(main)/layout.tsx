@@ -14,8 +14,8 @@ export default function AuthenticatedLayout({
 
 
   return (
-    <html lang="en" className={GeistSans.variable} suppressHydrationWarning>
-      <body>
+    // <html lang="en" className={GeistSans.variable} suppressHydrationWarning>
+      <div>
         {/* <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -37,7 +37,7 @@ export default function AuthenticatedLayout({
           </SessionProvider>
         </TRPCReactProvider>
         {/* </ThemeProvider> */}
-      </body>
-    </html>
+      </div>
+    // </html>
   );
 }

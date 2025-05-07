@@ -6,13 +6,13 @@ export default function LandingPageLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <TRPCReactProvider>
-      <html lang="en" suppressHydrationWarning>
-        <body className="w-screen h-screen font-general">
+      {/* <html lang="en" suppressHydrationWarning> */}
+        <div className="w-screen h-screen font-general">
           <main className="h-full w-full overflow-hidden">
             {children}
           </main>
-        </body>
-      </html>
+        </div>
+      {/* </html> */}
     </TRPCReactProvider>
   );
 }

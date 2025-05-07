@@ -6,8 +6,8 @@ export default function UnauthenticatedLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={GeistSans.variable} suppressHydrationWarning>
-      <body>
+    // <html lang="en" className={GeistSans.variable} suppressHydrationWarning>
+      <div>
         <div className="min-h-screen bg-white">
           <div className="w-full border-b border-gray-200">
             <div className="container mx-auto px-4 py-4">
@@ -19,7 +19,7 @@ export default function UnauthenticatedLayout({
             {children}
           </div>
         </div>
-      </body>
-    </html>
+      </div>
+    // </html>
   );
 }

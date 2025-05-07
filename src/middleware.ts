@@ -1,29 +1,32 @@
-import { NextResponse } from "next/server";
-import { type NextRequest } from "next/server";
+import { NextResponse } from 'next/server';
+import { type NextRequest } from 'next/server';
 
-const publicPaths = [
-  "/sign-in",
-  "/sign-up",
-  "/forgot-password",
-];
+const publicPaths = ['/sign-in', '/sign-up', '/forgot-password'];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  const isPublicPath = publicPaths.some(path => pathname.startsWith(path));
+  const isPublicPath = publicPaths.some((path) => pathname.startsWith(path));
+  const token = request.cookies.get(
+    process.env.NODE_ENV === 'production'
+      ? '__Secure-authjs.session-token'
+      : 'authjs.session-token'
+  )?.value;
 
-  const token = request.cookies.get(process.env.NODE_ENV === 'production' ? '__Secure-authjs.session-token' : 'authjs.session-token')?.value;
-
-
-  if (pathname === "/") return;
+  if (pathname === '/') return;
   if (isPublicPath && token) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+    return NextResponse.redirect(new URL('/dashboard', request.url));
   }
   if (!isPublicPath && !token) {
-    const signInUrl = new URL("/sign-in", request.url);
-    signInUrl.searchParams.set("callbackUrl", pathname);
+    const signInUrl = new URL('/sign-in', request.url);
+    signInUrl.searchParams.set('callbackUrl', pathname);
     return NextResponse.redirect(signInUrl);
   }
+
+  // // Redirect to 404 for invalid paths
+  // if (!pathname.startsWith('/api') && !pathname.startsWith('/_next')) {
+  //   return NextResponse.rewrite(new URL('/not-found', request.url));
+  // }
 
   return NextResponse.next();
 }
