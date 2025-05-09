@@ -136,10 +136,37 @@ export function FileCard({ id, title, date, fileType }: FileCardProps) {
   }
 
   const handleConfirmRename = (newFileName: string) => {
+    // Ensure the file extension is preserved based on file type
+    let fileName = newFileName;
+    
+    // Check if the new name already has the correct extension
+    const hasCorrectExtension = (() => {
+      if (fileType === 'application/pdf' && fileName.toLowerCase().endsWith('.pdf')) {
+        return true;
+      }
+      if ((fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' || 
+           fileType === 'application/msword') && 
+          (fileName.toLowerCase().endsWith('.docx') || fileName.toLowerCase().endsWith('.doc'))) {
+        return true;
+      }
+      return false;
+    })();
+    
+    // Add the extension if it's missing
+    if (!hasCorrectExtension) {
+      if (fileType === 'application/pdf') {
+        fileName = fileName.replace(/\.pdf$/i, '') + '.pdf';
+      } else if (fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+        fileName = fileName.replace(/\.docx$/i, '') + '.docx';
+      } else if (fileType === 'application/msword') {
+        fileName = fileName.replace(/\.doc$/i, '') + '.doc';
+      }
+    }
+    
     updateFile.mutate({ 
       fileId: id, 
-      fileName: newFileName 
-    })
+      fileName: fileName 
+    });
   }
 
   const handleConfirmDelete = () => {

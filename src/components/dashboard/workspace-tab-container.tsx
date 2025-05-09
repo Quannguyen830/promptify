@@ -1,8 +1,10 @@
 'use client'
 
+import { useState } from "react"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "~/components/ui/tabs"
 import { SuggestedSection } from "./suggested-section"
 import { type File, type Folder } from "@prisma/client"
+import { ViewControls } from "./view-controls"
 
 interface WorkspaceTabContainerProps {
   fetchedFiles?: File[]
@@ -12,38 +14,47 @@ interface WorkspaceTabContainerProps {
 }
 
 export function WorkspaceTabContainer({ fetchedFiles = [], fetchedFolders = [], onUploadClick, onFolderCreateClick }: WorkspaceTabContainerProps) {
+  const [viewMode, setViewMode] = useState<"list" | "grid">("grid")
+  
+  const handleViewChange = (view: "list" | "grid") => {
+    setViewMode(view)
+  }
+
   return (
     <Tabs defaultValue="all" className="w-full h-full">
-      <TabsList className="border-b w-full justify-start h-auto p-0 bg-transparent">
-        <TabsTrigger
-          value="all"
-          className="px-4 py-2 data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none bg-transparent"
-        >
-          All Files
-        </TabsTrigger>
-        <TabsTrigger
-          value="folders"
-          className="px-4 py-2 data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none bg-transparent"
-        >
-          Folder
-        </TabsTrigger>
-        <TabsTrigger
-          value="docx"
-          className="px-4 py-2 data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none bg-transparent"
-        >
-          DOCX
-        </TabsTrigger>
-        <TabsTrigger
-          value="pdf"
-          className="px-4 py-2 data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none bg-transparent"
-        >
-          PDF
-        </TabsTrigger>
-      </TabsList>
+      <div className="flex justify-between items-center">
+        <TabsList className="border-b w-full justify-start h-auto p-0 bg-transparent">
+          <TabsTrigger
+            value="all"
+            className="px-4 py-2 data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none bg-transparent"
+          >
+            All Files
+          </TabsTrigger>
+          <TabsTrigger
+            value="folders"
+            className="px-4 py-2 data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none bg-transparent"
+          >
+            Folder
+          </TabsTrigger>
+          <TabsTrigger
+            value="docx"
+            className="px-4 py-2 data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none bg-transparent"
+          >
+            DOCX
+          </TabsTrigger>
+          <TabsTrigger
+            value="pdf"
+            className="px-4 py-2 data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none bg-transparent"
+          >
+            PDF
+          </TabsTrigger>
+        </TabsList>
+        <ViewControls onViewChange={handleViewChange} defaultView="grid" className="mr-2" />
+      </div>
 
       <TabsContent value="all" className="h-full">
         {fetchedFiles && fetchedFiles.length > 0 ? (
-          <SuggestedSection title="Files" type="files" files={fetchedFiles} />
+          <SuggestedSection title="Files" type="files" files={fetchedFiles} viewMode={viewMode} />
         ) : (
           <div className="flex flex-col items-center justify-center mt-32">
             <p className="text-muted-foreground text-center mb-4">This workspace doesn&apos;t have any file.</p>
@@ -76,6 +87,7 @@ export function WorkspaceTabContainer({ fetchedFiles = [], fetchedFolders = [], 
           title="Files"
           type="files"
           files={fetchedFiles?.filter(file => file.type.includes("doc"))}
+          viewMode={viewMode}
         />
       </TabsContent>
 
@@ -84,6 +96,7 @@ export function WorkspaceTabContainer({ fetchedFiles = [], fetchedFolders = [], 
           title="Files"
           type="files"
           files={fetchedFiles?.filter(file => file.type.includes("pdf"))}
+          viewMode={viewMode}
         />
       </TabsContent>
     </Tabs>
