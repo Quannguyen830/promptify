@@ -61,7 +61,7 @@ export function SuggestedSection({
                   </div>
                   <div className="col-span-2 flex items-center gap-2">
                     <FolderIcon className="h-4 w-4 text-muted-foreground" />
-                    <span className="truncate text-sm text-muted-foreground">{file.folderName || file.workspaceName || "-"}</span>
+                    <span className="truncate text-sm text-muted-foreground">{file.folderName ?? file.workspaceName ?? "-"}</span>
                   </div>
                   <div className="col-span-2 text-sm text-muted-foreground">
                     {formatFileSize(file.size)}
@@ -128,8 +128,8 @@ export function SuggestedSection({
                   id={file.id}
                   title={file.name}
                   date={file.createdAt.toDateString()}
-                  subtitle={file.folderName || file.workspaceName}
-                  image={file.image || "/sample-1.jpg"}
+                  subtitle={file.folderName ?? file.workspaceName}
+                  image={file.image ?? "/sample-1.jpg"}
                   fileType={file.type}
                 />
               ))
