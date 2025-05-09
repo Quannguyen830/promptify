@@ -128,8 +128,8 @@ export function SuggestedSection({
                   id={file.id}
                   title={file.name}
                   date={file.createdAt.toDateString()}
-                  subtitle={file.folderName ?? file.workspaceName}
-                  image={file.image ?? "/sample-1.jpg"}
+                  subtitle={file.folderName || file.workspaceName}
+                  image={file.image || "/sample-1.jpg"}
                   fileType={file.type}
                 />
               ))
