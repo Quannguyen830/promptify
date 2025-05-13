@@ -1,22 +1,16 @@
-import { MoreVertical } from 'lucide-react'
 import { Card, CardContent } from "~/components/ui/card"
-import { Button } from "~/components/ui/button"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu"
 import Image from "next/image"
 import { type FileCardProps } from '~/constants/interfaces'
 import { api } from '~/trpc/react'
 import Link from 'next/link'
-import { useState, useRef } from 'react'
+import { useState } from 'react'
 import { DeleteWarningDialog } from '../upload/delete-warning-dialog'
 import { RenameDialog } from '../upload/rename-dialog'
 import { useToast } from "~/hooks/use-toast"
 import { copyToClipboard } from "~/lib/utils/copy-to-clipboard"
-
+import { ItemDropdownMenu } from './item-dropdown-menu'
+import { FileIcon } from "lucide-react"
+import { FileTypeIcon } from "./file-type-icon"
 
 export function FileCard({ id, title, date, fileType }: FileCardProps) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
@@ -136,10 +130,8 @@ export function FileCard({ id, title, date, fileType }: FileCardProps) {
   }
 
   const handleConfirmRename = (newFileName: string) => {
-    // Ensure the file extension is preserved based on file type
     let fileName = newFileName;
     
-    // Check if the new name already has the correct extension
     const hasCorrectExtension = (() => {
       if (fileType === 'application/pdf' && fileName.toLowerCase().endsWith('.pdf')) {
         return true;
@@ -152,7 +144,6 @@ export function FileCard({ id, title, date, fileType }: FileCardProps) {
       return false;
     })();
     
-    // Add the extension if it's missing
     if (!hasCorrectExtension) {
       if (fileType === 'application/pdf') {
         fileName = fileName.replace(/\.pdf$/i, '') + '.pdf';
@@ -216,62 +207,21 @@ export function FileCard({ id, title, date, fileType }: FileCardProps) {
         itemType="file"
       />
 
-      <Card className="overflow-hidden hover:bg-accent/5 cursor-pointer transition-colors shadow-none">
+      <Card className="group relative overflow-hidden hover:bg-accent/5 cursor-pointer transition-colors shadow-none">
         <Link href={`/file/${id}`}>
           <div className="relative aspect-[1.6] w-full rounded-lg p-2">
             <div className='bg-gray-200 w-full h-full rounded-lg'></div>
-            {fileType == 'application/pdf' && (
-              <div className="absolute top-4 left-4 p-1 rounded-md">
-                <Image
-                  src={"/icon/pdf-icon.svg"}
-                  alt="PDF icon"
-                  width={40}
-                  height={40}
-                />
-              </div>
-            )}
-            {(fileType == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' || fileType == 'application/msword') && (
-              <div className="absolute top-4 left-4 p-1 rounded-md">
-                <Image
-                  src={"/icon/docx-icon.svg"}
-                  alt="DOCX icon"
-                  width={40}
-                  height={40}
-                />
-              </div>
-            )}
-            <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
-              <DropdownMenuTrigger asChild onClick={(e) => e.preventDefault()}>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="absolute top-4 right-4 h-8 w-8 hover:bg-background/90"
-                >
-                  <MoreVertical className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  handleRename();
-                }}>Rename</DropdownMenuItem>
-                <DropdownMenuItem onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  void handleGetLink();
-                }}>Get link</DropdownMenuItem>
-                <DropdownMenuItem
-                  className='text-red-500'
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    handleRemove();
-                  }}>
-                  Remove
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <FileTypeIcon fileType={fileType} className="absolute top-4 left-4 p-1 rounded-md" />
+            <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+              <ItemDropdownMenu
+                open={dropdownOpen}
+                onOpenChange={setDropdownOpen}
+                onRename={handleRename}
+                onGetLink={handleGetLink}
+                onRemove={handleRemove}
+                className="h-8 w-8 hover:bg-background/90"
+              />
+            </div>
           </div>
           <CardContent className="p-4 flex flex-col gap-2">
             <h3 className="font-medium leading-none truncate" title={title}>{title}</h3>

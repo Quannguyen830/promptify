@@ -1,3 +1,5 @@
+'use client'
+
 import { useState } from 'react';
 import {
   PdfViewerComponent, Toolbar, Magnification, Navigation, LinkAnnotation,
@@ -45,9 +47,11 @@ export default function PdfPage({ documentLink }: { documentLink: string }) {
       <div className='control-section h-full'>
         <PdfViewerComponent
           id="container"
-          documentPath={documentLink}
           resourceUrl={process.env.NEXT_PUBLIC_PDF_WEB_SERVER_URL}
+          documentPath={documentLink}
           style={{ height: '100%' }}
+          serviceUrl={process.env.NEXT_PUBLIC_PDF_WEB_SERVER_URL}
+          enableHyperlink={false} // Disable hyperlinks to avoid the annotation error
           toolbarSettings={{
             toolbarItems: [
               ...customToolbarItems,
@@ -66,14 +70,13 @@ export default function PdfPage({ documentLink }: { documentLink: string }) {
             Toolbar,
             Magnification,
             Navigation,
-            Annotation,
-            LinkAnnotation,
             Print,
             TextSelection,
             TextSearch,
             FormFields,
             FormDesigner,
             ThumbnailView
+            // Removed Annotation and LinkAnnotation which are causing issues
           ]} />
         </PdfViewerComponent>
 

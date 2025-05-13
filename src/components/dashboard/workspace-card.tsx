@@ -9,6 +9,7 @@ import { RenameDialog } from "../upload/rename-dialog"
 import { useState, useRef } from "react"
 import { useToast } from "~/hooks/use-toast"
 import { copyToClipboard } from "~/lib/utils/copy-to-clipboard"
+import { ItemDropdownMenu } from "./item-dropdown-menu"
 
 interface WorkspaceCardProps {
   id: string
@@ -144,7 +145,7 @@ export function WorkspaceCard({ id, name, date }: WorkspaceCardProps) {
         currentName={name}
         itemType="workspace"
       />
-      <Card className="border p-4">
+      <Card className="group relative border p-4">
         <Link href={`/workspace/${id}`} className="block">
           <div className="grid grid-cols-2 gap-2 mb-4">
             <div className="h-16 border rounded"></div>
@@ -156,28 +157,14 @@ export function WorkspaceCard({ id, name, date }: WorkspaceCardProps) {
           <p className="text-xs text-gray-500">{date}</p>
         </Link>
         <div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity">
-          <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8">
-                <MoreVertical className="h-4 w-4" />
-                <span className="sr-only">Open menu</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={(e) => {
-                e.stopPropagation();
-                handleRename();
-              }}>Rename</DropdownMenuItem>
-              <DropdownMenuItem onClick={(e) => {
-                e.stopPropagation();
-                void handleGetLink();
-              }}>Get link</DropdownMenuItem>
-              <DropdownMenuItem className='text-red-500' onClick={(e) => {
-                e.stopPropagation();
-                handleRemove();
-              }}>Remove</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <ItemDropdownMenu
+            open={dropdownOpen}
+            onOpenChange={setDropdownOpen}
+            onRename={handleRename}
+            onGetLink={handleGetLink}
+            onRemove={handleRemove}
+            className="h-8 w-8 hover:bg-background/90"
+          />
         </div>
       </Card>
     </>
