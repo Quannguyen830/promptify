@@ -33,7 +33,7 @@ const AssistantPanelProvider = ({ children } : BaseProps) => {
 
   if (pathname.includes("/file")) return (
     <main className='flex flex-1 flex-row w-full h-full'>
-      <ResizablePanelGroup direction="horizontal">
+      <ResizablePanelGroup className="w-full" direction="horizontal"> 
         <ResizablePanel defaultSize={70}>
           {children}
         </ResizablePanel>
@@ -41,8 +41,8 @@ const AssistantPanelProvider = ({ children } : BaseProps) => {
         {isOpen && (
           <>
             <ResizableHandle />
-            <ResizablePanel defaultSize={30}>
-              <AssistantPanel className="relative"/>
+            <ResizablePanel defaultSize={30} minSize={15} className="min-w-[300px] max-w-full overflow-hidden">
+              <AssistantPanel className="w-full"/>
             </ResizablePanel>
           </>
         )}

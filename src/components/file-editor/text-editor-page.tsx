@@ -304,6 +304,7 @@ if (caret) {
         <style jsx global>{`
           .e-toolbar .e-toolbar-items {
             justify-content: center;
+
             width: 100%;
           }
           .e-toolbar .e-toolbar-items .e-toolbar-item {

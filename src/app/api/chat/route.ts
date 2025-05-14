@@ -57,43 +57,57 @@ export async function POST(req: NextRequest) {
     let contextFileContent = "";
 
     if (contextFiles.length !== 0) {
-      const files = await db.file.findMany({
-        where: {
-          id: { 
-            in: fileIds
+      try {
+        const files = await db.file.findMany({
+          where: {
+            id: {
+              in: fileIds
+            }
+          },
+          select: {
+            content: true
           }
-        },
-        select: {
-          content: true
-        }
-      })
-      contextFileContent = files.map(f => f.content).join("\n");
+        });
+        contextFileContent = files.map(f => f.content).join("\n");
+      } catch (fileError) {
+        console.error("Error fetching context files:", fileError);
+        return NextResponse.json(
+          { error: "Failed to fetch context files" },
+          { status: 500 }
+        );
+      }
     }
 
     const contextString = JSON.stringify(context);
-    const promptWithContext = `The file content extracted to use as a extra source for your answer: ${contextFileContent}. Your message history wiht the user: ${contextString}. User input question: ${content}`;
-    
+    const promptWithContext = `The file content extracted to use as an extra source for your answer: ${contextFileContent}. Your message history with the user: ${contextString}. User input question: ${content}`;
+
     const result = streamText({
       system: SYSTEM_PROMPT,
       model: chatProviders[model],
       prompt: promptWithContext,
       experimental_transform: smoothStream(),
+      onError(error) {
+        console.error("Stream error:", error);
+        // optional: persist this error or notify client
+      },    
       async onFinish({ text, response }) {
-
         console.log("TEXT", text);
-        console.log("REPONSE", response)
-        
-        // persist after stream
-        await db.message.create({
-          data: {
-            chatSessionId: chatSessionId,
-            content: text,
-            sender: MessageSenderSchema.enum.SYSTEM
-          }
-        })
+        console.log("RESPONSE", response);
+
+        try {
+          await db.message.create({
+            data: {
+              chatSessionId: chatSessionId,
+              content: text,
+              sender: MessageSenderSchema.enum.SYSTEM
+            }
+          });
+        } catch (dbError) {
+          console.error("Error saving message to DB:", dbError);
+        }
       }
-    })
-  
+    });
+
     const response = new NextResponse(result.textStream, {
       headers: {
         'Content-Type': 'text/event-stream',
@@ -103,11 +117,12 @@ export async function POST(req: NextRequest) {
     });
 
     return response;
+
   } catch (error) {
-    console.error(error);
+    console.error("POST route error:", error);
     return NextResponse.json(
-      { error: 'Request setup or streaming initiation error' },
-      { status: 400 }
+      { error: "Internal server error" },
+      { status: 500 }
     );
   }
 }

@@ -14,6 +14,8 @@ export default function AuthenticatedLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
 
+  
+
   return (
     <html lang="en" className={GeistSans.variable} suppressHydrationWarning>
       <body>
@@ -27,7 +29,7 @@ export default function AuthenticatedLayout({
           <SessionProvider>
             <SidebarProvider>
               <div 
-                className="h-screen w-full overflow-hidden flex"
+                className="h-screen w-screen overflow-hidden flex"
               >
                 <Sidebar />
 

@@ -49,11 +49,11 @@ export default function WorkspacePage() {
     return <div>Error: Invalid workspace ID</div>;
   }
 
-  if (isLoading) return <Loading />;
+  if (isLoading) return <Loading className="w-full" />;
   if (error) return <div>Error: {error.message}</div>;
 
   return (
-    <div className="px-6 h-full">
+    <div className="px-6 w-full h-full">
       <Navbar />
 
       <main className="mt-5 h-full">
